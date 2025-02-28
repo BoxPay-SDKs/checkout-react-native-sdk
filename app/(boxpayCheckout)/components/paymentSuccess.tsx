@@ -7,12 +7,13 @@ interface PaymentSuccessProps {
     onClick: () => void,
     buttonColor: string,
     amount: string,
+    currencySymbol: string,
     transactionId: string,
     method: string,
     localDateTime: string
 }
 
-const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ onClick, buttonColor, amount, transactionId, method, localDateTime }) => {
+const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ onClick, buttonColor, amount, currencySymbol, transactionId, method, localDateTime }) => {
     const [date, setDate] = useState("")
     const [time, setTime] = useState("")
     useEffect(() => {
@@ -77,7 +78,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ onClick, buttonColor, a
                     <View style={styles.dashedLine} />
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10 }}>
                         <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>Total Amount</Text>
-                        <Text style={{ fontSize: 16, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{amount}</Text>
+                        <Text style={{ fontSize: 16, color: '#000000', fontFamily: 'Poppins-SemiBold' }}><Text style={{ fontSize: 16, color: '#000000', fontFamily: 'Inter-SemiBold' }}>{currencySymbol}</Text>{amount}</Text>
                     </View>
                     <View style={styles.dashedLine} />
                     <Text

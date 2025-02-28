@@ -15,7 +15,7 @@ import UpiScreen from './screens/upiScreen';
 import { router } from 'expo-router';
 import { PaymentResult } from './postRequest/paymentStatus';
 import { paymentHandler } from "../(boxpayCheckout)/postRequest/paymentStatus";
-import { loadCustomFonts } from './components/fontFamily';
+import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
 
 // Define the props interface
 interface BoxpayCheckoutProps {
@@ -34,11 +34,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [isUpiCollectVisible, setisUpiCollectVisible] = useState(false)
     const [appState] = useState(AppState.currentState);
     const [isGpayInstalled, setIsGpayInstalled] = useState(false)
+    const [isAddressVisible, setIsAddressVisible] = useState(false)
     const [isPhonePeInstalled, setIsPhonePeInstalled] = useState(false)
     const [isPaytmInstalled, setIsPaytmInstalled] = useState(false)
     const [loadingState, setLoadingState] = useState(false)
     const [isFirstLoading, setIsFirstLoading] = useState(true)
     const [amount, setAmount] = useState("")
+    const [currencySymbol, setCurrencySymbol] = useState("")
     const [totalItems, setTotalItems] = useState("")
     const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
     const [primaryButtonColor, setPrimaryButtonColor] = useState("#1CA672")
@@ -160,6 +162,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
         router.push({
             pathname: "/screens/upiTimerScreen",
             params: {
+                currencySymbol: currencySymbol,
                 amount: amount,
                 token: tokenState.current,
                 itemsLength: totalItems,
@@ -201,6 +204,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     useEffect(() => {
         async function loadFonts() {
             await loadCustomFonts()
+            await loadInterCustomFonts()
         }
         loadFonts();
     }, []);
@@ -299,10 +303,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setIsFirstLoading(true);
                 const response = await axios.get(`https://${endpoint}/v0/checkout/sessions/${tokenState.current}`);
                 const paymentMethods = response.data.configs.paymentMethods;
+                const enabledFields = response.data.configs.additionalFieldSets
                 const paymentDetails = response.data.paymentDetails
+                setIsAddressVisible(enabledFields.includes('SHIPPING_ADDRESS'))
                 setIsUpiIntentVisible(paymentMethods.find((method: any) => method.type === 'Upi' && method.brand === 'UpiIntent'))
                 setisUpiCollectVisible(paymentMethods.find((method: any) => method.type === 'Upi' && method.brand === 'UpiCollect'))
-                setAmount(`${paymentDetails.money.currencySymbol}${paymentDetails.money.amountLocaleFull}`)
+                setAmount(paymentDetails.money.amountLocaleFull)
+                setCurrencySymbol(paymentDetails.money.currencySymbol)
                 if (paymentDetails.order != null && paymentDetails.order.items != null) {
                     setTotalItems(paymentDetails.order.items.length)
                 }
@@ -416,12 +423,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                     >
                         <View style={{ flex: 1 }}>
                             {/* Main UI Content */}
-                            <Header onBackPress={onExitCheckout} items={totalItems} amount={amount} />
-                            {address != "" && (
+                            <Header onBackPress={onExitCheckout} items={totalItems} amount={amount} currencySymbol={currencySymbol} />
+                            {(address != "" && isAddressVisible) && (
                                 <View>
                                     <Text style={{
                                         marginStart: 16,
-                                        marginTop: 12,
+                                        marginTop: 20,
                                         fontSize: 14,
                                         color: '#020815B5',
                                         fontFamily: 'Poppins-SemiBold'
@@ -452,40 +459,29 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                                 fontSize: 14,
                                                 color: '#4F4D55',
                                                 flexShrink: 1,
-                                                fontFamily: 'Poppins-SemiBold',
-                                                lineHeight: 18
-                                            }}>
-                                                {address}
-                                            </Text>
-                                            <Text style={{
-                                                marginTop: 2,
-                                                fontSize: 14,
-                                                color: '#4F4D55',
-                                                flexShrink: 1,
-                                                fontFamily: 'Poppins-SemiBold',
+                                                fontFamily: 'Poppins-Medium',
                                                 lineHeight: 20
                                             }}>
-                                                {firstName} {lastName}
+                                                {firstName} {lastName} ({phone})
                                             </Text>
                                             <Text style={{
-                                                marginTop: 2,
                                                 fontSize: 14,
                                                 color: '#4F4D55',
                                                 flexShrink: 1,
-                                                fontFamily: 'Poppins-SemiBold',
-                                                lineHeight: 20
-                                            }}>
-                                                {phone}
-                                            </Text>
-                                            <Text style={{
-                                                marginTop: 2,
-                                                fontSize: 14,
-                                                color: '#4F4D55',
-                                                flexShrink: 1,
-                                                fontFamily: 'Poppins-SemiBold',
+                                                fontFamily: 'Poppins-Medium',
                                                 lineHeight: 20
                                             }}>
                                                 {email}
+                                            </Text>
+                                            <Text style={{
+                                                marginTop: 8,
+                                                fontSize: 14,
+                                                color: '#4F4D55',
+                                                flexShrink: 1,
+                                                fontFamily: 'Poppins-Regular',
+                                                lineHeight: 18
+                                            }}>
+                                                {address}
                                             </Text>
                                         </View>
                                     </View>
@@ -502,6 +498,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                 selectedIntent={selectedIntent}
                                 setSelectedIntent={(it) => setSelectedIntent(it)}
                                 amount={amount}
+                                currencySymbol={currencySymbol}
                                 handleUpiPayment={handlePaymentIntent}
                                 handleCollectPayment={(it) => handleUpiCollectPayment(it)}
                             />
@@ -532,7 +529,10 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                     <Text style={{
                                         fontSize: 14, color: "#363840",
                                         fontFamily: 'Poppins-SemiBold'
-                                    }}>{amount}</Text>
+                                    }}><Text style={{
+                                        fontSize: 14, color: "#363840",
+                                        fontFamily: 'Inter-SemiBold'
+                                    }}>{currencySymbol}</Text>{amount}</Text>
                                 </View>
                             </View>
 
@@ -573,6 +573,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                     onClick={onExitCheckout}
                     buttonColor={primaryButtonColor}
                     amount={amount}
+                    currencySymbol={currencySymbol}
                     transactionId={transactionId}
                     method="UPI"
                     localDateTime={successfulTimeStamp}

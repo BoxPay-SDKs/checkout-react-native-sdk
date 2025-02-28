@@ -12,9 +12,10 @@ import { paymentHandler, PaymentResult } from '../postRequest/paymentStatus';
 
 
 const UpiTimeScreen = () => { // Remove the Props Interface
-  const { amount, token, itemsLength, upiId, brandColor, env } = useLocalSearchParams();
+  const { currencySymbol, amount, token, itemsLength, upiId, brandColor, env } = useLocalSearchParams();
 
   const amountStr = Array.isArray(amount) ? amount[0] : amount;
+  const currencySymbolStr = Array.isArray(currencySymbol) ? currencySymbol[0] : currencySymbol
   const tokenStr = Array.isArray(token) ? token[0] : token;
   const itemsLengthStr = Array.isArray(itemsLength) ? itemsLength[0] : itemsLength;
   const upiIdStr = Array.isArray(upiId) ? upiId[0] : upiId;
@@ -142,7 +143,7 @@ const UpiTimeScreen = () => { // Remove the Props Interface
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
-      <Header onBackPress={onProceedBack} items={itemsLengthStr} amount={amountStr} />
+      <Header onBackPress={onProceedBack} items={itemsLengthStr} amount={amountStr} currencySymbol={currencySymbolStr} />
 
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
         <Text style={{ color: '#2D2B32', fontSize: 18, textAlign: 'center', fontFamily: 'Poppins-SemiBold' }}>
@@ -204,6 +205,7 @@ const UpiTimeScreen = () => { // Remove the Props Interface
           onClick={onExitCheckout}
           buttonColor={brandColorStr}
           amount={amountStr}
+          currencySymbol={currencySymbolStr}
           transactionId={transactionId}
           method="UPI"
           localDateTime={successfulTimeStamp}

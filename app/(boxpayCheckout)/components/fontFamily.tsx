@@ -10,3 +10,13 @@ export async function loadCustomFonts() {
         'Poppins-SemiBold': require('../../../assets/fonts/Poppins-SemiBold.ttf'),
     });
 }
+
+export async function loadInterCustomFonts() {
+    await Font.loadAsync({
+        'Inter-Regular': require('../../../assets/fonts/Inter_18pt-Regular.ttf'),
+        'Inter-Bold': require('../../../assets/fonts/Inter_18pt-Bold.ttf'),
+        'Inter-ExtraBold': require('../../../assets/fonts/Inter_18pt-ExtraBold.ttf'),
+        'Inter-Medium': require('../../../assets/fonts/Inter_18pt-Medium.ttf'),
+        'Inter-SemiBold': require('../../../assets/fonts/Inter_18pt-SemiBold.ttf'),
+    });
+}

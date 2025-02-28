@@ -12,11 +12,12 @@ interface UpiScreenProps {
     selectedIntent: string | null,
     setSelectedIntent: (intent: string | null) => void,
     amount: string,
+    currencySymbol: string,
     handleUpiPayment: () => void,
     handleCollectPayment: (upiId: string) => void
 }
 
-const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible, isGpayVisible, isPaytmVisible, isPhonePeVisible, isUpiCollectVisible, selectedIntent, setSelectedIntent, amount, handleUpiPayment, handleCollectPayment }) => {
+const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible, isGpayVisible, isPaytmVisible, isPhonePeVisible, isUpiCollectVisible, selectedIntent, setSelectedIntent, amount, currencySymbol, handleUpiPayment, handleCollectPayment }) => {
     const [upiCollectVisible, setUpiCollectVisible] = useState(false)
     const [upiCollectError, setUpiCollectError] = useState(false)
     const [upiCollectValid, setUpiCollectValid] = useState(false)
@@ -46,12 +47,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
 
     return (
         <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={styles.addressText}>Pay by any UPI App</Text>
-                <Image
-                    source={require("../../../assets/images/upi-icon.png")}
-                    style={{ height: 28, width: 54, marginTop: 12, marginStart: 4 }}
-                />
             </View>
             {isUpiIntentVisible && (
                 <View style={styles.intentBackground}>
@@ -94,7 +91,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                 >
                                     <Image
                                         source={require("../../../assets/images/phonepe-icon.png")}
-                                        style={styles.intentIcon}
+                                        style={{ height: 30, width: 30 }}
                                     />
                                 </Pressable>
 
@@ -141,7 +138,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
 
                     {(selectedIntent !== null && selectedIntent !== "") && (
                         <Pressable style={[styles.buttonContainer, { backgroundColor: selectedColor }]} onPress={handleUpiPayment}>
-                            <Text style={styles.buttonText}>Pay {amount} via {selectedIntent}</Text>
+                            <Text style={styles.buttonText}>Pay <Text style={styles.currencySymbol}>{currencySymbol}</Text>{amount} via {selectedIntent}</Text>
                         </Pressable>
                     )}
 
@@ -194,7 +191,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                 </ImageBackground>
                             ) : (
                                 <View>
-                                    <View style={{ flexDirection: 'row', height: 2, backgroundColor: '#F1F1F1', marginTop: 20 }} />
+                                    <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#F1F1F1', marginTop: 20 }} />
                                     <Pressable
                                         style={{
                                             flexDirection: 'row',
@@ -276,7 +273,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                     setUpiCollectError(true)
                                 }
                             }}>
-                                <Text style={styles.buttonText}>Verify & Pay {amount}</Text>
+                                <Text style={styles.buttonText}>Verify & Pay <Text style={styles.currencySymbol}>{currencySymbol}</Text>{amount}</Text>
                             </Pressable>
                         </View>
                     )}
@@ -311,8 +308,8 @@ const styles = StyleSheet.create({
         color: '#0A090B'
     },
     intentIcon: {
-        height: 26,
-        width: 26
+        height: 28,
+        width: 30
     },
     intentIconBorder: {
         height: 56,
@@ -331,13 +328,14 @@ const styles = StyleSheet.create({
         color: "#363840",
         fontSize: 14,
         fontFamily: 'Poppins-Regular',
+        marginTop: 4
     },
     intentBackground: {
         borderColor: '#F1F1F1',
         borderWidth: 1,
         marginHorizontal: 16,
         marginVertical: 8,
-        paddingVertical: 16,
+        paddingVertical: 14,
         backgroundColor: "white",
         flexDirection: 'column',
         borderRadius: 12,
@@ -354,5 +352,10 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontFamily: 'Poppins-SemiBold'
+    },
+    currencySymbol: {
+        color: 'white',
+        fontSize: 16,
+        fontFamily: 'Inter-SemiBold'
     }
 });
