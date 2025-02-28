@@ -281,6 +281,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             transactionId: transactionId,
         };
         paymentHandler.onPaymentResult(mockPaymentResult);
+        router.dismissAll()
         return true
     }
 

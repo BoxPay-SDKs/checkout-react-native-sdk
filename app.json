@@ -16,7 +16,27 @@
         "foregroundImage": "./assets/images/splash-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.boxpay.checkoout_react_native_sdk"
+      "package": "com.boxpay.checkoout_react_native_sdk",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "phonepe"
+            },
+            {
+              "scheme": "tez"
+            },
+            {
+              "scheme": "paytmmp"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
