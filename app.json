@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "checckout-react-native-sdk",
+    "name": "BoxPayCheckout",
     "slug": "checckout-react-native-sdk",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/splash-icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,9 +13,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/splash-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.boxpay.checkoout_react_native_sdk"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +37,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "af201c08-2f9b-4d4b-b83e-ef1c6d279bc0"
+      }
     }
   }
 }
