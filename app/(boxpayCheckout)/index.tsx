@@ -296,17 +296,14 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
 
     const checkAppInstalled = async (packageNames: string[]) => {
         try {
-            checkInstalledApps(packageNames).then((result) => {
-                console.log("result", result)
-            }).catch((error) => {
-                console.log("error", error)
-            })
-            return true;
+            const result = await checkInstalledApps(packageNames);
+            console.log("result", result);
+            return Object.values(result); // Returns [true, true, false]
         } catch (error) {
-            console.log("error", error)
-            return false;
+            console.log("error", error);
+            return []; // Return empty array on error
         }
-    }
+    };
 
     useEffect(() => {
         const fetchPaymentMethods = async () => {
@@ -347,7 +344,11 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 // console.log("paytm", paytm)
                 // setIsPaytmInstalled(paytm)
                 // setIsPhonePeInstalled(isInstalled)
-                checkAppInstalled(["com.phonepe.app", "com.google.android.apps.nbu.paisa.user", "net.one97.paytm"])
+                const installedApps = await checkAppInstalled(["com.phonepe.app", "com.google.android.apps.nbu.paisa.user", "net.one97.paytm"])
+                setIsPhonePeInstalled(installedApps[0])
+                setIsGpayInstalled(installedApps[1])
+                setIsPaytmInstalled(installedApps[2])
+                console.log("installedApps", installedApps)
                 if (paymentDetails.shopper.deliveryAddress != null) {
                     const deliveryObject = paymentDetails.shopper.deliveryAddress
                     setLabelType(deliveryObject.labelType)

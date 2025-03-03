@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BoxPayCheckout",
-    "slug": "checkout-react-native-sdk",
+    "slug": "checckout-react-native-sdk",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/splash-icon.png",
@@ -35,14 +35,17 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-check-installed-apps",
-      {
-        "androidPackageNames": [
-          "com.phonepe.app",
-          "com.google.android.apps.nbu.paisa.user",
-          "net.one97.paytm"
-        ]
-      }
+      [
+        "expo-check-installed-apps",
+        {
+          "androidPackageNames": [
+            "com.phonepe.app",
+            "com.google.android.apps.nbu.paisa.user",
+            "net.one97.paytm"
+          ],
+          "iosBundleIdentifiers": []
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
