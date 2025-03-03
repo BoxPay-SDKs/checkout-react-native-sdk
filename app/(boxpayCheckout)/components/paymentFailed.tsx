@@ -10,7 +10,7 @@ interface PaymentFailedProps {
 }
 const PaymentFailed: React.FC<PaymentFailedProps> = ({ onClick, buttonColor, errorMessage }) => {
     return (
-        <View style={styles.container}>
+        <View>
 
             <Modal
                 isVisible={true}
@@ -41,11 +41,6 @@ export default PaymentFailed
 
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     modal: {
         justifyContent: 'flex-end',
         margin: 0,

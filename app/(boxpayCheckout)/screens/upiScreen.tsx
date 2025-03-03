@@ -266,15 +266,27 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                     fontFamily: 'Poppins-Regular'
                                 }}>Please enter a valid UPI Id</Text>
                             )}
-                            <Pressable style={[styles.buttonContainer, { backgroundColor: selectedColor }]} onPress={() => {
-                                if (upiCollectValid) {
-                                    handleCollectPayment(upiCollectTextInput)
-                                } else {
-                                    setUpiCollectError(true)
-                                }
-                            }}>
-                                <Text style={styles.buttonText}>Verify & Pay <Text style={styles.currencySymbol}>{currencySymbol}</Text>{amount}</Text>
-                            </Pressable>
+                            {upiCollectValid ? (
+                                <Pressable style={[styles.buttonContainer, { backgroundColor: selectedColor }]} onPress={() => {
+                                    if (upiCollectValid) {
+                                        handleCollectPayment(upiCollectTextInput)
+                                    } else {
+                                        setUpiCollectError(true)
+                                    }
+                                }}>
+                                    <Text style={styles.buttonText}>Verify & Pay <Text style={styles.currencySymbol}>{currencySymbol}</Text>{amount}</Text>
+                                </Pressable>
+                            ) : (
+                                <Pressable style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' }]} onPress={() => {
+                                    if (upiCollectValid) {
+                                        handleCollectPayment(upiCollectTextInput)
+                                    } else {
+                                        setUpiCollectError(true)
+                                    }
+                                }}>
+                                    <Text style={[styles.buttonText, { color: '#ADACB0' }]}>Verify & Pay <Text style={[styles.currencySymbol, { color: '#ADACB0' }]}>{currencySymbol}</Text>{amount}</Text>
+                                </Pressable>
+                            )}
                         </View>
                     )}
 
@@ -306,6 +318,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontFamily: 'Poppins-Regular',
         color: '#0A090B'
+    },
+    labeltextInput: {
+        fontSize: 20
     },
     intentIcon: {
         height: 28,

@@ -44,7 +44,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ onClick, buttonColor, a
         formatTransactionTimestamp()
     },);
     return (
-        <View style={styles.container}>
+        <View>
 
             <Modal
                 isVisible={true}
@@ -60,33 +60,33 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ onClick, buttonColor, a
                     />
                     <Text style={styles.successfulHeading}>Payment Successful!</Text>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 24 }}>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-Regular' }}>Transaction ID</Text>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{transactionId}</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-Regular' }}>Transaction ID</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{transactionId}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 14 }}>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-Regular' }}>Date</Text>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{date}</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-Regular' }}>Date</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{date}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 14 }}>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-Regular' }}>Time</Text>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{time}</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-Regular' }}>Time</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{time}</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 14 }}>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-Regular' }}>Payment Method</Text>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{method}</Text>
-                    </View>
+                    {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 14 }}>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-Regular' }}>Payment Method</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{method}</Text>
+                    </View> */}
                     <View style={styles.dashedLine} />
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10 }}>
-                        <Text style={{ fontSize: 12, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>Total Amount</Text>
-                        <Text style={{ fontSize: 16, color: '#000000', fontFamily: 'Poppins-SemiBold' }}><Text style={{ fontSize: 16, color: '#000000', fontFamily: 'Inter-SemiBold' }}>{currencySymbol}</Text>{amount}</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>Total Amount</Text>
+                        <Text style={{ fontSize: 18, color: '#000000', fontFamily: 'Poppins-SemiBold' }}><Text style={{ fontSize: 16, color: '#000000', fontFamily: 'Inter-SemiBold' }}>{currencySymbol}</Text>{amount}</Text>
                     </View>
                     <View style={styles.dashedLine} />
-                    <Text
+                    {/* <Text
                         style={{
                             fontSize: 12, fontFamily: 'Poppins-Regular',
                             color: '#4F4D55', alignSelf: 'center', paddingBottom: 16, paddingTop: 12
                         }}
-                    >You will be redirected to the merchant's page</Text>
+                    >You will be redirected to the merchant's page</Text> */}
                     <Pressable style={[styles.buttonContainer, { backgroundColor: buttonColor }]} onPress={onClick}>
                         <Text style={styles.buttonText}>Done</Text>
                     </Pressable>
@@ -99,11 +99,6 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ onClick, buttonColor, a
 export default PaymentSuccess
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     openButton: {
         fontSize: 18,
         color: 'blue',

@@ -37,7 +37,6 @@ const Check = () => {
   // Handle payment result from BoxpayCheckout
   const handlePaymentResult = (result: PaymentResult) => {
     alert(`Payment ${result.status} :  + ${result.transactionId}`);
-    router.replace('/');
   };
 
   return (
@@ -94,12 +93,12 @@ const requestBody = {
     email: 'ishika.bansal@boxpay.tech',
     uniqueReference: 'x123y',
     deliveryAddress: {
-      address1: 'first line',
-      address2: 'second line Chandigarh',
-      city: 'Chandigarh',
-      state: 'Chandigarh',
+      address1: 'House No - 5',
+      address2: 'Moti Nagar',
+      city: 'New Delhi',
+      state: 'Delhi',
       countryCode: 'IN',
-      postalCode: '160002',
+      postalCode: '110015',
     },
     panNumber: 'CTGPA0002G',
   },

@@ -10,7 +10,7 @@ interface SessionExpireProps {
 
 const SessionExpire: React.FC<SessionExpireProps> = ({ onClick, buttonColor }) => {
     return (
-        <View style={styles.container}>
+        <View>
 
             <Modal
                 isVisible={true}
@@ -37,11 +37,6 @@ const SessionExpire: React.FC<SessionExpireProps> = ({ onClick, buttonColor }) =
 export default SessionExpire
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     modal: {
         justifyContent: 'flex-end',
         margin: 0,

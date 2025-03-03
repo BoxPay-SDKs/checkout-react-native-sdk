@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 20,
     marginBottom: 30,
-    fontFamily: 'Poppins-SemiBold'
   }
 });
 

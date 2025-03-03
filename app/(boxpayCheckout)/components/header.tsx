@@ -20,9 +20,12 @@ const Header: React.FC<HeaderProps> = ({ items, amount, currencySymbol, onBackPr
         <View style={styles.headerColumn}>
           <Text style={styles.headerTitle}>Payment Details</Text>
           <Text style={styles.headerDesc}>
-            {items} items . Total:
-            <Text style={styles.amount}><Text style={styles.currencySymbol}> {currencySymbol}</Text>{amount}</Text>
+            {items} {items == '1' ? "item" : "items"} . Total:
+            <Text style={styles.amount}>
+              <Text style={styles.currencySymbol}> {currencySymbol}</Text>{amount}
+            </Text>
           </Text>
+
 
         </View>
         <View style={styles.btnContainer}>
@@ -53,8 +56,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8F6F1",
     borderRadius: 6,
   },
-  lockIcon: { height: 12, width: 12, marginRight: 4 },
-  secureText: { fontSize: 10, color: "#1CA672", fontFamily: 'Poppins-SemiBold' },
+  lockIcon: { height: 14, width: 14, marginRight: 4 },
+  secureText: { fontSize: 12, color: "#1CA672", fontFamily: 'Poppins-SemiBold', marginBottom: -2 },
   amount: {
     fontFamily: 'Poppins-SemiBold',
     fontSize: 12,

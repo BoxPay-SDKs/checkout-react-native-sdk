@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, BackHandler, ToastAndroid, AppState, Image, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from 'react-native'; // Added ScrollView
+import { View, Text, BackHandler, ToastAndroid, AppState, Image, ScrollView } from 'react-native'; // Added ScrollView
 import Header from './components/header';
 import axios from 'axios';
 import upiPostRequest from './postRequest/upiPostRequest';
@@ -16,6 +16,7 @@ import { router } from 'expo-router';
 import { PaymentResult } from './postRequest/paymentStatus';
 import { paymentHandler } from "../(boxpayCheckout)/postRequest/paymentStatus";
 import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
+import { checkInstalledApps } from 'expo-check-installed-apps';
 
 // Define the props interface
 interface BoxpayCheckoutProps {
@@ -30,7 +31,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const sandboxEnvState = useRef(sandboxEnv)
     const testEnv = testHandler.testEnv
     const env = sandboxEnvState.current ? 'sandbox' : 'prod'
-    const [isUpiIntentVisibile, setIsUpiIntentVisible] = useState(false)
+    const [isUpiIntentVisibile, setIsUpiVisible] = useState(false)
     const [isUpiCollectVisible, setisUpiCollectVisible] = useState(false)
     const [appState] = useState(AppState.currentState);
     const [isGpayInstalled, setIsGpayInstalled] = useState(false)
@@ -56,7 +57,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [failedModalOpen, setFailedModalState] = useState(false)
     const [successModalOpen, setSuccessModalState] = useState(false)
     const lastOpenendUrl = useRef<string>("")
-    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry payment or try using other methods.")
+    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.")
     const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false)
     const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
     const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -91,7 +92,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry payment or try using other methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods."
                 }
                 setFailedModalState(true)
                 setLoadingState(false)
@@ -139,7 +140,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry payment or try using other methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods."
                 }
                 setFailedModalState(true)
                 setLoadingState(false)
@@ -248,17 +249,17 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setFailedModalState(true)
                 stopBackgroundApiTask()
             } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("upi:")) {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry payment or try using other methods."
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods."
                 setFailedModalState(true)
                 stopBackgroundApiTask()
             } else if (['PENDING'].includes(status) && lastOpenendUrl.current != "") {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry payment or try using other methods."
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods."
                 setFailedModalState(true)
                 stopBackgroundApiTask()
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry payment or try using other methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods."
                 }
                 setFailedModalState(true)
                 stopBackgroundApiTask()
@@ -293,6 +294,20 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
         };
     }, []);
 
+    const checkAppInstalled = async (packageNames: string[]) => {
+        try {
+            checkInstalledApps(packageNames).then((result) => {
+                console.log("result", result)
+            }).catch((error) => {
+                console.log("error", error)
+            })
+            return true;
+        } catch (error) {
+            console.log("error", error)
+            return false;
+        }
+    }
+
     useEffect(() => {
         const fetchPaymentMethods = async () => {
             const endpoint: string = testEnv
@@ -307,7 +322,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 const enabledFields = response.data.configs.additionalFieldSets
                 const paymentDetails = response.data.paymentDetails
                 setIsAddressVisible(enabledFields.includes('SHIPPING_ADDRESS'))
-                setIsUpiIntentVisible(paymentMethods.find((method: any) => method.type === 'Upi' && method.brand === 'UpiIntent'))
+                setIsUpiVisible(paymentMethods.find((method: any) => method.type === 'Upi' && method.brand === 'UpiIntent'))
                 setisUpiCollectVisible(paymentMethods.find((method: any) => method.type === 'Upi' && method.brand === 'UpiCollect'))
                 setAmount(paymentDetails.money.amountLocaleFull)
                 setCurrencySymbol(paymentDetails.money.currencySymbol)
@@ -323,12 +338,16 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setDob(paymentDetails.shopper.dateOfBirth)
                 setpan(paymentDetails.shopper.panNumber)
                 startCountdown(response.data.sessionExpiryTimestamp)
-                const isInstalled = await Linking.canOpenURL("phonepe://")
-                const gpay = await Linking.canOpenURL("tez://upi/")
-                setIsGpayInstalled(gpay)
-                const paytm = await Linking.canOpenURL("paytmmp://")
-                setIsPaytmInstalled(paytm)
-                setIsPhonePeInstalled(isInstalled)
+                // const isInstalled = await Linking.canOpenURL("phonepe://")
+                // console.log("phonepe", isInstalled)
+                // const gpay = await Linking.canOpenURL("tez://upi/")
+                // console.log("gpay", gpay)
+                // setIsGpayInstalled(gpay)
+                // const paytm = await Linking.canOpenURL("paytmmp://")
+                // console.log("paytm", paytm)
+                // setIsPaytmInstalled(paytm)
+                // setIsPhonePeInstalled(isInstalled)
+                checkAppInstalled(["com.phonepe.app", "com.google.android.apps.nbu.paisa.user", "net.one97.paytm"])
                 if (paymentDetails.shopper.deliveryAddress != null) {
                     const deliveryObject = paymentDetails.shopper.deliveryAddress
                     setLabelType(deliveryObject.labelType)
@@ -370,12 +389,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
         fetchPaymentMethods();
     }, [tokenState.current]);
 
-    useEffect(() => {
-        if (selectedIntent === "") {
-            handlePaymentIntent();
-        }
-    }, [selectedIntent]);
-
     function startCountdown(sessionExpiryTimestamp: string) {
         if (sessionExpiryTimestamp === "") {
             return;
@@ -393,11 +406,11 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setStatus('EXPIRED')
                 setSessionExppireModalState(true)
             }
-            // const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
-            // const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
-            // const seconds = Math.floor((timeDiff / 1000) % 60);
+            const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((timeDiff / (1000 * 60)) % 60);
+            const seconds = Math.floor((timeDiff / 1000) % 60);
 
-            // console.log(`${hours}hr ${minutes}min ${seconds}sec`)
+            console.log(`${hours}hr ${minutes}min ${seconds}sec`)
         }, 1000);
     }
 
@@ -421,6 +434,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                     {/* Keyboard Avoiding View */}
                     <ScrollView  // Wrap the content with ScrollView
                         contentContainerStyle={{ flexGrow: 1 }} // Ensure content can grow to take up space
+                        keyboardShouldPersistTaps="handled" // Keep keyboard open on tap
                     >
                         <View style={{ flex: 1 }}>
                             {/* Main UI Content */}
@@ -497,7 +511,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                 isPhonePeVisible={isPhonePeInstalled}
                                 isUpiCollectVisible={isUpiCollectVisible}
                                 selectedIntent={selectedIntent}
-                                setSelectedIntent={(it) => setSelectedIntent(it)}
+                                setSelectedIntent={(it) => {
+                                    setSelectedIntent(it)
+                                    if (it == "") {
+                                        handlePaymentIntent()
+                                    }
+                                }}
                                 amount={amount}
                                 currencySymbol={currencySymbol}
                                 handleUpiPayment={handlePaymentIntent}

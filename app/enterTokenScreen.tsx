@@ -130,7 +130,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
     alignSelf: 'flex-start',
-    fontFamily: 'Poppins-Regular'
   },
   pressableText: {
     color: 'blue',
@@ -176,7 +175,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'Poppins-Bold'
   },
 
 });

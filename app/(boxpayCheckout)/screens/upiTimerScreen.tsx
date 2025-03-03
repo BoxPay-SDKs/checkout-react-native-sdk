@@ -2,16 +2,15 @@ import { View, Text, Image, BackHandler, StyleSheet } from 'react-native'; // Im
 import React, { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import Header from '../components/header';
-import CircularProgress from 'react-native-circular-progress-indicator';
 import fetchStatus from '../postRequest/fetchStatus';
 import PaymentFailed from '../components/paymentFailed';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
 import CancelPaymentModal from '../components/cancelPaymentModal';
 import { paymentHandler, PaymentResult } from '../postRequest/paymentStatus';
+import CircularProgressBar from '../components/circularProgress';
 
-
-const UpiTimeScreen = () => { // Remove the Props Interface
+const UpiTimerScreen = () => { // Remove the Props Interface
   const { currencySymbol, amount, token, itemsLength, upiId, brandColor, env } = useLocalSearchParams();
 
   const amountStr = Array.isArray(amount) ? amount[0] : amount;
@@ -26,7 +25,7 @@ const UpiTimeScreen = () => { // Remove the Props Interface
   const [cancelClicked, setCancelClicked] = useState(false);
   const [failedModalOpen, setFailedModalState] = useState(false);
   const [successModalOpen, setSuccessModalState] = useState(false);
-  const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry payment or try using other methods.");
+  const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.");
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("");
   const [status, setStatus] = useState("")
@@ -74,13 +73,26 @@ const UpiTimeScreen = () => { // Remove the Props Interface
   };
 
   const onProceedBack = () => {
+    if (cancelClicked) {
+      if (timerInterval.current) {
+        clearInterval(timerInterval.current);
+      }
+      stopBackgroundApiTask();
+      router.back();
+    } else {
+      setCancelClicked(true)
+    }
+    return true;
+  };
+
+  const onPaymentFailed = () => {
+    setFailedModalState(true);
+    stopBackgroundApiTask();
     if (timerInterval.current) {
       clearInterval(timerInterval.current);
     }
-    stopBackgroundApiTask();
     router.back();
-    return true;
-  };
+  }
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', onProceedBack);
@@ -118,7 +130,7 @@ const UpiTimeScreen = () => { // Remove the Props Interface
     const status = response.status.toUpperCase();
     if (['FAILED', 'REJECTED'].includes(status)) {
       if (!reasonCode?.startsWith("uf", true)) {
-        paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry payment or try using other methods.";
+        paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.";
       }
       setFailedModalState(true);
       stopBackgroundApiTask();
@@ -160,21 +172,7 @@ const UpiTimeScreen = () => { // Remove the Props Interface
           Expires in
         </Text>
         <View style={{ marginTop: 14, alignItems: 'center' }}>
-          <CircularProgress
-            value={timerValue}
-            radius={90}
-            maxValue={5 * 60}
-            initialValue={5 * 60}
-            progressValueColor={'#F53535'}
-            activeStrokeColor='#1CA672'
-            activeStrokeWidth={10}
-            inActiveStrokeWidth={10}
-            inActiveStrokeColor='#E7E7E7'
-            onAnimationComplete={() => { }}
-            title={formatTime()}
-            titleColor='#F53535'
-            showProgressValue={false}
-          />
+          <CircularProgressBar size={150} strokeWidth={10} color={brandColorStr} progress={timerValue} formatTime={formatTime()} />
         </View>
         <View style={{ flexDirection: 'row', borderColor: '#ECECED', borderWidth: 2, borderRadius: 8, paddingVertical: 16, paddingHorizontal: 16, marginTop: 32 }}>
           <Image source={require("../../../assets/images/ic_info.png")} style={{ height: 26, width: 26 }} />
@@ -184,6 +182,7 @@ const UpiTimeScreen = () => { // Remove the Props Interface
         </View>
       </View>
 
+      <View style={{ flexDirection: 'row', height: 2, backgroundColor: '#ECECED', marginBottom: 48 }} />
       <View style={styles.cancelPaymentContainer}>
         <Text style={{ fontSize: 16, color: brandColorStr, fontFamily: 'Poppins-SemiBold' }} onPress={() => { setCancelClicked(true) }}>
           Cancel Payment
@@ -192,8 +191,7 @@ const UpiTimeScreen = () => { // Remove the Props Interface
       {failedModalOpen && (
         <PaymentFailed
           onClick={() => {
-            setFailedModalState(false);
-            onProceedBack();
+            onPaymentFailed();
           }}
           buttonColor={brandColorStr}
           errorMessage={paymentFailedMessage.current}
@@ -235,12 +233,12 @@ const UpiTimeScreen = () => { // Remove the Props Interface
   );
 };
 
-export default UpiTimeScreen;
+export default UpiTimerScreen;
 
 const styles = StyleSheet.create({
   cancelPaymentContainer: {
     alignItems: 'center',
-    paddingBottom: 30,
+    paddingBottom: 10,
     paddingHorizontal: 16,
     position: 'absolute',
     bottom: 0,
