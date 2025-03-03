@@ -172,7 +172,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
           Expires in
         </Text>
         <View style={{ marginTop: 14, alignItems: 'center' }}>
-          <CircularProgressBar size={150} strokeWidth={10} color={brandColorStr} progress={timerValue} formatTime={formatTime()} />
+          <CircularProgressBar size={150} strokeWidth={10} color={timerValue <= 30 ? '#F53535' : brandColorStr} progress={timerValue} formatTime={formatTime()} />
         </View>
         <View style={{ flexDirection: 'row', borderColor: '#ECECED', borderWidth: 2, borderRadius: 8, paddingVertical: 16, paddingHorizontal: 16, marginTop: 32 }}>
           <Image source={require("../../../assets/images/ic_info.png")} style={{ height: 26, width: 26 }} />

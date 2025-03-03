@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated, Easing } from 'react-native';
 import { Svg, Circle } from 'react-native-svg';
+import { useDerivedValue, withTiming } from 'react-native-reanimated';
+
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -23,6 +25,11 @@ const CircularProgressBar = ({ size = 100, strokeWidth = 10, progress = 75, colo
         outputRange: [circumference, 0], // Full circle to empty
     });
 
+
+    const colorAnimation = useDerivedValue(() => {
+        return withTiming(color, { duration: 500 });  // Smooth color transition
+    });
+
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Svg width={size} height={size}>
@@ -40,7 +47,7 @@ const CircularProgressBar = ({ size = 100, strokeWidth = 10, progress = 75, colo
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
-                    stroke={color}
+                    stroke={colorAnimation.value}
                     strokeWidth={strokeWidth}
                     fill="none"
                     strokeDasharray={circumference}
