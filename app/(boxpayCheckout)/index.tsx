@@ -43,7 +43,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [amount, setAmount] = useState("")
     const [currencySymbol, setCurrencySymbol] = useState("")
     const [totalItems, setTotalItems] = useState("")
-    const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
+    const selectedIntentRef = useRef<string | null>(null);
     const [primaryButtonColor, setPrimaryButtonColor] = useState("#1CA672")
     const [email, setEmail] = useState("")
     const [firstName, setFirstName] = useState("")
@@ -77,7 +77,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             pan,
             {
                 type: "upi/intent",
-                ...(selectedIntent && { upiAppDetails: { upiApp: selectedIntent } }) // Conditionally add upiAppDetails only if upiIntent is present
+                ...(selectedIntentRef.current && { upiAppDetails: { upiApp: selectedIntentRef.current } }) // Conditionally add upiAppDetails only if upiIntent is present
             },
             testEnv ? 'test' : env
         )
@@ -335,15 +335,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setDob(paymentDetails.shopper.dateOfBirth)
                 setpan(paymentDetails.shopper.panNumber)
                 startCountdown(response.data.sessionExpiryTimestamp)
-                // const isInstalled = await Linking.canOpenURL("phonepe://")
-                // console.log("phonepe", isInstalled)
-                // const gpay = await Linking.canOpenURL("tez://upi/")
-                // console.log("gpay", gpay)
-                // setIsGpayInstalled(gpay)
-                // const paytm = await Linking.canOpenURL("paytmmp://")
-                // console.log("paytm", paytm)
-                // setIsPaytmInstalled(paytm)
-                // setIsPhonePeInstalled(isInstalled)
                 const installedApps = await checkAppInstalled(["com.phonepe.app", "com.google.android.apps.nbu.paisa.user", "net.one97.paytm"])
                 setIsPhonePeInstalled(installedApps[0])
                 setIsGpayInstalled(installedApps[1])
@@ -511,9 +502,9 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                 isPaytmVisible={isPaytmInstalled}
                                 isPhonePeVisible={isPhonePeInstalled}
                                 isUpiCollectVisible={isUpiCollectVisible}
-                                selectedIntent={selectedIntent}
+                                selectedIntent={selectedIntentRef.current}
                                 setSelectedIntent={(it) => {
-                                    setSelectedIntent(it)
+                                    selectedIntentRef.current = it
                                     if (it == "") {
                                         handlePaymentIntent()
                                     }

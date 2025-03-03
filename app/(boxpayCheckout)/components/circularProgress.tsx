@@ -26,10 +26,6 @@ const CircularProgressBar = ({ size = 100, strokeWidth = 10, progress = 75, colo
     });
 
 
-    const colorAnimation = useDerivedValue(() => {
-        return withTiming(color, { duration: 500 });  // Smooth color transition
-    });
-
     return (
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Svg width={size} height={size}>
@@ -47,7 +43,7 @@ const CircularProgressBar = ({ size = 100, strokeWidth = 10, progress = 75, colo
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
-                    stroke={colorAnimation.value}
+                    stroke={color}
                     strokeWidth={strokeWidth}
                     fill="none"
                     strokeDasharray={circumference}
