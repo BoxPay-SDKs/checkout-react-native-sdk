@@ -74,7 +74,7 @@ const requestBody = {
   context: {
     countryCode: 'IN',
     legalEntity: {
-      code: 'payu',
+      code: 'razorpay',
     },
     orderId: 'test12',
   },
@@ -108,7 +108,16 @@ const requestBody = {
         id: 'test',
         itemName: 'La Fille Regular Solid Handheld Bag Blue',
         description: 'testProduct',
-        quantity: 1,
+        quantity: 4,
+        imageUrl:
+          'https://assetscdn1.paytm.com/images/catalog/product/B/BA/BAGLAFILLE-BLUEINTO887307A255D05/1563381583133_0..jpg',
+        amountWithoutTax: 50000,
+      },
+      {
+        id: 'test',
+        itemName: 'La Fille Regular Solid Handheld Bag Blue',
+        description: 'testProduct',
+        quantity: 5,
         imageUrl:
           'https://assetscdn1.paytm.com/images/catalog/product/B/BA/BAGLAFILLE-BLUEINTO887307A255D05/1563381583133_0..jpg',
         amountWithoutTax: 50000,

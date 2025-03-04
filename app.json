@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BoxPayCheckout",
-    "slug": "checckout-react-native-sdk",
+    "slug": "checkout-react-native-sdk",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/splash-icon.png",
@@ -70,8 +70,9 @@
         "origin": false
       },
       "eas": {
-        "projectId": "af201c08-2f9b-4d4b-b83e-ef1c6d279bc0"
+        "projectId": "5c23e1f3-ce6b-4cb1-87a4-2afcf2366ded"
       }
-    }
+    },
+    "owner": "boxpay"
   }
 }

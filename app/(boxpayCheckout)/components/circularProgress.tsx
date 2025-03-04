@@ -6,7 +6,7 @@ import { useDerivedValue, withTiming } from 'react-native-reanimated';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-const CircularProgressBar = ({ size = 100, strokeWidth = 10, progress = 75, color = "#3498db", duration = 2000, formatTime = "05:00" }) => {
+const CircularProgressBar = ({ size = 100, strokeWidth = 10, progress = 75, textColor = "#3498db", duration = 2000, formatTime = "05:00", progressColor = "#3498db" }) => {
     const animatedValue = useRef(new Animated.Value(0)).current;
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
@@ -43,7 +43,7 @@ const CircularProgressBar = ({ size = 100, strokeWidth = 10, progress = 75, colo
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
-                    stroke={color}
+                    stroke={progressColor}
                     strokeWidth={strokeWidth}
                     fill="none"
                     strokeDasharray={circumference}
@@ -51,7 +51,7 @@ const CircularProgressBar = ({ size = 100, strokeWidth = 10, progress = 75, colo
                     strokeLinecap="round"
                 />
             </Svg>
-            <Text style={{ position: 'absolute', fontSize: 20, fontFamily: 'Poppins-SemiBold', color: color }}>
+            <Text style={{ position: 'absolute', fontSize: 22, fontFamily: 'Poppins-SemiBold', color: textColor }}>
                 {formatTime}
             </Text>
         </View>

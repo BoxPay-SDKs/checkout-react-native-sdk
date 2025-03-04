@@ -16,7 +16,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
   const amountStr = Array.isArray(amount) ? amount[0] : amount;
   const currencySymbolStr = Array.isArray(currencySymbol) ? currencySymbol[0] : currencySymbol
   const tokenStr = Array.isArray(token) ? token[0] : token;
-  const itemsLengthStr = Array.isArray(itemsLength) ? itemsLength[0] : itemsLength;
+  const itemsLengthStr = Array.isArray(itemsLength) ? parseInt(itemsLength[0]) : parseInt(itemsLength);
   const upiIdStr = Array.isArray(upiId) ? upiId[0] : upiId;
   const brandColorStr = Array.isArray(brandColor) ? brandColor[0] : brandColor;
   const envStr = Array.isArray(env) ? env[0] : env;
@@ -155,7 +155,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
-      <Header onBackPress={onProceedBack} items={itemsLengthStr} amount={amountStr} currencySymbol={currencySymbolStr} />
+      <Header onBackPress={onProceedBack} items={itemsLengthStr} amount={amountStr} currencySymbol={currencySymbolStr} showDesc={true} showSecure={true} text='Payment Details' />
 
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
         <Text style={{ color: '#2D2B32', fontSize: 18, textAlign: 'center', fontFamily: 'Poppins-SemiBold' }}>
@@ -172,7 +172,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
           Expires in
         </Text>
         <View style={{ marginTop: 14, alignItems: 'center' }}>
-          <CircularProgressBar size={150} strokeWidth={10} color={timerValue <= 30 ? '#F53535' : brandColorStr} progress={timerValue} formatTime={formatTime()} />
+          <CircularProgressBar size={150} strokeWidth={10} progressColor={timerValue <= 30 ? '#FAA4A4' : brandColorStr} progress={timerValue} formatTime={formatTime()} textColor={timerValue <= 30 ? '#F53535' : brandColorStr} />
         </View>
         <View style={{ flexDirection: 'row', borderColor: '#ECECED', borderWidth: 2, borderRadius: 8, paddingVertical: 16, paddingHorizontal: 16, marginTop: 32 }}>
           <Image source={require("../../../assets/images/ic_info.png")} style={{ height: 26, width: 26 }} />

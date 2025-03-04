@@ -26,7 +26,7 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({ onClick, buttonColor, err
                     <Text style={styles.successfulHeading}>Payment Failed</Text>
                     <Text style={{ fontSize: 14, fontFamily: 'Poppins-Regular', color: '#000000D9', textAlign: 'center', alignSelf: 'center', paddingTop: 8, paddingBottom: 16, lineHeight: 20 }}>{errorMessage}</Text>
                     <Pressable style={[styles.buttonContainer, { backgroundColor: buttonColor }]} onPress={onClick}>
-                        <Text style={styles.buttonText}>Return to Payment Options</Text>
+                        <Text style={styles.buttonText}>Retry Payment</Text>
                     </Pressable>
                     {/* <Pressable style={[styles.buttonContainer, {backgroundColor:'white', borderColor:'#1CA672', borderWidth:1}]} onPress={onClick}>
                         <Text style={[styles.buttonText, {color:'#1CA672'}]}>Return to Payment Options</Text>

@@ -259,6 +259,10 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                         />
                                     ) : null
                                 }
+                                outlineStyle={{
+                                    borderRadius: 8,  // Add this
+                                    borderWidth: 1.5
+                                }}
                             />
                             {upiCollectError && (
                                 <Text style={{

@@ -2,13 +2,16 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, Pressable } from 'reac
 import React from 'react';
 
 interface HeaderProps {
-  items: string,
+  items: number,
   amount: string,
   currencySymbol: string,
+  showDesc: boolean,
+  showSecure: boolean,
+  text: string,
   onBackPress: () => void;  // Accepting the function as a prop
 }
 
-const Header: React.FC<HeaderProps> = ({ items, amount, currencySymbol, onBackPress }) => {
+const Header: React.FC<HeaderProps> = ({ items, amount, currencySymbol, onBackPress, showDesc, showSecure, text }) => {
   return (
     <View style={styles.header}>
       <View style={styles.headerTitleRow}>
@@ -18,22 +21,30 @@ const Header: React.FC<HeaderProps> = ({ items, amount, currencySymbol, onBackPr
           <Image source={require("../../../assets/images/arrow-left.png")} style={styles.backArrow} />
         </Pressable>
         <View style={styles.headerColumn}>
-          <Text style={styles.headerTitle}>Payment Details</Text>
-          <Text style={styles.headerDesc}>
-            {items} {items == '1' ? "item" : "items"} . Total:
-            <Text style={styles.amount}>
-              <Text style={styles.currencySymbol}> {currencySymbol}</Text>{amount}
+          <Text style={styles.headerTitle}>{text}</Text>
+          {showDesc && (
+            <Text style={styles.headerDesc}>
+              {/* {items > 0 && (
+                <>
+                  {items} {items === 1 ? "item" : "items"} .
+                </>
+              )} */}
+              Total:
+              <Text style={styles.amount}>
+                <Text style={styles.currencySymbol}> {currencySymbol}</Text>{amount}
+              </Text>
             </Text>
-          </Text>
-
+          )}
 
         </View>
-        <View style={styles.btnContainer}>
-          <View style={styles.headerSecure}>
-            <Image source={require("../../../assets/images/Lock.png")} style={styles.lockIcon} />
-            <Text style={styles.secureText}>100% Secure</Text>
+        {showSecure && (
+          <View style={styles.btnContainer}>
+            <View style={styles.headerSecure}>
+              <Image source={require("../../../assets/images/Lock.png")} style={styles.lockIcon} />
+              <Text style={styles.secureText}>100% Secure</Text>
+            </View>
           </View>
-        </View>
+        )}
       </View>
     </View>
   );
