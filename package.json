@@ -1,5 +1,5 @@
 {
-  "name": "checckout-react-native-sdk",
+  "name": "checkout-react-native-sdk",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {

@@ -63,7 +63,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [failedModalOpen, setFailedModalState] = useState(false)
     const [successModalOpen, setSuccessModalState] = useState(false)
     const lastOpenendUrl = useRef<string>("")
-    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry.")
+    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry using other payment methods.")
     const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false)
     const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
     const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -98,7 +98,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 }
                 setFailedModalState(true)
                 setLoadingState(false)
@@ -146,7 +146,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 }
                 setFailedModalState(true)
                 setLoadingState(false)
@@ -259,13 +259,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setFailedModalState(true)
                 stopBackgroundApiTask()
             } else if (['PENDING'].includes(status) && lastOpenendUrl.current != "") {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 setFailedModalState(true)
                 stopBackgroundApiTask()
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 }
                 setFailedModalState(true)
                 stopBackgroundApiTask()
@@ -536,7 +536,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                 handleUpiPayment={handlePaymentIntent}
                                 handleCollectPayment={(it) => handleUpiCollectPayment(it)}
                             />
-                            {/* <View>
+                            <View>
                                 <Text style={{
                                     marginStart: 16,
                                     marginTop: 12,
@@ -586,7 +586,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                         </Pressable>
                                     )}
                                 </View>
-                            </View> */}
+                            </View>
                             <View>
                                 <Text style={{
                                     marginStart: 16,

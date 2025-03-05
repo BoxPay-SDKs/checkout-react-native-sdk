@@ -24,12 +24,12 @@ const Header: React.FC<HeaderProps> = ({ items, amount, currencySymbol, onBackPr
           <Text style={styles.headerTitle}>{text}</Text>
           {showDesc && (
             <Text style={styles.headerDesc}>
-              {/* {items > 0 && (
+              {items > 0 && (
                 <>
                   {items} {items === 1 ? "item" : "items"} .
                 </>
-              )} */}
-              Total:
+              )}
+              {" "}Total:
               <Text style={styles.amount}>
                 <Text style={styles.currencySymbol}> {currencySymbol}</Text>{amount}
               </Text>
