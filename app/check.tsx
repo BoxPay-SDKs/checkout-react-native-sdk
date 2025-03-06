@@ -2,8 +2,8 @@ import { View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import BoxpayCheckout, { setTestEnv } from '../app/(boxpayCheckout)/index';  // Import the SDK component
-import { PaymentResult, setPaymentHandler } from '../app/(boxpayCheckout)/postRequest/paymentStatus'
-import { router } from 'expo-router';
+import { setPaymentHandler } from './(boxpayCheckout)/(sharedContext)/paymentStatusHandler'
+import PaymentResult from './(boxpayCheckout)/(dataClass)/paymentType';
 
 const Check = () => {
   const [token, setToken] = useState<string | null>(null); // Store the token

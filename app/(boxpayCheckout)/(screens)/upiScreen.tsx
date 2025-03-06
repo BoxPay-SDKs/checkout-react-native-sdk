@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet, Pressable, Image, Animated, ImageBackground } from 'react-native'
 import React, { useRef, useState } from 'react'
 import { TextInput } from 'react-native-paper';
+import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 
 interface UpiScreenProps {
-    selectedColor: string,
     isUpiIntentVisible: boolean,
     isGpayVisible: boolean,
     isPaytmVisible: boolean,
@@ -11,18 +11,17 @@ interface UpiScreenProps {
     isUpiCollectVisible: boolean,
     selectedIntent: string | null,
     setSelectedIntent: (intent: string | null) => void,
-    amount: string,
-    currencySymbol: string,
     handleUpiPayment: () => void,
     handleCollectPayment: (upiId: string) => void
 }
 
-const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible, isGpayVisible, isPaytmVisible, isPhonePeVisible, isUpiCollectVisible, selectedIntent, setSelectedIntent, amount, currencySymbol, handleUpiPayment, handleCollectPayment }) => {
+const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible, isPaytmVisible, isPhonePeVisible, isUpiCollectVisible, selectedIntent, setSelectedIntent, handleUpiPayment, handleCollectPayment }) => {
     const [upiCollectVisible, setUpiCollectVisible] = useState(false)
     const [upiCollectError, setUpiCollectError] = useState(false)
     const [upiCollectValid, setUpiCollectValid] = useState(false)
     const [upiCollectTextInput, setUpiCollectTextInput] = useState("")
     const [isRotated, setIsRotated] = useState(false)
+    const { checkoutDetails } = checkoutDetailsHandler
 
     const handleUpiChevronClick = () => {
         setSelectedIntent(null)
@@ -58,7 +57,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                 <Pressable
                                     style={[
                                         styles.intentIconBorder,
-                                        selectedIntent === 'GPay' && { borderColor: selectedColor, borderWidth: 2 }
+                                        selectedIntent === 'GPay' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 }
                                     ]}
                                     onPress={() => {
                                         setUpiCollectVisible(false)
@@ -72,7 +71,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                         style={styles.intentIcon}
                                     />
                                 </Pressable>
-                                <Text style={[styles.intentTitle, selectedIntent === 'GPay' && { color: selectedColor, fontFamily: 'Poppins-SemiBold' }]}>GPay</Text>
+                                <Text style={[styles.intentTitle, selectedIntent === 'GPay' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>GPay</Text>
                             </View>
                         )}
                         {isPhonePeVisible && (
@@ -80,7 +79,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                 <Pressable
                                     style={[
                                         styles.intentIconBorder,
-                                        selectedIntent === 'PhonePe' && { borderColor: selectedColor, borderWidth: 2 },
+                                        selectedIntent === 'PhonePe' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 },
                                     ]}
                                     onPress={() => {
                                         setUpiCollectVisible(false)
@@ -95,7 +94,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                     />
                                 </Pressable>
 
-                                <Text style={[styles.intentTitle, selectedIntent === 'PhonePe' && { color: selectedColor, fontFamily: 'Poppins-SemiBold' }]}>PhonePe</Text>
+                                <Text style={[styles.intentTitle, selectedIntent === 'PhonePe' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>PhonePe</Text>
                             </View>
                         )}
                         {isPaytmVisible && (
@@ -103,7 +102,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                 <Pressable
                                     style={[
                                         styles.intentIconBorder,
-                                        selectedIntent === 'PayTm' && { borderColor: selectedColor, borderWidth: 2 }
+                                        selectedIntent === 'PayTm' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 }
                                     ]}
                                     onPress={() => {
                                         setUpiCollectVisible(false)
@@ -117,7 +116,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                         style={{ height: 28, width: 44 }}
                                     />
                                 </Pressable>
-                                <Text style={[styles.intentTitle, selectedIntent === 'PayTm' && { color: selectedColor, fontFamily: 'Poppins-SemiBold' }]}>PayTm</Text>
+                                <Text style={[styles.intentTitle, selectedIntent === 'PayTm' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>PayTm</Text>
                             </View>
                         )}
                         <View style={styles.intentContainer}>
@@ -137,8 +136,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                     </View>
 
                     {(selectedIntent !== null && selectedIntent !== "") && (
-                        <Pressable style={[styles.buttonContainer, { backgroundColor: selectedColor }]} onPress={handleUpiPayment}>
-                            <Text style={styles.buttonText}>Pay <Text style={styles.currencySymbol}>{currencySymbol}</Text>{amount} via {selectedIntent}</Text>
+                        <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={handleUpiPayment}>
+                            <Text style={styles.buttonText}>Pay <Text style={styles.currencySymbol}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount} via {selectedIntent}</Text>
                         </Pressable>
                     )}
 
@@ -165,12 +164,12 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <Image
                                                 source={require("../../../assets/images/add_icon.png")}
-                                                style={{ height: 14, width: 14, tintColor: selectedColor }}
+                                                style={{ height: 14, width: 14, tintColor: checkoutDetails.brandColor }}
                                             />
                                             <Text
                                                 style={{
                                                     fontSize: 14,
-                                                    color: selectedColor,
+                                                    color: checkoutDetails.brandColor,
                                                     paddingStart: 10,
                                                     fontFamily: 'Poppins-SemiBold'
                                                 }}
@@ -207,12 +206,12 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                             <Image
                                                 source={require("../../../assets/images/add_icon.png")}
-                                                style={{ height: 14, width: 14, tintColor: selectedColor }}
+                                                style={{ height: 14, width: 14, tintColor: checkoutDetails.brandColor }}
                                             />
                                             <Text
                                                 style={{
                                                     fontSize: 14,
-                                                    color: selectedColor,
+                                                    color: checkoutDetails.brandColor,
                                                     paddingStart: 10,
                                                     fontFamily: 'Poppins-SemiBold'
                                                 }}
@@ -246,7 +245,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                 }}
                                 theme={{
                                     colors: {
-                                        primary: selectedColor,
+                                        primary: checkoutDetails.brandColor,
                                         outline: '#E6E6E6'
                                     }
                                 }}
@@ -271,14 +270,14 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                 }}>Please enter a valid UPI Id</Text>
                             )}
                             {upiCollectValid ? (
-                                <Pressable style={[styles.buttonContainer, { backgroundColor: selectedColor }]} onPress={() => {
+                                <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={() => {
                                     if (upiCollectValid) {
                                         handleCollectPayment(upiCollectTextInput)
                                     } else {
                                         setUpiCollectError(true)
                                     }
                                 }}>
-                                    <Text style={styles.buttonText}>Verify & Pay <Text style={styles.currencySymbol}>{currencySymbol}</Text>{amount}</Text>
+                                    <Text style={styles.buttonText}>Verify & Pay <Text style={styles.currencySymbol}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}</Text>
                                 </Pressable>
                             ) : (
                                 <Pressable style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' }]} onPress={() => {
@@ -288,7 +287,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ selectedColor, isUpiIntentVisible
                                         setUpiCollectError(true)
                                     }
                                 }}>
-                                    <Text style={[styles.buttonText, { color: '#ADACB0' }]}>Verify & Pay <Text style={[styles.currencySymbol, { color: '#ADACB0' }]}>{currencySymbol}</Text>{amount}</Text>
+                                    <Text style={[styles.buttonText, { color: '#ADACB0' }]}>Verify & Pay <Text style={[styles.currencySymbol, { color: '#ADACB0' }]}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}</Text>
                                 </Pressable>
                             )}
                         </View>

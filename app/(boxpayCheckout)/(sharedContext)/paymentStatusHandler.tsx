@@ -1,8 +1,4 @@
-export type PaymentResult = {
-    status: string;
-    transactionId: string;
-};
-
+import PaymentResult from "../(dataClass)/paymentType";
 export type PaymentHandler = {
     onPaymentResult: (result: PaymentResult) => void;
 };

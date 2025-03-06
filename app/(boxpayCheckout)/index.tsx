@@ -1,23 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Text, BackHandler, ToastAndroid, AppState, Image, ScrollView, Pressable } from 'react-native'; // Added ScrollView
-import Header from './components/header';
+import Header from './(components)/header';
 import axios from 'axios';
-import upiPostRequest from './postRequest/upiPostRequest';
+import upiPostRequest from './(postRequest)/upiPostRequest';
 import { decode as atob } from 'base-64';
 import { Linking } from 'react-native';
 import LottieView from 'lottie-react-native';
-import PaymentSuccess from './components/paymentSuccess';
-import SessionExpire from './components/sessionExpire';
-import PaymentFailed from './components/paymentFailed';
+import PaymentSuccess from './(components)/paymentSuccess';
+import SessionExpire from './(components)/sessionExpire';
+import PaymentFailed from './(components)/paymentFailed';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import fetchStatus from './postRequest/fetchStatus';
-import UpiScreen from './screens/upiScreen';
+import fetchStatus from './(postRequest)/fetchStatus';
+import UpiScreen from './(screens)/upiScreen';
 import { router } from 'expo-router';
-import { PaymentResult } from './postRequest/paymentStatus';
-import { paymentHandler } from "../(boxpayCheckout)/postRequest/paymentStatus";
-import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
+import { paymentHandler } from "./(sharedContext)/paymentStatusHandler";
+import { loadCustomFonts, loadInterCustomFonts } from './(components)/fontFamily';
 import { checkInstalledApps } from 'expo-check-installed-apps';
-import MorePaymentContainer from './components/morePaymentContainer';
+import MorePaymentContainer from './(components)/morePaymentContainer';
+import { setUserDataHandler } from './(sharedContext)/userdataHandler';
+import PaymentResult from './(dataClass)/paymentType';
+import { setCheckoutDetailsHandler } from './(sharedContext)/checkoutDetailsHandler';
 
 // Define the props interface
 interface BoxpayCheckoutProps {
@@ -51,15 +53,22 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [totalItems, setTotalItems] = useState(0)
     const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
     const [primaryButtonColor, setPrimaryButtonColor] = useState("#1CA672")
-    const [email, setEmail] = useState("")
-    const [firstName, setFirstName] = useState("")
-    const [lastName, setLastName] = useState("")
+    const emailRef = useRef(null)
+    const firstNameRef = useRef(null)
+    const lastNameRef = useRef(null)
+    const labelTypeRef = useRef(null)
+    const labelNameRef = useRef(null)
+    const uniqueIdRef = useRef(null)
+    const phoneRef = useRef(null)
+    const dobRef = useRef(null)
+    const panRef = useRef(null)
+    const address1Ref = useRef(null)
+    const address2Ref = useRef(null)
+    const cityRef = useRef(null)
+    const stateRef = useRef(null)
+    const postalCodeRef = useRef(null)
+    const countryCodeRef = useRef(null)
     const [address, setAddress] = useState("")
-    const [labelType, setLabelType] = useState("")
-    const [phone, setPhone] = useState("")
-    const [uniqueRef, setUniqueRef] = useState("")
-    const [dob, setDob] = useState("")
-    const [pan, setpan] = useState("")
     const [failedModalOpen, setFailedModalState] = useState(false)
     const [successModalOpen, setSuccessModalState] = useState(false)
     const lastOpenendUrl = useRef<string>("")
@@ -73,19 +82,10 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const handlePaymentIntent = async () => {
         setLoadingState(true)
         const response = await upiPostRequest(
-            tokenState.current,
-            email,
-            firstName,
-            lastName,
-            phone,
-            uniqueRef,
-            dob,
-            pan,
             {
                 type: "upi/intent",
                 ...(selectedIntent && { upiAppDetails: { upiApp: selectedIntent } }) // Conditionally add upiAppDetails only if upiIntent is present
-            },
-            testEnv ? 'test' : env
+            }
         )
         try {
             setStatus(response.status.status)
@@ -119,21 +119,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const handleUpiCollectPayment = async (upiId: string) => {
         setLoadingState(true)
         const response = await upiPostRequest(
-            tokenState.current,
-            email,
-            firstName,
-            lastName,
-            phone,
-            uniqueRef,
-            dob,
-            pan,
             {
                 type: "upi/collect",
                 upi: {
                     shopperVpa: upiId
                 }
-            },
-            testEnv ? 'test' : env
+            }
         )
         try {
             setStatus(response.status.status)
@@ -167,15 +158,9 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const navigateToUpiTimerModal = (upiId: string) => {
         setLoadingState(false)
         router.push({
-            pathname: "/screens/upiTimerScreen",
+            pathname: "/upiTimerScreen",
             params: {
-                currencySymbol: currencySymbol,
-                amount: amount,
-                token: tokenState.current,
-                itemsLength: totalItems,
-                upiId: upiId,
-                brandColor: primaryButtonColor,
-                env: testEnv ? 'test' : env
+                upiId: upiId
             }
         })
     }
@@ -312,14 +297,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
 
     const navigateToCardScreen = () => {
         router.push({
-            pathname: "/screens/cardScreen",
-            params: {
-                token: tokenState.current,
-                brandColor: primaryButtonColor,
-                env: testEnv ? 'test' : env,
-                amount: amount,
-                currencySymbol: currencySymbol
-            }
+            pathname: "/cardScreen"
         })
     }
     useEffect(() => {
@@ -350,13 +328,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                     setTotalItems(total);
                 }
                 setPrimaryButtonColor(response.data.merchantDetails.checkoutTheme.primaryButtonColor)
-                setEmail(paymentDetails.shopper.email)
-                setFirstName(paymentDetails.shopper.firstName)
-                setLastName(paymentDetails.shopper.lastName)
-                setPhone(paymentDetails.shopper.phoneNumber)
-                setUniqueRef(paymentDetails.shopper.uniqueReference)
-                setDob(paymentDetails.shopper.dateOfBirth)
-                setpan(paymentDetails.shopper.panNumber)
+                emailRef.current = paymentDetails.shopper.email
+                firstNameRef.current = paymentDetails.shopper.firstName
+                lastNameRef.current = paymentDetails.shopper.lastName
+                phoneRef.current = paymentDetails.shopper.phoneNumber
+                uniqueIdRef.current = paymentDetails.shopper.uniqueReference
+                dobRef.current = paymentDetails.shopper.dateOfBirth
+                panRef.current = paymentDetails.shopper.panNumber
                 startCountdown(response.data.sessionExpiryTimestamp)
                 const installedApps = await checkAppInstalled(["com.phonepe.app", "com.google.android.apps.nbu.paisa.user", "net.one97.paytm"])
                 setIsPhonePeInstalled(installedApps[0])
@@ -364,35 +342,65 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setIsPaytmInstalled(installedApps[2])
                 if (paymentDetails.shopper.deliveryAddress != null) {
                     const deliveryObject = paymentDetails.shopper.deliveryAddress
-                    setLabelType(deliveryObject.labelType)
-                    const address1 = deliveryObject.address1
-                    const address2 = deliveryObject.address2
-                    const city = deliveryObject.city
-                    const state = deliveryObject.state
-                    const postalCode = deliveryObject.postalCode
+                    labelTypeRef.current = deliveryObject.labelType
+                    labelNameRef.current = deliveryObject.labelName
+                    address1Ref.current = deliveryObject.address1
+                    address2Ref.current = deliveryObject.address2
+                    cityRef.current = deliveryObject.city
+                    stateRef.current = deliveryObject.state
+                    postalCodeRef.current = deliveryObject.postalCode
+                    countryCodeRef.current = deliveryObject.countryCode
 
-                    if (address2 == null || address2 == "") {
-                        setAddress(`${address1}, ${city}, ${state}, ${postalCode}`)
+                    if (address2Ref.current == null || address2Ref.current == "") {
+                        setAddress(`${address1Ref.current}, ${cityRef.current}, ${stateRef.current}, ${postalCodeRef.current}`)
                     } else {
-                        setAddress(`${address1}, ${address2}, ${city}, ${state}, ${postalCode}`)
-                    }
-
-                    if (['FAILED', 'REJECTED'].includes(response.data.status)) {
-                        setTransactionId(response.data.lastTransactionId)
-                        setStatus(response.data.status)
-                        setFailedModalState(true)
-                        stopBackgroundApiTask()
-                    } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
-                        setSuccessfulTimeStamp(response.data.lastPaidAtTimestampLocale)
-                        setTransactionId(response.data.lastTransactionId)
-                        setStatus(response.data.status)
-                        setSuccessModalState(true)
-                        stopBackgroundApiTask()
-                    } else if (['EXPIRED'].includes(response.data.status)) {
-                        setSessionExppireModalState(true)
-                        stopBackgroundApiTask()
+                        setAddress(`${address1Ref.current}, ${address2Ref.current}, ${cityRef.current}, ${stateRef.current}, ${postalCodeRef.current}`)
                     }
                 }
+                if (['FAILED', 'REJECTED'].includes(response.data.status)) {
+                    setTransactionId(response.data.lastTransactionId)
+                    setStatus(response.data.status)
+                    setFailedModalState(true)
+                    stopBackgroundApiTask()
+                } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
+                    setSuccessfulTimeStamp(response.data.lastPaidAtTimestampLocale)
+                    setTransactionId(response.data.lastTransactionId)
+                    setStatus(response.data.status)
+                    setSuccessModalState(true)
+                    stopBackgroundApiTask()
+                } else if (['EXPIRED'].includes(response.data.status)) {
+                    setSessionExppireModalState(true)
+                    stopBackgroundApiTask()
+                }
+                setUserDataHandler({
+                    userData: {
+                        email: emailRef.current,
+                        firstName: firstNameRef.current,
+                        lastName: lastNameRef.current,
+                        phone: phoneRef.current,
+                        uniqueId: uniqueIdRef.current,
+                        dob: dobRef.current,
+                        pan: panRef.current,
+                        address1: address1Ref.current,
+                        address2: address2Ref.current,
+                        city: cityRef.current,
+                        state: stateRef.current,
+                        pincode: postalCodeRef.current,
+                        country: countryCodeRef.current,
+                        labelType: labelTypeRef.current,
+                        labelName: labelNameRef.current
+                    }
+                })
+                setCheckoutDetailsHandler({
+                    checkoutDetails: {
+                        currencySymbol: paymentDetails.money.currencySymbol,
+                        amount: paymentDetails.money.amountLocaleFull,
+                        token: tokenState.current,
+                        brandColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
+                        env: testEnv ? 'test' : env,
+                        itemsLength: totalItems
+                    }
+                })
             } catch (error) {
                 ToastAndroid.show("Please check the token and the envirounment selected", ToastAndroid.SHORT);
             } finally {
@@ -452,7 +460,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                     >
                         <View style={{ flex: 1 }}>
                             {/* Main UI Content */}
-                            <Header onBackPress={onExitCheckout} items={totalItems} amount={amount} currencySymbol={currencySymbol} showDesc={true} showSecure={true} text='Payment Details' />
+                            <Header onBackPress={onExitCheckout} showDesc={true} showSecure={true} text='Payment Details' />
                             {(address != "" && isAddressVisible) && (
                                 <View>
                                     <Text style={{
@@ -472,44 +480,27 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                         flexDirection: 'row',
                                         borderRadius: 12,
                                     }}>
-                                        <Image source={require("../../assets/images/ic_location.png")} style={{ height: 20, width: 20, marginStart: 12, marginTop: 16 }} />
+                                        <Image source={require("../../assets/images/ic_location.png")} style={{ height: 20, width: 20, marginStart: 12, marginTop: 20 }} />
                                         <View style={{ flexDirection: 'column', marginStart: 8, marginTop: 12, marginEnd: 8, flex: 1 }}>
                                             <Text style={{
                                                 fontSize: 12,
                                                 color: '#4F4D55',
                                                 fontFamily: 'Poppins-Regular'
                                             }}>Deliver at <Text style={{
-                                                fontFamily: 'Poppins-SemiBold', fontSize
-                                                    : 12, color: '#4F4D55'
-                                            }}>{labelType}</Text>
+                                                fontFamily: 'Poppins-SemiBold', fontSize: 12, color: '#4F4D55'
+                                            }}>{labelTypeRef.current === "Other" ? labelNameRef.current : labelTypeRef.current}</Text>
                                             </Text>
-                                            <Text style={{
-                                                marginTop: 2,
-                                                fontSize: 14,
-                                                color: '#4F4D55',
-                                                flexShrink: 1,
-                                                fontFamily: 'Poppins-Medium',
-                                                lineHeight: 20
-                                            }}>
-                                                {firstName} {lastName} ({phone})
-                                            </Text>
-                                            <Text style={{
-                                                fontSize: 14,
-                                                color: '#4F4D55',
-                                                flexShrink: 1,
-                                                fontFamily: 'Poppins-Medium',
-                                                lineHeight: 20
-                                            }}>
-                                                {email}
-                                            </Text>
-                                            <Text style={{
-                                                marginTop: 8,
-                                                fontSize: 14,
-                                                color: '#4F4D55',
-                                                flexShrink: 1,
-                                                fontFamily: 'Poppins-Regular',
-                                                lineHeight: 18
-                                            }}>
+                                            <Text
+                                                numberOfLines={1}
+                                                ellipsizeMode="tail"
+                                                style={{
+                                                    fontSize: 14,
+                                                    color: '#4F4D55',
+                                                    fontFamily: 'Poppins-SemiBold',
+                                                    flexShrink: 1,
+                                                    marginTop: -4
+                                                }}
+                                            >
                                                 {address}
                                             </Text>
                                         </View>
@@ -518,7 +509,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                             )}
 
                             <UpiScreen
-                                selectedColor={primaryButtonColor}
                                 isUpiIntentVisible={isUpiIntentVisibile}
                                 isGpayVisible={isGpayInstalled}
                                 isPaytmVisible={isPaytmInstalled}
@@ -531,8 +521,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                         handlePaymentIntent()
                                     }
                                 }}
-                                amount={amount}
-                                currencySymbol={currencySymbol}
                                 handleUpiPayment={handlePaymentIntent}
                                 handleCollectPayment={(it) => handleUpiCollectPayment(it)}
                             />
@@ -556,15 +544,15 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                             )}
                                         </Pressable>
                                     )}
-                                    {isWalletVisible && (
+                                    {/* {isWalletVisible && (
                                         <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }}>
                                             <MorePaymentContainer title='Wallet' image={require('../../assets/images/ic_wallet.png')} />
                                             {(isNetBankingVisible || isEmiVisible || isBNPLVisible) && (
                                                 <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
                                             )}
                                         </Pressable>
-                                    )}
-                                    {isNetBankingVisible && (
+                                    )} */}
+                                    {/* {isNetBankingVisible && (
                                         <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }}>
                                             <MorePaymentContainer title='Netbanking' image={require('../../assets/images/ic_netbanking.png')} />
                                             {(isEmiVisible || isBNPLVisible) && (
@@ -584,7 +572,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                         <Pressable style={{ padding: 16 }}>
                                             <MorePaymentContainer title='Pay Later' image={require('../../assets/images/ic_bnpl.png')} />
                                         </Pressable>
-                                    )}
+                                    )} */}
                                 </View>
                             </View>
                             <View>
@@ -648,7 +636,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             {failedModalOpen && (
                 <PaymentFailed
                     onClick={() => setFailedModalState(false)}
-                    buttonColor={primaryButtonColor}
                     errorMessage={paymentFailedMessage.current}
                 />
             )}
@@ -656,9 +643,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             {successModalOpen && (
                 <PaymentSuccess
                     onClick={onExitCheckout}
-                    buttonColor={primaryButtonColor}
-                    amount={amount}
-                    currencySymbol={currencySymbol}
                     transactionId={transactionId}
                     method="UPI"
                     localDateTime={successfulTimeStamp}
@@ -668,7 +652,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             {sessionExpireModalOpen && (
                 <SessionExpire
                     onClick={onExitCheckout}
-                    buttonColor={primaryButtonColor}
                 />
             )}
         </View>

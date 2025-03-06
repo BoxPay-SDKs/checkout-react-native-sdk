@@ -7,7 +7,7 @@ import { TouchableOpacity } from 'react-native';
 import { Button } from 'react-native';
 import { useNavigation } from 'expo-router';
 import BoxpayCheckout, { setTestEnv } from './(boxpayCheckout)';
-import { setPaymentHandler } from './(boxpayCheckout)/postRequest/paymentStatus';
+import { setPaymentHandler } from './(boxpayCheckout)/(sharedContext)/paymentStatusHandler';
 
 const EnterTokenScreen = () => {
   const [tokenTextInput, setTokenTextInput] = useState("");

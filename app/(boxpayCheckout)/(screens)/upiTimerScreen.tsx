@@ -1,25 +1,21 @@
 import { View, Text, Image, BackHandler, StyleSheet } from 'react-native'; // Import Modal
 import React, { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import Header from '../components/header';
-import fetchStatus from '../postRequest/fetchStatus';
-import PaymentFailed from '../components/paymentFailed';
-import PaymentSuccess from '../components/paymentSuccess';
-import SessionExpire from '../components/sessionExpire';
-import CancelPaymentModal from '../components/cancelPaymentModal';
-import { paymentHandler, PaymentResult } from '../postRequest/paymentStatus';
-import CircularProgressBar from '../components/circularProgress';
-
+import Header from '../(components)/header';
+import fetchStatus from '../(postRequest)/fetchStatus';
+import PaymentFailed from '../(components)/paymentFailed';
+import PaymentSuccess from '../(components)/paymentSuccess';
+import SessionExpire from '../(components)/sessionExpire';
+import CancelPaymentModal from '../(components)/cancelPaymentModal';
+import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
+import CircularProgressBar from '../(components)/circularProgress';
+import PaymentResult from '../(dataClass)/paymentType';
+import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 const UpiTimerScreen = () => { // Remove the Props Interface
-  const { currencySymbol, amount, token, itemsLength, upiId, brandColor, env } = useLocalSearchParams();
+  const { upiId } = useLocalSearchParams();
+  const { checkoutDetails } = checkoutDetailsHandler
 
-  const amountStr = Array.isArray(amount) ? amount[0] : amount;
-  const currencySymbolStr = Array.isArray(currencySymbol) ? currencySymbol[0] : currencySymbol
-  const tokenStr = Array.isArray(token) ? token[0] : token;
-  const itemsLengthStr = Array.isArray(itemsLength) ? parseInt(itemsLength[0]) : parseInt(itemsLength);
   const upiIdStr = Array.isArray(upiId) ? upiId[0] : upiId;
-  const brandColorStr = Array.isArray(brandColor) ? brandColor[0] : brandColor;
-  const envStr = Array.isArray(env) ? env[0] : env;
 
   const [timerValue, setTimerValue] = useState(5 * 60);
   const [cancelClicked, setCancelClicked] = useState(false);
@@ -123,7 +119,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
   };
 
   const callFetchStatusApi = async () => {
-    const response = await fetchStatus(tokenStr, envStr);
+    const response = await fetchStatus(checkoutDetails.token, checkoutDetails.env);
     setStatus(response.status);
     setTransactionId(response.transactionId);
     const reasonCode = response.reasonCode;
@@ -155,7 +151,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
-      <Header onBackPress={onProceedBack} items={itemsLengthStr} amount={amountStr} currencySymbol={currencySymbolStr} showDesc={true} showSecure={true} text='Payment Details' />
+      <Header onBackPress={onProceedBack} showDesc={true} showSecure={true} text='Payment Details' />
 
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
         <Text style={{ color: '#2D2B32', fontSize: 18, textAlign: 'center', fontFamily: 'Poppins-SemiBold' }}>
@@ -172,7 +168,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
           Expires in
         </Text>
         <View style={{ marginTop: 14, alignItems: 'center' }}>
-          <CircularProgressBar size={150} strokeWidth={10} progressColor={timerValue <= 30 ? '#FAA4A4' : brandColorStr} progress={timerValue} formatTime={formatTime()} textColor={timerValue <= 30 ? '#F53535' : brandColorStr} />
+          <CircularProgressBar size={150} strokeWidth={10} progressColor={timerValue <= 30 ? '#FAA4A4' : checkoutDetails.brandColor} progress={timerValue} formatTime={formatTime()} textColor={timerValue <= 30 ? '#F53535' : checkoutDetails.brandColor} />
         </View>
         <View style={{ flexDirection: 'row', borderColor: '#ECECED', borderWidth: 2, borderRadius: 8, paddingVertical: 16, paddingHorizontal: 16, marginTop: 32 }}>
           <Image source={require("../../../assets/images/ic_info.png")} style={{ height: 26, width: 26 }} />
@@ -184,7 +180,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
 
       <View style={{ flexDirection: 'row', height: 2, backgroundColor: '#ECECED', marginBottom: 48 }} />
       <View style={styles.cancelPaymentContainer}>
-        <Text style={{ fontSize: 16, color: brandColorStr, fontFamily: 'Poppins-SemiBold' }} onPress={() => { setCancelClicked(true) }}>
+        <Text style={{ fontSize: 16, color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }} onPress={() => { setCancelClicked(true) }}>
           Cancel Payment
         </Text>
       </View>
@@ -193,7 +189,6 @@ const UpiTimerScreen = () => { // Remove the Props Interface
           onClick={() => {
             onPaymentFailed();
           }}
-          buttonColor={brandColorStr}
           errorMessage={paymentFailedMessage.current}
         />
       )}
@@ -201,9 +196,6 @@ const UpiTimerScreen = () => { // Remove the Props Interface
       {successModalOpen && (
         <PaymentSuccess
           onClick={onExitCheckout}
-          buttonColor={brandColorStr}
-          amount={amountStr}
-          currencySymbol={currencySymbolStr}
           transactionId={transactionId}
           method="UPI"
           localDateTime={successfulTimeStamp}
@@ -213,7 +205,6 @@ const UpiTimerScreen = () => { // Remove the Props Interface
       {sessionExpireModalOpen && (
         <SessionExpire
           onClick={onExitCheckout}
-          buttonColor={brandColorStr}
         />
       )}
 
@@ -226,7 +217,6 @@ const UpiTimerScreen = () => { // Remove the Props Interface
             setCancelClicked(false);
             onProceedBack();
           }}
-          brandcolor={brandColorStr}
         />
       )}
     </View>

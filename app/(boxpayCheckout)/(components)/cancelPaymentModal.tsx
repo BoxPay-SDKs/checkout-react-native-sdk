@@ -1,15 +1,15 @@
 import React from 'react';
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import Modal from 'react-native-modal';
-
+import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 
 interface CancelPaymentModalProps {
     onYesClick: () => void;
-    onNoClick: () => void;
-    brandcolor: string;
+    onNoClick: () => void
 }
 
-const CancelPaymentModal: React.FC<CancelPaymentModalProps> = ({ onYesClick, onNoClick, brandcolor }) => {
+const CancelPaymentModal: React.FC<CancelPaymentModalProps> = ({ onYesClick, onNoClick }) => {
+    const { checkoutDetails } = checkoutDetailsHandler;
 
     return (
         <View style={styles.modalContainer}>
@@ -29,9 +29,9 @@ const CancelPaymentModal: React.FC<CancelPaymentModalProps> = ({ onYesClick, onN
 
                     <View style={styles.buttonContainer}>
                         <Pressable style={[styles.cancelButton, { borderColor: '#E6E6E6', borderWidth: 1 }]} onPress={onNoClick}>
-                            <Text style={[styles.buttonText, { color: brandcolor }]}>Not now</Text>
+                            <Text style={[styles.buttonText, { color: checkoutDetails.brandColor }]}>Not now</Text>
                         </Pressable>
-                        <Pressable style={[styles.confirmButton, { backgroundColor: brandcolor }]} onPress={onYesClick}>
+                        <Pressable style={[styles.confirmButton, { backgroundColor: checkoutDetails.brandColor }]} onPress={onYesClick}>
                             <Text style={styles.confirmButtonText}>Yes</Text>
                         </Pressable>
                     </View>

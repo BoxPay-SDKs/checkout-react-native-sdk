@@ -1,18 +1,22 @@
 import { View, Text, StyleSheet, Image, BackHandler, Pressable } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router';
-import Header from '../components/header';
+import Header from '../(components)/header';
 import { TextInput } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
-
+import fetchCardDetails from '../(postRequest)/fetchCardDetails';
+import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import cardPostRequest from '../(postRequest)/cardPostRequest';
+import PaymentFailed from '../(components)/paymentFailed';
+import PaymentSuccess from '../(components)/paymentSuccess';
+import SessionExpire from '../(components)/sessionExpire';
+import PaymentResult from '../(dataClass)/paymentType';
+import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
+import CvvInfoBottomSheet from '../(components)/cvvInfoBottomSheet';
+import WebViewScreen from './webViewScreen';
+import fetchStatus from '../(postRequest)/fetchStatus';
 const CardScreen = () => {
-    const { currencySymbol, amount, token, brandColor, env } = useLocalSearchParams();
-
-    const amountStr = Array.isArray(amount) ? amount[0] : amount;
-    const currencySymbolStr = Array.isArray(currencySymbol) ? currencySymbol[0] : currencySymbol
-    const tokenStr = Array.isArray(token) ? token[0] : token;
-    const brandColorStr = Array.isArray(brandColor) ? brandColor[0] : brandColor;
-    const envStr = Array.isArray(env) ? env[0] : env;
+    const { checkoutDetails } = checkoutDetailsHandler;
 
     const [cardNumberText, setCardNumberText] = useState<string | null>(null);
     const [cardExpiryText, setCardExpiryText] = useState<string | null>(null);
@@ -21,6 +25,7 @@ const CardScreen = () => {
 
     const [cardSelectedIcon, setCardSelectedIcon] = useState(require("../../../assets/images/ic_default_card.png"));
     const [maxCvvLength, setMaxCvvLength] = useState(4);
+    const [maxCardNumberLength, setMaxCardNumberLength] = useState(19);
     const [loading, setLoading] = useState(false);
 
     const [cardNumberError, setCardNumberError] = useState(false);
@@ -29,6 +34,21 @@ const CardScreen = () => {
     const [cardHolderNameError, setCardHolderNameError] = useState(false);
 
     const [cardValid, setCardValid] = useState(false);
+    const [showCvvInfo, setShowCvvInfo] = useState(false);
+    const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
+    const [paymentHtml, setPaymentHtml] = useState<string | null>(null)
+    const [showWebView, setShowWebView] = useState(false)
+
+    const [failedModalOpen, setFailedModalState] = useState(false)
+    const [successModalOpen, setSuccessModalState] = useState(false)
+    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry using other payment methods.")
+    const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false)
+    const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
+
+    const [status, setStatus] = useState<string | null>(null)
+    const [transactionId, setTransactionId] = useState<string | null>(null)
+
+    const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
 
     const handleCardNumberTextChange = (text: string) => {
         if (text == "") {
@@ -42,6 +62,39 @@ const CardScreen = () => {
             const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || '';
 
             setCardNumberText(formatted);
+            if (formatted.length > 10) {
+                fetchCardDetails(checkoutDetails.token, checkoutDetails.env, formatted.replace(/ /g, '')).then((data) => {
+                    if (data.paymentMethod.brand == "VISA") {
+                        setCardSelectedIcon(require("../../../assets/images/ic_visa.png"));
+                        setMaxCvvLength(3);
+                        setMaxCardNumberLength(19);
+                    } else if (data.paymentMethod.brand == "Mastercard") {
+                        setCardSelectedIcon(require("../../../assets/images/ic_masterCard.png"));
+                        setMaxCvvLength(3);
+                        setMaxCardNumberLength(19)
+                    } else if (data.paymentMethod.brand == "RUPAY") {
+                        setCardSelectedIcon(require("../../../assets/images/ic_rupay.png"));
+                        setMaxCvvLength(3);
+                        setMaxCardNumberLength(19)
+                    } else if (data.paymentMethod.brand == "AmericanExpress") {
+                        setCardSelectedIcon(require("../../../assets/images/ic_amex.png"));
+                        setMaxCvvLength(4);
+                        setMaxCardNumberLength(18)
+                    } else if (data.paymentMethod.brand == "Maestro") {
+                        setCardSelectedIcon(require("../../../assets/images/ic_maestro.png"));
+                        setMaxCvvLength(3);
+                        setMaxCardNumberLength(19)
+                    } else {
+                        setCardSelectedIcon(require("../../../assets/images/ic_default_card.png"));
+                        setMaxCvvLength(3);
+                        setMaxCardNumberLength(19)
+                    }
+                });
+            } else {
+                setCardSelectedIcon(require("../../../assets/images/ic_default_card.png"));
+                setMaxCvvLength(3);
+                setMaxCardNumberLength(19)
+            }
         }
     };
     const handleCardNumberBlur = () => {
@@ -56,6 +109,24 @@ const CardScreen = () => {
             setCardNumberError(true);
         }
     };
+
+    const startBackgroundApiTask = () => {
+        backgroundApiInterval.current = setInterval(() => {
+            callFetchStatusApi();
+        }, 4000);
+    };
+
+    const stopBackgroundApiTask = () => {
+        if (backgroundApiInterval.current) {
+            clearInterval(backgroundApiInterval.current);
+        }
+    };
+
+    useEffect(() => {
+        if (paymentUrl) {
+            setShowWebView(true)
+        }
+    }, [paymentUrl])
 
     const handleCardExpiryTextChange = (text: string) => {
         setCardExpiryText(text);
@@ -126,6 +197,13 @@ const CardScreen = () => {
         }
     };
 
+    const moveFromHolderName = () => {
+        const cleaned = cardHolderNameText?.replace(/ /g, '') || '';
+        if (cleaned.length != 1) {
+            setCardHolderNameError(true);
+        }
+    };
+
     const handleCardCvvTextChange = (text: string) => {
         setCardCvvText(text);
         if (text == "") {
@@ -143,9 +221,8 @@ const CardScreen = () => {
             setCardHolderNameError(false);
         }
     };
-
     const checkCardValid = () => {
-        if (cardNumberError || cardExpiryError || cardCvvError || cardHolderNameError) {
+        if (cardNumberError || cardExpiryError || cardCvvError || cardHolderNameError || cardNumberText?.length != maxCardNumberLength || cardExpiryText?.length != 5 || cardCvvText?.length != maxCvvLength || (cardHolderNameText?.length ?? 0) < 1) {
             setCardValid(false);
         } else {
             setCardValid(true);
@@ -157,12 +234,101 @@ const CardScreen = () => {
         return true;
     };
 
+    const callFetchStatusApi = async () => {
+        const response = await fetchStatus(checkoutDetails.token, checkoutDetails.env);
+        setStatus(response.status);
+        setTransactionId(response.transactionId);
+        const reasonCode = response.reasonCode;
+        const status = response.status.toUpperCase();
+        if (['FAILED', 'REJECTED'].includes(status)) {
+            if (!reasonCode?.startsWith("uf", true)) {
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.";
+            }
+            setFailedModalState(true);
+            setLoading(false)
+            stopBackgroundApiTask()
+        } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+            setSuccessfulTimeStamp(response.transactionTimestampLocale);
+            setSuccessModalState(true);
+            stopBackgroundApiTask()
+            setLoading(false)
+        } else if (['EXPIRED'].includes(status)) {
+            setSessionExppireModalState(true);
+            stopBackgroundApiTask()
+            setLoading(false)
+        }
+    };
+
+    const onProceedForward = async () => {
+        setLoading(true);
+        const response = await cardPostRequest(
+            cardNumberText || "",
+            cardExpiryText || "",
+            cardCvvText || "",
+            cardHolderNameText || ""
+        )
+        try {
+            setStatus(response.status.status)
+            setTransactionId(response.transactionId)
+            const reason = response.status.statusReason
+            const reasonCode = response.status.reasonCode
+            const status = response.status.status.toUpperCase()
+            if (status === 'REQUIRESACTION') {
+                if (Array.isArray(response.actions)) {
+                    if (response.actions.length > 0) {
+                        if (response.actions[0].type == "redirect") {
+                            setPaymentUrl(response.actions[0].url)
+                        } else {
+                            setPaymentHtml(response.actions[0].url)
+                        }
+                    }
+                }
+            } else if (['FAILED', 'REJECTED'].includes(status)) {
+                paymentFailedMessage.current = reason.substringAfter(":")
+                if (!reasonCode.startsWith("uf", true)) {
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                }
+                setFailedModalState(true)
+                setLoading(false)
+            } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+                setSuccessfulTimeStamp(response.transactionTimestampLocale)
+                setSuccessModalState(true)
+                setLoading(false)
+            } else if (['EXPIRED'].includes(status)) {
+                setSessionExppireModalState(true)
+                setLoading(false)
+            }
+        } catch (error) {
+            setFailedModalState(true)
+            setLoading(false)
+        }
+    }
+
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', onProceedBack);
         return () => {
             backHandler.remove();
         };
     }, []);
+
+    useEffect(() => {
+        checkCardValid();
+    }, [cardNumberText, cardExpiryText, cardCvvText, cardHolderNameText]);
+
+    const onExitCheckout = () => {
+        const mockPaymentResult: PaymentResult = {
+            status: status || "",
+            transactionId: transactionId || ""
+        };
+        paymentHandler.onPaymentResult(mockPaymentResult);
+        router.dismissAll()
+    };
+
+    useEffect(() => {
+        if (paymentHtml) {
+            setShowWebView(true)
+        }
+    }, [paymentHtml])
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -173,7 +339,7 @@ const CardScreen = () => {
                 </View>
             ) : (
                 <View style={{ flex: 1, backgroundColor: 'white' }}>
-                    <Header onBackPress={onProceedBack} items={0} amount='' currencySymbol='' showDesc={false} showSecure={true} text='Add a new Card' />
+                    <Header onBackPress={onProceedBack} showDesc={false} showSecure={true} text='Add a new Card' />
                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                     <TextInput
                         mode='outlined'
@@ -184,7 +350,7 @@ const CardScreen = () => {
                         }}
                         theme={{
                             colors: {
-                                primary: brandColorStr,
+                                primary: checkoutDetails.brandColor,
                                 outline: '#E6E6E6'
                             }
                         }}
@@ -197,7 +363,7 @@ const CardScreen = () => {
                                 />
                             ) : (
                                 <TextInput.Icon
-                                    icon={() => <Image source={cardSelectedIcon} style={{ width: 40, height: 40 }} />}
+                                    icon={() => <Image source={cardSelectedIcon} style={{ width: 35, height: 20 }} />}
                                 />
                             )
 
@@ -207,7 +373,7 @@ const CardScreen = () => {
                             borderWidth: 1.5
                         }}
                         keyboardType='number-pad'
-                        maxLength={19}
+                        maxLength={maxCardNumberLength}
                         onBlur={handleCardNumberBlur}
                         onSubmitEditing={moveToExpiry}
                     />
@@ -225,7 +391,7 @@ const CardScreen = () => {
                                 }}
                                 theme={{
                                     colors: {
-                                        primary: brandColorStr,
+                                        primary: checkoutDetails.brandColor,
                                         outline: '#E6E6E6'
                                     }
                                 }}
@@ -251,7 +417,7 @@ const CardScreen = () => {
                                 <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginTop: 4 }}>Expiry is invalid</Text>
                             )}
                         </View>
-                        <View style={{ flex: 1, flexDirection: 'column', marginStart: 32 }}>
+                        <View style={{ flex: 1, flexDirection: 'column', marginStart: 16 }}>
                             <TextInput
                                 mode='outlined'
                                 label='CVV'
@@ -261,7 +427,7 @@ const CardScreen = () => {
                                 }}
                                 theme={{
                                     colors: {
-                                        primary: brandColorStr,
+                                        primary: checkoutDetails.brandColor,
                                         outline: '#E6E6E6'
                                     }
                                 }}
@@ -276,7 +442,7 @@ const CardScreen = () => {
                                         <TextInput.Icon
                                             icon={() => <Image source={require("../../../assets/images/ic_cvv_info.png")} style={{ width: 24, height: 24 }} />}
                                             onPress={() => {
-                                                console.log("CVV Info");
+                                                setShowCvvInfo(true)
                                             }}
                                         />
                                     )
@@ -305,7 +471,7 @@ const CardScreen = () => {
                         }}
                         theme={{
                             colors: {
-                                primary: brandColorStr,
+                                primary: checkoutDetails.brandColor,
                                 outline: '#E6E6E6'
                             }
                         }}
@@ -323,14 +489,15 @@ const CardScreen = () => {
                             borderRadius: 8,  // Add this
                             borderWidth: 1.5
                         }}
+                        onBlur={moveFromHolderName}
                     />
                     {(cardHolderNameText == "" || cardHolderNameError) && (
                         <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginHorizontal: 16, marginTop: 4 }}>This card name is invalid</Text>
                     )}
-                    <View style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 16, backgroundColor: '#E8F6F1', borderRadius: 4, padding: 4, alignItems: 'center' }}>
+                    {/* <View style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 16, backgroundColor: '#E8F6F1', borderRadius: 4, padding: 4, alignItems: 'center' }}>
                         <Image source={require("../../../assets/images/ic_info.png")} style={{ width: 20, height: 20, tintColor: '#2D2B32' }} />
                         <Text style={{ fontSize: 12, fontFamily: 'Poppins-Regular', color: '#2D2B32', marginStart: 8 }}>CVV will not be stored</Text>
-                    </View>
+                    </View> */}
                     <View style={{
                         position: 'absolute',
                         bottom: 0,
@@ -339,8 +506,8 @@ const CardScreen = () => {
                         paddingBottom: 16
                     }}>
                         {cardValid ? (
-                            <Pressable style={[styles.buttonContainer, { backgroundColor: brandColorStr }]} onPress={() => {
-
+                            <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={() => {
+                                onProceedForward()
                             }}>
                                 <Text style={styles.buttonText}>Make Payment</Text>
                             </Pressable>
@@ -353,6 +520,54 @@ const CardScreen = () => {
                 </View>
             )
             }
+            {failedModalOpen && (
+                <PaymentFailed
+                    onClick={() => setFailedModalState(false)}
+                    errorMessage={paymentFailedMessage.current}
+                />
+            )}
+
+            {successModalOpen && (
+                <PaymentSuccess
+                    onClick={onExitCheckout}
+                    transactionId={transactionId || ""}
+                    method="Card"
+                    localDateTime={successfulTimeStamp}
+                />
+            )}
+
+            {sessionExpireModalOpen && (
+                <SessionExpire
+                    onClick={onExitCheckout}
+                />
+            )}
+
+            {showCvvInfo && (
+                <CvvInfoBottomSheet
+                    onClick={() => setShowCvvInfo(false)}
+                    errorMessage={paymentFailedMessage.current}
+                />
+            )}
+
+            {showWebView && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'white'
+                }}>
+                    <WebViewScreen
+                        url={paymentUrl}
+                        html={paymentHtml}
+                        onBackPress={() => {
+                            startBackgroundApiTask();
+                            setShowWebView(false);
+                        }}
+                    />
+                </View>
+            )}
         </View>
     )
 }

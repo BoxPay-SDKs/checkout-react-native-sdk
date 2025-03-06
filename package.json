@@ -1,5 +1,5 @@
 {
-  "name": "checkout-react-native-sdk",
+  "name": "@boxpay/boxpay-checkout-react-native-sdk",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -50,7 +50,7 @@
     "react-native-shimmer-placeholder": "^2.0.9",
     "react-native-svg": "^15.11.2",
     "react-native-web": "~0.19.13",
-    "react-native-webview": "13.12.5"
+    "react-native-webview": "^13.12.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

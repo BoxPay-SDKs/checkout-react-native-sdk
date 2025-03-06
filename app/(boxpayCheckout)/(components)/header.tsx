@@ -1,17 +1,16 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import React from 'react';
+import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 
 interface HeaderProps {
-  items: number,
-  amount: string,
-  currencySymbol: string,
   showDesc: boolean,
   showSecure: boolean,
   text: string,
   onBackPress: () => void;  // Accepting the function as a prop
 }
 
-const Header: React.FC<HeaderProps> = ({ items, amount, currencySymbol, onBackPress, showDesc, showSecure, text }) => {
+const Header: React.FC<HeaderProps> = ({ onBackPress, showDesc, showSecure, text }) => {
+  const { checkoutDetails } = checkoutDetailsHandler;
   return (
     <View style={styles.header}>
       <View style={styles.headerTitleRow}>
@@ -24,14 +23,14 @@ const Header: React.FC<HeaderProps> = ({ items, amount, currencySymbol, onBackPr
           <Text style={styles.headerTitle}>{text}</Text>
           {showDesc && (
             <Text style={styles.headerDesc}>
-              {items > 0 && (
+              {checkoutDetails.itemsLength > 0 && (
                 <>
-                  {items} {items === 1 ? "item" : "items"} .
+                  {checkoutDetails.itemsLength} {checkoutDetails.itemsLength === 1 ? "item" : "items"} .
                 </>
               )}
               {" "}Total:
               <Text style={styles.amount}>
-                <Text style={styles.currencySymbol}> {currencySymbol}</Text>{amount}
+                <Text style={styles.currencySymbol}> {checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}
               </Text>
             </Text>
           )}
