@@ -74,7 +74,7 @@ const requestBody = {
   context: {
     countryCode: 'IN',
     legalEntity: {
-      code: 'razorpay',
+      code: 'eazebuzz',
     },
     orderId: 'test12',
   },
