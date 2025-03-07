@@ -12,7 +12,6 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({ onClick, errorMessage }) 
     const { checkoutDetails } = checkoutDetailsHandler;
     return (
         <View>
-
             <Modal
                 isVisible={true}
                 style={styles.modal}

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Image, BackHandler, Pressable } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import Header from '../(components)/header';
 import { TextInput } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
@@ -244,16 +244,19 @@ const CardScreen = () => {
             if (!reasonCode?.startsWith("uf", true)) {
                 paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.";
             }
+            setStatus('Failed');
             setFailedModalState(true);
             setLoading(false)
             stopBackgroundApiTask()
         } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
             setSuccessfulTimeStamp(response.transactionTimestampLocale);
             setSuccessModalState(true);
+            setStatus('Success');
             stopBackgroundApiTask()
             setLoading(false)
         } else if (['EXPIRED'].includes(status)) {
             setSessionExppireModalState(true);
+            setStatus('Expired');
             stopBackgroundApiTask()
             setLoading(false)
         }
@@ -288,14 +291,17 @@ const CardScreen = () => {
                 if (!reasonCode.startsWith("uf", true)) {
                     paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 }
+                setStatus('Failed');
                 setFailedModalState(true)
                 setLoading(false)
             } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
                 setSuccessfulTimeStamp(response.transactionTimestampLocale)
                 setSuccessModalState(true)
+                setStatus('Success');
                 setLoading(false)
             } else if (['EXPIRED'].includes(status)) {
                 setSessionExppireModalState(true)
+                setStatus('Expired');
                 setLoading(false)
             }
         } catch (error) {

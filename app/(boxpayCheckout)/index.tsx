@@ -50,7 +50,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [isFirstLoading, setIsFirstLoading] = useState(true)
     const [amount, setAmount] = useState("")
     const [currencySymbol, setCurrencySymbol] = useState("")
-    const [totalItems, setTotalItems] = useState(0)
+    const totalItemsRef = useRef(0)
     const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
     const [primaryButtonColor, setPrimaryButtonColor] = useState("#1CA672")
     const emailRef = useRef(null)
@@ -100,14 +100,17 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 if (!reasonCode.startsWith("uf", true)) {
                     paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 }
+                setStatus('Failed')
                 setFailedModalState(true)
                 setLoadingState(false)
             } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
                 setSuccessfulTimeStamp(response.transactionTimestampLocale)
+                setStatus('Success')
                 setSuccessModalState(true)
                 setLoadingState(false)
             } else if (['EXPIRED'].includes(status)) {
                 setSessionExppireModalState(true)
+                setStatus('Expired')
                 setLoadingState(false)
             }
         } catch (error) {
@@ -139,14 +142,17 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 if (!reasonCode.startsWith("uf", true)) {
                     paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 }
+                setStatus('Failed')
                 setFailedModalState(true)
                 setLoadingState(false)
             } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
                 setSuccessfulTimeStamp(response.transactionTimestampLocale)
+                setStatus('Success')
                 setSuccessModalState(true)
                 setLoadingState(false)
             } else if (['EXPIRED'].includes(status)) {
                 setSessionExppireModalState(true)
+                setStatus('Expired')
                 setLoadingState(false)
             }
         } catch (error) {
@@ -252,14 +258,17 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 if (!reasonCode.startsWith("uf", true)) {
                     paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 }
+                setStatus('Failed')
                 setFailedModalState(true)
                 stopBackgroundApiTask()
             } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
                 setSuccessfulTimeStamp(response.transactionTimestampLocale)
+                setStatus('Success')
                 setSuccessModalState(true)
                 stopBackgroundApiTask()
             } else if (['EXPIRED'].includes(status)) {
                 setSessionExppireModalState(true)
+                setStatus('Expired')
                 stopBackgroundApiTask()
             }
             setSelectedIntent(null)
@@ -300,6 +309,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             pathname: "/cardScreen"
         })
     }
+
+    const navigateToWalletScreen = () => {
+        router.push({
+            pathname: "/(boxpayCheckout)/(screens)/walletsScreen"
+        })
+    }
     useEffect(() => {
         const fetchPaymentMethods = async () => {
             const endpoint: string = testEnv
@@ -325,7 +340,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setCurrencySymbol(paymentDetails.money.currencySymbol)
                 if (paymentDetails.order != null && paymentDetails.order.items != null) {
                     const total = paymentDetails.order.items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
-                    setTotalItems(total);
+                    totalItemsRef.current = total;
                 }
                 setPrimaryButtonColor(response.data.merchantDetails.checkoutTheme.primaryButtonColor)
                 emailRef.current = paymentDetails.shopper.email
@@ -398,7 +413,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                         token: tokenState.current,
                         brandColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
                         env: testEnv ? 'test' : env,
-                        itemsLength: totalItems
+                        itemsLength: totalItemsRef.current
                     }
                 })
             } catch (error) {
@@ -547,14 +562,14 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                                     )}
                                                 </Pressable>
                                             )}
-                                            {/* {isWalletVisible && (
-                                            <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-                                                <MorePaymentContainer title='Wallet' image={require('../../assets/images/ic_wallet.png')} />
-                                                {(isNetBankingVisible || isEmiVisible || isBNPLVisible) && (
-                                                    <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
-                                                )}
-                                            </Pressable>
-                                        )} */}
+                                            {isWalletVisible && (
+                                                <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToWalletScreen}>
+                                                    <MorePaymentContainer title='Wallet' image={require('../../assets/images/ic_wallet.png')} />
+                                                    {(isNetBankingVisible || isEmiVisible || isBNPLVisible) && (
+                                                        <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
+                                                    )}
+                                                </Pressable>
+                                            )}
                                             {/* {isNetBankingVisible && (
                                             <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }}>
                                                 <MorePaymentContainer title='Netbanking' image={require('../../assets/images/ic_netbanking.png')} />

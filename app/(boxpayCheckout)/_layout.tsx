@@ -10,6 +10,7 @@ const BoxpayCheckoutLayout = () => {
       <Stack.Screen name='(screens)/cardScreen' options={{ headerShown: false }} />
       <Stack.Screen name='(screens)/upiScreen' options={{ headerShown: false }} />
       <Stack.Screen name='(screens)/webViewScreen' options={{ headerShown: false }} />
+      <Stack.Screen name='(screens)/walletsScreen' options={{ headerShown: false }} />
     </Stack>
   )
 }
