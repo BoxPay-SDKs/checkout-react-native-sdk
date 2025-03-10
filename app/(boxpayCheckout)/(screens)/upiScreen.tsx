@@ -46,255 +46,261 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
 
     return (
         <View>
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.addressText}>Pay by any UPI App</Text>
-            </View>
-            {isUpiIntentVisible && (
-                <View style={styles.intentBackground}>
-                    <View style={styles.upiIntentRow}>
-                        {isGpayVisible && (
+            {(isUpiIntentVisible || isUpiCollectVisible) && (
+                <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={styles.addressText}>Pay by any UPI App</Text>
+                </View>
+            )}
+            <View style={styles.intentBackground}>
+                {isUpiIntentVisible && (
+                    <View>
+                        <View style={styles.upiIntentRow}>
+                            {isGpayVisible && (
+                                <View style={styles.intentContainer}>
+                                    <Pressable
+                                        style={[
+                                            styles.intentIconBorder,
+                                            selectedIntent === 'GPay' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 }
+                                        ]}
+                                        onPress={() => {
+                                            setUpiCollectVisible(false)
+                                            setUpiCollectError(false)
+                                            setIsRotated(false)
+                                            setSelectedIntent("GPay")
+                                        }}
+                                    >
+                                        <Image
+                                            source={require("../../../assets/images/gpay-icon.png")}
+                                            style={styles.intentIcon}
+                                        />
+                                    </Pressable>
+                                    <Text style={[styles.intentTitle, selectedIntent === 'GPay' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>GPay</Text>
+                                </View>
+                            )}
+                            {isPhonePeVisible && (
+                                <View style={styles.intentContainer}>
+                                    <Pressable
+                                        style={[
+                                            styles.intentIconBorder,
+                                            selectedIntent === 'PhonePe' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 },
+                                        ]}
+                                        onPress={() => {
+                                            setUpiCollectVisible(false)
+                                            setIsRotated(false)
+                                            setUpiCollectError(false);
+                                            setSelectedIntent("PhonePe")
+                                        }}
+                                    >
+                                        <Image
+                                            source={require("../../../assets/images/phonepe-icon.png")}
+                                            style={{ height: 30, width: 30 }}
+                                        />
+                                    </Pressable>
+
+                                    <Text style={[styles.intentTitle, selectedIntent === 'PhonePe' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>PhonePe</Text>
+                                </View>
+                            )}
+                            {isPaytmVisible && (
+                                <View style={styles.intentContainer}>
+                                    <Pressable
+                                        style={[
+                                            styles.intentIconBorder,
+                                            selectedIntent === 'PayTm' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 }
+                                        ]}
+                                        onPress={() => {
+                                            setUpiCollectVisible(false)
+                                            setUpiCollectError(false);
+                                            setIsRotated(false)
+                                            setSelectedIntent("PayTm")
+                                        }}
+                                    >
+                                        <Image
+                                            source={require("../../../assets/images/paytm-icon.png")}
+                                            style={{ height: 28, width: 44 }}
+                                        />
+                                    </Pressable>
+                                    <Text style={[styles.intentTitle, selectedIntent === 'PayTm' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>PayTm</Text>
+                                </View>
+                            )}
                             <View style={styles.intentContainer}>
-                                <Pressable
-                                    style={[
-                                        styles.intentIconBorder,
-                                        selectedIntent === 'GPay' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 }
-                                    ]}
-                                    onPress={() => {
-                                        setUpiCollectVisible(false)
-                                        setUpiCollectError(false)
-                                        setIsRotated(false)
-                                        setSelectedIntent("GPay")
-                                    }}
-                                >
+                                <Pressable style={styles.intentIconBorder} onPress={() => {
+                                    setUpiCollectVisible(false)
+                                    setIsRotated(false)
+                                    setUpiCollectError(false);
+                                    setSelectedIntent("")
+                                }}>
                                     <Image
-                                        source={require("../../../assets/images/gpay-icon.png")}
+                                        source={require("../../../assets/images/other-intent-icon.png")}
                                         style={styles.intentIcon}
                                     />
                                 </Pressable>
-                                <Text style={[styles.intentTitle, selectedIntent === 'GPay' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>GPay</Text>
+                                <Text style={styles.intentTitle}>Others</Text>
                             </View>
-                        )}
-                        {isPhonePeVisible && (
-                            <View style={styles.intentContainer}>
-                                <Pressable
-                                    style={[
-                                        styles.intentIconBorder,
-                                        selectedIntent === 'PhonePe' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 },
-                                    ]}
-                                    onPress={() => {
-                                        setUpiCollectVisible(false)
-                                        setIsRotated(false)
-                                        setUpiCollectError(false);
-                                        setSelectedIntent("PhonePe")
-                                    }}
-                                >
-                                    <Image
-                                        source={require("../../../assets/images/phonepe-icon.png")}
-                                        style={{ height: 30, width: 30 }}
-                                    />
-                                </Pressable>
+                        </View>
 
-                                <Text style={[styles.intentTitle, selectedIntent === 'PhonePe' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>PhonePe</Text>
-                            </View>
-                        )}
-                        {isPaytmVisible && (
-                            <View style={styles.intentContainer}>
-                                <Pressable
-                                    style={[
-                                        styles.intentIconBorder,
-                                        selectedIntent === 'PayTm' && { borderColor: checkoutDetails.brandColor, borderWidth: 2 }
-                                    ]}
-                                    onPress={() => {
-                                        setUpiCollectVisible(false)
-                                        setUpiCollectError(false);
-                                        setIsRotated(false)
-                                        setSelectedIntent("PayTm")
-                                    }}
-                                >
-                                    <Image
-                                        source={require("../../../assets/images/paytm-icon.png")}
-                                        style={{ height: 28, width: 44 }}
-                                    />
-                                </Pressable>
-                                <Text style={[styles.intentTitle, selectedIntent === 'PayTm' && { color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }]}>PayTm</Text>
-                            </View>
-                        )}
-                        <View style={styles.intentContainer}>
-                            <Pressable style={styles.intentIconBorder} onPress={() => {
-                                setUpiCollectVisible(false)
-                                setIsRotated(false)
-                                setUpiCollectError(false);
-                                setSelectedIntent("")
-                            }}>
-                                <Image
-                                    source={require("../../../assets/images/other-intent-icon.png")}
-                                    style={styles.intentIcon}
-                                />
+                        {(selectedIntent !== null && selectedIntent !== "") && (
+                            <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={handleUpiPayment}>
+                                <Text style={styles.buttonText}>Pay <Text style={styles.currencySymbol}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount} via {selectedIntent}</Text>
                             </Pressable>
-                            <Text style={styles.intentTitle}>Others</Text>
-                        </View>
+                        )}
                     </View>
+                )}
 
-                    {(selectedIntent !== null && selectedIntent !== "") && (
-                        <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={handleUpiPayment}>
-                            <Text style={styles.buttonText}>Pay <Text style={styles.currencySymbol}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount} via {selectedIntent}</Text>
-                        </Pressable>
-                    )}
-
-                    {isUpiCollectVisible && (
-                        <View>
-                            {isRotated ? (
-                                <ImageBackground
-                                    source={require("../../../assets/images/add_upi_id_background.png")} // Replace with your background image
-                                    resizeMode="cover"
-                                    style={{ paddingBottom: 34, marginTop: 24 }}
+                {isUpiCollectVisible && (
+                    <View>
+                        {isRotated ? (
+                            <ImageBackground
+                                source={require("../../../assets/images/add_upi_id_background.png")} // Replace with your background image
+                                resizeMode="cover"
+                                style={{ paddingBottom: 34, marginTop: isUpiIntentVisible ? 24 : 0 }}
+                            >
+                                <Pressable
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center', // Ensures vertical alignment of items
+                                        paddingTop: 16,
+                                        paddingStart: 16,
+                                        marginEnd: 16,
+                                        justifyContent: 'space-between', // Spaces items between the start and end
+                                    }}
+                                    onPress={() => handleUpiChevronClick()}
                                 >
-                                    <Pressable
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center', // Ensures vertical alignment of items
-                                            paddingTop: 16,
-                                            paddingStart: 16,
-                                            marginEnd: 16,
-                                            justifyContent: 'space-between', // Spaces items between the start and end
-                                        }}
-                                        onPress={() => handleUpiChevronClick()}
-                                    >
-                                        {/* Icon and Text Wrapper */}
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <Image
-                                                source={require("../../../assets/images/add_icon.png")}
-                                                style={{ height: 14, width: 14, tintColor: checkoutDetails.brandColor }}
-                                            />
-                                            <Text
-                                                style={{
-                                                    fontSize: 14,
-                                                    color: checkoutDetails.brandColor,
-                                                    paddingStart: 10,
-                                                    fontFamily: 'Poppins-SemiBold'
-                                                }}
-                                            >
-                                                Add new UPI Id
-                                            </Text>
-                                        </View>
-
-                                        <Animated.Image
-                                            source={require("../../../assets/images/chervon-down.png")}
-                                            style={{
-                                                alignSelf: 'center', height: 6, width: 14, transform: [{
-                                                    rotate: isRotated ? "180deg" : "0deg"
-                                                }]
-                                            }}
+                                    {/* Icon and Text Wrapper */}
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Image
+                                            source={require("../../../assets/images/add_icon.png")}
+                                            style={{ height: 14, width: 14, tintColor: checkoutDetails.brandColor }}
                                         />
-                                    </Pressable>
-                                </ImageBackground>
-                            ) : (
-                                <View>
+                                        <Text
+                                            style={{
+                                                fontSize: 14,
+                                                color: checkoutDetails.brandColor,
+                                                paddingStart: 10,
+                                                fontFamily: 'Poppins-SemiBold'
+                                            }}
+                                        >
+                                            Add new UPI Id
+                                        </Text>
+                                    </View>
+
+                                    <Animated.Image
+                                        source={require("../../../assets/images/chervon-down.png")}
+                                        style={{
+                                            alignSelf: 'center', height: 6, width: 14, transform: [{
+                                                rotate: isRotated ? "180deg" : "0deg"
+                                            }]
+                                        }}
+                                    />
+                                </Pressable>
+                            </ImageBackground>
+                        ) : (
+                            <View style={{ paddingBottom: isUpiCollectVisible ? 16 : 0 }}>
+                                {isUpiIntentVisible && (
                                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#F1F1F1', marginTop: 20 }} />
-                                    <Pressable
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center', // Ensures vertical alignment of items
-                                            paddingTop: 16,
-                                            paddingStart: 16,
-                                            marginEnd: 16,
-                                            justifyContent: 'space-between', // Spaces items between the start and end
-                                        }}
-                                        onPress={() => handleUpiChevronClick()}
-                                    >
-                                        {/* Icon and Text Wrapper */}
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <Image
-                                                source={require("../../../assets/images/add_icon.png")}
-                                                style={{ height: 14, width: 14, tintColor: checkoutDetails.brandColor }}
-                                            />
-                                            <Text
-                                                style={{
-                                                    fontSize: 14,
-                                                    color: checkoutDetails.brandColor,
-                                                    paddingStart: 10,
-                                                    fontFamily: 'Poppins-SemiBold'
-                                                }}
-                                            >
-                                                Add new UPI Id
-                                            </Text>
-                                        </View>
-
-                                        <Animated.Image
-                                            source={require("../../../assets/images/chervon-down.png")}
+                                )}
+                                <Pressable
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center', // Ensures vertical alignment of items
+                                        paddingTop: 16,
+                                        paddingStart: 16,
+                                        marginEnd: 16,
+                                        justifyContent: 'space-between', // Spaces items between the start and end
+                                    }}
+                                    onPress={() => handleUpiChevronClick()}
+                                >
+                                    {/* Icon and Text Wrapper */}
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Image
+                                            source={require("../../../assets/images/add_icon.png")}
+                                            style={{ height: 14, width: 14, tintColor: checkoutDetails.brandColor }}
+                                        />
+                                        <Text
                                             style={{
-                                                alignSelf: 'center', height: 6, width: 14, transform: [{
-                                                    rotate: isRotated ? "180deg" : "0deg"
-                                                }]
+                                                fontSize: 14,
+                                                color: checkoutDetails.brandColor,
+                                                paddingStart: 10,
+                                                fontFamily: 'Poppins-SemiBold'
                                             }}
-                                        />
-                                    </Pressable>
-                                </View>
-                            )}
-                        </View>
-                    )}
+                                        >
+                                            Add new UPI Id
+                                        </Text>
+                                    </View>
 
-                    {upiCollectVisible && (
-                        <View>
-                            <TextInput
-                                mode='outlined'
-                                label='Enter UPI ID'
-                                value={upiCollectTextInput}
-                                onChangeText={(it) => {
-                                    handleTextChange(it)
-                                }}
-                                theme={{
-                                    colors: {
-                                        primary: checkoutDetails.brandColor,
-                                        outline: '#E6E6E6'
-                                    }
-                                }}
-                                style={styles.textInput}
-                                error={upiCollectError}
-                                right={
-                                    upiCollectError ? (
-                                        <TextInput.Icon
-                                            icon={() => <Image source={require("../../../assets/images/ic_upi_error.png")} style={{ width: 24, height: 24 }} />}
-                                        />
-                                    ) : null
+                                    <Animated.Image
+                                        source={require("../../../assets/images/chervon-down.png")}
+                                        style={{
+                                            alignSelf: 'center', height: 6, width: 14, transform: [{
+                                                rotate: isRotated ? "180deg" : "0deg"
+                                            }]
+                                        }}
+                                    />
+                                </Pressable>
+                            </View>
+                        )}
+                    </View>
+                )}
+
+                {upiCollectVisible && (
+                    <View style={{ paddingBottom: isUpiCollectVisible ? 16 : 0 }}>
+                        <TextInput
+                            mode='outlined'
+                            label='Enter UPI ID'
+                            value={upiCollectTextInput}
+                            onChangeText={(it) => {
+                                handleTextChange(it)
+                            }}
+                            theme={{
+                                colors: {
+                                    primary: checkoutDetails.brandColor,
+                                    outline: '#E6E6E6'
                                 }
-                                outlineStyle={{
-                                    borderRadius: 8,  // Add this
-                                    borderWidth: 1.5
-                                }}
-                            />
-                            {upiCollectError && (
-                                <Text style={{
-                                    fontSize: 12, color: '#E12121', marginStart: 16, marginHorizontal: 16,
-                                    fontFamily: 'Poppins-Regular'
-                                }}>Please enter a valid UPI Id</Text>
-                            )}
-                            {upiCollectValid ? (
-                                <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={() => {
-                                    if (upiCollectValid) {
-                                        handleCollectPayment(upiCollectTextInput)
-                                    } else {
-                                        setUpiCollectError(true)
-                                    }
-                                }}>
-                                    <Text style={styles.buttonText}>Verify & Pay <Text style={styles.currencySymbol}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}</Text>
-                                </Pressable>
-                            ) : (
-                                <Pressable style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' }]} onPress={() => {
-                                    if (upiCollectValid) {
-                                        handleCollectPayment(upiCollectTextInput)
-                                    } else {
-                                        setUpiCollectError(true)
-                                    }
-                                }}>
-                                    <Text style={[styles.buttonText, { color: '#ADACB0' }]}>Verify & Pay <Text style={[styles.currencySymbol, { color: '#ADACB0' }]}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}</Text>
-                                </Pressable>
-                            )}
-                        </View>
-                    )}
+                            }}
+                            style={styles.textInput}
+                            error={upiCollectError}
+                            right={
+                                upiCollectError ? (
+                                    <TextInput.Icon
+                                        icon={() => <Image source={require("../../../assets/images/ic_upi_error.png")} style={{ width: 24, height: 24 }} />}
+                                    />
+                                ) : null
+                            }
+                            outlineStyle={{
+                                borderRadius: 8,  // Add this
+                                borderWidth: 1.5
+                            }}
+                        />
+                        {upiCollectError && (
+                            <Text style={{
+                                fontSize: 12, color: '#E12121', marginStart: 16, marginHorizontal: 16,
+                                fontFamily: 'Poppins-Regular'
+                            }}>Please enter a valid UPI Id</Text>
+                        )}
+                        {upiCollectValid ? (
+                            <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={() => {
+                                if (upiCollectValid) {
+                                    handleCollectPayment(upiCollectTextInput)
+                                } else {
+                                    setUpiCollectError(true)
+                                }
+                            }}>
+                                <Text style={styles.buttonText}>Verify & Pay <Text style={styles.currencySymbol}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}</Text>
+                            </Pressable>
+                        ) : (
+                            <Pressable style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' }]} onPress={() => {
+                                if (upiCollectValid) {
+                                    handleCollectPayment(upiCollectTextInput)
+                                } else {
+                                    setUpiCollectError(true)
+                                }
+                            }}>
+                                <Text style={[styles.buttonText, { color: '#ADACB0' }]}>Verify & Pay <Text style={[styles.currencySymbol, { color: '#ADACB0' }]}>{checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}</Text>
+                            </Pressable>
+                        )}
+                    </View>
+                )}
 
-                </View>
-            )}
+            </View>
         </View>
     )
 }
@@ -312,7 +318,8 @@ const styles = StyleSheet.create({
     upiIntentRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16
+        paddingHorizontal: 16,
+        paddingVertical: 14
     },
     textInput: {
         marginHorizontal: 16,
@@ -353,7 +360,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginHorizontal: 16,
         marginVertical: 8,
-        paddingVertical: 14,
         backgroundColor: "white",
         flexDirection: 'column',
         borderRadius: 12,

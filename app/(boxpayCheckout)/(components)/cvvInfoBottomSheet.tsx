@@ -3,16 +3,16 @@ import React from 'react'
 import Modal from 'react-native-modal'
 import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 interface CvvInfoBottomSheetProps {
-    onClick: () => void,
-    errorMessage: string
+    onClick: () => void
 }
-const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick, errorMessage }) => {
+const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick }) => {
     const { checkoutDetails } = checkoutDetailsHandler;
     return (
         <View>
             <Modal
                 isVisible={true}
                 style={styles.modal}
+                onBackdropPress={onClick}
             >
                 <View style={styles.sheet}>
                     <Text style={{

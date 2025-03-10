@@ -542,13 +542,21 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                             <View>
                                 {isCardVisible && isWalletVisible && isNetBankingVisible && isBNPLVisible && isEmiVisible && (
                                     <View>
-                                        <Text style={{
+                                        {(isUpiCollectVisible || isUpiIntentVisibile) ? (<Text style={{
                                             marginStart: 16,
                                             marginTop: 12,
                                             fontSize: 14,
                                             color: '#020815B5',
                                             fontFamily: 'Poppins-SemiBold'
-                                        }}>More Payment Options</Text>
+                                        }}>More Payment Options</Text>) : (
+                                            <Text style={{
+                                                marginStart: 16,
+                                                marginTop: 12,
+                                                fontSize: 14,
+                                                color: '#020815B5',
+                                                fontFamily: 'Poppins-SemiBold'
+                                            }}>Payment Options</Text>
+                                        )}
 
                                         <View style={{
                                             flex: 1, backgroundColor: 'white', marginVertical: 8, marginHorizontal: 16, borderRadius: 12, flexDirection: 'column', borderColor: '#F1F1F1',

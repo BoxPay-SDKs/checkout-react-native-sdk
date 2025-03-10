@@ -193,13 +193,17 @@ const WalletScreen = () => {
 
     useEffect(() => {
         if (searchText.length > 0) {
-            const filteredWalletList = defaultWalletList.filter((item) => item.title.toLowerCase().includes(searchText.toLowerCase()));
-            console.log(filteredWalletList);
+            const filteredWalletList = defaultWalletList.filter((item) => {
+                const words = item.title.toLowerCase().split(/\s+/); // Split title into words
+                return words.some(word => word.startsWith(searchText.toLowerCase())); // Check if any word starts with searchText
+            });
+
             setWalletList(filteredWalletList);
         } else {
             setWalletList(defaultWalletList);
         }
     }, [searchText]);
+
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>

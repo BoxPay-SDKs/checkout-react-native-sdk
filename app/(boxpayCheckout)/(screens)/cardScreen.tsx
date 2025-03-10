@@ -33,6 +33,18 @@ const CardScreen = () => {
     const [cardCvvError, setCardCvvError] = useState(false);
     const [cardHolderNameError, setCardHolderNameError] = useState(false);
 
+    const [cardNumberErrorText, setCardNumberErrorText] = useState<string>("This card number is invalid");
+    const [cardExpiryErrorText, setCardExpiryErrorText] = useState<string>("Expiry is invalid");
+    const [cardCvvErrorText, setCardCvvErrorText] = useState<string>("CVV is invalid");
+    const [cardHolderNameErrorText, setCardHolderNameErrorText] = useState<string>("This card name is invalid");
+
+    const [cardNumberValid, setCardNumberValid] = useState(true);
+
+    const [cardNumberFocused, setCardNumberFocused] = useState(false);
+    const [cardExpiryFocused, setCardExpiryFocused] = useState(false);
+    const [cardCvvFocused, setCardCvvFocused] = useState(false);
+    const [cardHolderNameFocused, setCardHolderNameFocused] = useState(false);
+
     const [cardValid, setCardValid] = useState(false);
     const [showCvvInfo, setShowCvvInfo] = useState(false);
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
@@ -52,10 +64,8 @@ const CardScreen = () => {
 
     const handleCardNumberTextChange = (text: string) => {
         if (text == "") {
-            setCardNumberError(true);
             setCardNumberText(text);
         } else {
-            setCardNumberError(false);
             const cleaned = text.replace(/[^\d]/g, '');
 
             // Add space every 4 digits
@@ -64,6 +74,19 @@ const CardScreen = () => {
             setCardNumberText(formatted);
             if (formatted.length > 10) {
                 fetchCardDetails(checkoutDetails.token, checkoutDetails.env, formatted.replace(/ /g, '')).then((data) => {
+                    if (!data.methodEnabled) {
+                        if (!cardNumberError) {  // Prevent redundant updates
+                            setCardNumberValid(false);
+                            setCardNumberErrorText("This card is not supported for the payment");
+                            setCardNumberError(true);
+                        }
+                    } else {
+                        if (!cardNumberValid) {
+                            setCardNumberValid(true);
+                            setCardNumberErrorText("");
+                            setCardNumberError(false);
+                        }
+                    }
                     if (data.paymentMethod.brand == "VISA") {
                         setCardSelectedIcon(require("../../../assets/images/ic_visa.png"));
                         setMaxCvvLength(3);
@@ -97,17 +120,13 @@ const CardScreen = () => {
             }
         }
     };
+
     const handleCardNumberBlur = () => {
         const cleaned = cardNumberText?.replace(/ /g, '') || '';
-        setCardNumberError(cleaned.length < 16);
-    };
-
-    // In expiry input focus handler
-    const moveToExpiry = () => {
-        const cleaned = cardNumberText?.replace(/ /g, '') || '';
-        if (cleaned.length != 16) {
-            setCardNumberError(true);
-        }
+        const cleanedLength = maxCardNumberLength == 19 ? 16 : 15;
+        setCardNumberErrorText(cleaned.length < 1 ? "Required" : cleaned.length < cleanedLength ? "This card number is invalid" : "");
+        setCardNumberError(cleaned.length < cleanedLength);
+        setCardNumberFocused(false);
     };
 
     const startBackgroundApiTask = () => {
@@ -130,83 +149,99 @@ const CardScreen = () => {
 
     const handleCardExpiryTextChange = (text: string) => {
         setCardExpiryText(text);
-        if (text == "") {
+
+        if (text === "") {
             setCardExpiryError(true);
-            setCardExpiryText(text);
-        } else {
-            setCardExpiryError(false);
-            const isDeleting = text.length < (cardExpiryText?.length || 0);
-
-            // Remove all non-digits
-            let cleaned = text.replace(/\D/g, '');
-
-            // Handle backspace on slash
-            if (isDeleting && text.endsWith('/')) {
-                cleaned = cleaned.slice(0, -1);
-            }
-
-            // Limit to 4 digits
-            cleaned = cleaned.slice(0, 4);
-
-            // Add leading zero for single-digit month
-            if (cleaned.length === 1 && parseInt(cleaned) > 1) {
-                cleaned = `0${cleaned}`;
-            }
-
-            // Validate month
-            let monthError = false;
-            if (cleaned.length >= 2) {
-                const month = parseInt(cleaned.slice(0, 2));
-                monthError = month < 1 || month > 12;
-            }
-
-            // Format as MM/YY with proper deletion handling
-            let formatted = cleaned;
-            if (cleaned.length > 2) {
-                formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
-            } else if (cleaned.length === 2 && !isDeleting) {
-                formatted = `${cleaned}/`;
-            }
-
-            setCardExpiryText(formatted);
+            return;
         }
+
+        setCardExpiryError(false);
+        const isDeleting = text.length < (cardExpiryText?.length || 0);
+
+        // Remove all non-digits
+        let cleaned = text.replace(/\D/g, '');
+
+        // Handle backspace on slash
+        if (isDeleting && text.endsWith('/')) {
+            cleaned = cleaned.slice(0, -1);
+        }
+
+        // Limit to 4 digits (MMYY)
+        cleaned = cleaned.slice(0, 4);
+
+        // Add leading zero for single-digit month
+        if (cleaned.length === 1 && parseInt(cleaned) > 1) {
+            cleaned = `0${cleaned}`;
+        }
+
+        // Validate month
+        let monthError = false;
+        if (cleaned.length >= 2) {
+            const month = parseInt(cleaned.slice(0, 2), 10);
+            monthError = month < 1 || month > 12;
+        }
+
+        // Validate year
+        let yearError = false;
+        if (cleaned.length === 4) {
+            const currentYear = new Date().getFullYear() % 100; // Get last two digits of current year
+            const currentMonth = new Date().getMonth() + 1;
+
+            const enteredMonth = parseInt(cleaned.slice(0, 2), 10);
+            const enteredYear = parseInt(cleaned.slice(2), 10);
+
+            if (enteredYear < currentYear) {
+                yearError = true; // Prevent past years
+            } else if (enteredYear === currentYear && enteredMonth < currentMonth) {
+                yearError = true; // Prevent past months in the current year
+            }
+        }
+
+        // If invalid month or year, set error and return
+        if (monthError || yearError) {
+            setCardExpiryError(true);
+            setCardExpiryErrorText("Expiry is invalid")
+            return;
+        }
+
+        // Format as MM/YY
+        let formatted = cleaned;
+        if (cleaned.length > 2) {
+            formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+        } else if (cleaned.length === 2 && !isDeleting) {
+            formatted = `${cleaned}/`;
+        }
+
+        setCardExpiryText(formatted);
     };
+
 
     const handleCardExpiryBlur = () => {
         const cleaned = cardExpiryText?.replace(/ /g, '') || '';
+        setCardExpiryErrorText(cleaned.length < 1 ? "Required" : cleaned.length < 5 ? "Expiry is invalid" : "");
         setCardExpiryError(cleaned.length < 5);
-    };
-
-    // In expiry input focus handler
-    const moveToCvv = () => {
-        const cleaned = cardExpiryText?.replace(/ /g, '') || '';
-        if (cleaned.length != 5) {
-            setCardExpiryError(true);
-        }
+        setCardExpiryFocused(false);
     };
 
     const handleCardCvvBlur = () => {
         const cleaned = cardCvvText?.replace(/ /g, '') || '';
+        setCardCvvErrorText(cleaned.length < 1 ? "Required" : cleaned.length < maxCvvLength ? "CVV is invalid" : "");
         setCardCvvError(cleaned.length < maxCvvLength);
+        setCardCvvFocused(false);
     };
 
-    const moveToHolderName = () => {
-        const cleaned = cardCvvText?.replace(/ /g, '') || '';
-        if (cleaned.length != maxCvvLength) {
-            setCardCvvError(true);
-        }
-    };
 
-    const moveFromHolderName = () => {
+    const handleCardHolderNameBlur = () => {
         const cleaned = cardHolderNameText?.replace(/ /g, '') || '';
-        if (cleaned.length != 1) {
-            setCardHolderNameError(true);
-        }
+        setCardHolderNameErrorText(cleaned.length < 1 ? "Required" : "");
+        setCardHolderNameFocused(false);
+        setCardHolderNameError(cleaned.length < 1);
     };
 
     const handleCardCvvTextChange = (text: string) => {
         setCardCvvText(text);
         if (text == "") {
+            setCardCvvErrorText("Required");
             setCardCvvError(true);
         } else {
             setCardCvvError(false);
@@ -215,14 +250,12 @@ const CardScreen = () => {
 
     const handleCardHolderNameTextChange = (text: string) => {
         setCardHolderNameText(text);
-        if (text == "") {
-            setCardHolderNameError(true);
-        } else {
+        if (text != "") {
             setCardHolderNameError(false);
         }
     };
     const checkCardValid = () => {
-        if (cardNumberError || cardExpiryError || cardCvvError || cardHolderNameError || cardNumberText?.length != maxCardNumberLength || cardExpiryText?.length != 5 || cardCvvText?.length != maxCvvLength || (cardHolderNameText?.length ?? 0) < 1) {
+        if (cardNumberError || cardExpiryError || cardCvvError || cardHolderNameError || cardNumberText?.length != maxCardNumberLength || cardExpiryText?.length != 5 || cardCvvText?.length != maxCvvLength || (cardHolderNameText?.length ?? 0) < 1 || !cardNumberValid) {
             setCardValid(false);
         } else {
             setCardValid(true);
@@ -270,6 +303,7 @@ const CardScreen = () => {
             cardCvvText || "",
             cardHolderNameText || ""
         )
+        console.log("response", response)
         try {
             setStatus(response.status.status)
             setTransactionId(response.transactionId)
@@ -287,7 +321,6 @@ const CardScreen = () => {
                     }
                 }
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
                     paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 }
@@ -305,6 +338,12 @@ const CardScreen = () => {
                 setLoading(false)
             }
         } catch (error) {
+            const reason = response.status.reason
+            const reasonCode = response.status.reasonCode
+            paymentFailedMessage.current = reason
+            if (!reasonCode.startsWith("UF")) {
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+            }
             setFailedModalState(true)
             setLoading(false)
         }
@@ -345,19 +384,21 @@ const CardScreen = () => {
                 </View>
             ) : (
                 <View style={{ flex: 1, backgroundColor: 'white' }}>
-                    <Header onBackPress={onProceedBack} showDesc={false} showSecure={true} text='Add a new Card' />
+                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={true} text='Pay via Card' />
                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                     <TextInput
                         mode='outlined'
-                        label='Card Number'
+                        label={
+                            <Text style={{ fontSize: 14, fontFamily: 'Poppins-Regular', color: cardNumberFocused ? '#2D2B32' : '#ADACB0' }}>Card Number</Text>
+                        }
                         value={cardNumberText || ''}
                         onChangeText={(it) => {
                             handleCardNumberTextChange(it)
                         }}
                         theme={{
                             colors: {
-                                primary: checkoutDetails.brandColor,
-                                outline: '#E6E6E6'
+                                primary: "#2D2B32",
+                                outline: '#E6E6E6',
                             }
                         }}
                         style={[styles.textInput, { marginTop: 28, marginHorizontal: 16 }]}
@@ -380,25 +421,30 @@ const CardScreen = () => {
                         }}
                         keyboardType='number-pad'
                         maxLength={maxCardNumberLength}
+                        onFocus={() => {
+                            setCardNumberFocused(true);
+                            setCardNumberError(false);
+                        }}
                         onBlur={handleCardNumberBlur}
-                        onSubmitEditing={moveToExpiry}
                     />
-                    {(cardNumberText == "" || cardNumberError) && (
-                        <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginHorizontal: 16, marginTop: 4 }}>This card number is invalid</Text>
+                    {(cardNumberError) && (
+                        <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginHorizontal: 16, marginTop: 4 }}>{cardNumberErrorText}</Text>
                     )}
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 16, marginTop: 16 }}>
                         <View style={{ flex: 1, flexDirection: 'column' }}>
                             <TextInput
                                 mode='outlined'
-                                label='Expiry (MM/YY)'
+                                label={
+                                    <Text style={{ fontSize: 14, fontFamily: 'Poppins-Regular', color: cardExpiryFocused ? '#2D2B32' : '#ADACB0' }}>Expiry (MM/YY)</Text>
+                                }
                                 value={cardExpiryText || ''}
                                 onChangeText={(it) => {
                                     handleCardExpiryTextChange(it)
                                 }}
                                 theme={{
                                     colors: {
-                                        primary: checkoutDetails.brandColor,
-                                        outline: '#E6E6E6'
+                                        primary: "#2D2B32",
+                                        outline: '#E6E6E6',
                                     }
                                 }}
                                 style={styles.textInput}
@@ -416,25 +462,30 @@ const CardScreen = () => {
                                 }}
                                 keyboardType='number-pad'
                                 maxLength={5}
+                                onFocus={() => {
+                                    setCardExpiryFocused(true);
+                                    setCardExpiryError(false);
+                                }}
                                 onBlur={handleCardExpiryBlur}
-                                onSubmitEditing={moveToCvv}
                             />
-                            {(cardExpiryText == "" || cardExpiryError) && (
-                                <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginTop: 4 }}>Expiry is invalid</Text>
+                            {(cardExpiryError) && (
+                                <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginTop: 4 }}>{cardExpiryErrorText}</Text>
                             )}
                         </View>
                         <View style={{ flex: 1, flexDirection: 'column', marginStart: 16 }}>
                             <TextInput
                                 mode='outlined'
-                                label='CVV'
+                                label={
+                                    <Text style={{ fontSize: 14, fontFamily: 'Poppins-Regular', color: cardCvvFocused ? '#2D2B32' : '#ADACB0' }}>CVV</Text>
+                                }
                                 value={cardCvvText || ''}
                                 onChangeText={(it) => {
                                     handleCardCvvTextChange(it)
                                 }}
                                 theme={{
                                     colors: {
-                                        primary: checkoutDetails.brandColor,
-                                        outline: '#E6E6E6'
+                                        primary: "#2D2B32",
+                                        outline: '#E6E6E6',
                                     }
                                 }}
                                 style={styles.textInput}
@@ -461,24 +512,29 @@ const CardScreen = () => {
                                 maxLength={maxCvvLength}
                                 secureTextEntry={true}
                                 onBlur={handleCardCvvBlur}
-                                onSubmitEditing={moveToHolderName}
+                                onFocus={() => {
+                                    setCardCvvFocused(true);
+                                    setCardCvvError(false);
+                                }}
                             />
-                            {(cardCvvText == "" || cardCvvError) && (
-                                <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginTop: 4 }}>CVV is invalid</Text>
+                            {(cardCvvError) && (
+                                <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginTop: 4 }}>{cardCvvErrorText}</Text>
                             )}
                         </View>
                     </View>
                     <TextInput
                         mode='outlined'
-                        label='Name on the Card'
+                        label={
+                            <Text style={{ fontSize: 14, fontFamily: 'Poppins-Regular', color: cardHolderNameFocused ? '#2D2B32' : '#ADACB0' }}>Name on the Card</Text>
+                        }
                         value={cardHolderNameText || ''}
                         onChangeText={(it) => {
                             handleCardHolderNameTextChange(it)
                         }}
                         theme={{
                             colors: {
-                                primary: checkoutDetails.brandColor,
-                                outline: '#E6E6E6'
+                                primary: "#2D2B32",
+                                outline: '#E6E6E6',
                             }
                         }}
                         style={[styles.textInput, { marginHorizontal: 16, marginTop: 16 }]}
@@ -495,10 +551,14 @@ const CardScreen = () => {
                             borderRadius: 8,  // Add this
                             borderWidth: 1.5
                         }}
-                        onBlur={moveFromHolderName}
+                        onBlur={handleCardHolderNameBlur}
+                        onFocus={() => {
+                            setCardHolderNameFocused(true);
+                            setCardHolderNameError(false);
+                        }}
                     />
-                    {(cardHolderNameText == "" || cardHolderNameError) && (
-                        <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginHorizontal: 16, marginTop: 4 }}>This card name is invalid</Text>
+                    {(cardHolderNameError) && (
+                        <Text style={{ color: '#B3261E', fontSize: 12, fontFamily: 'Poppins-Regular', marginHorizontal: 16, marginTop: 4 }}>{cardHolderNameErrorText}</Text>
                     )}
                     {/* <View style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 16, backgroundColor: '#E8F6F1', borderRadius: 4, padding: 4, alignItems: 'center' }}>
                         <Image source={require("../../../assets/images/ic_info.png")} style={{ width: 20, height: 20, tintColor: '#2D2B32' }} />
@@ -551,7 +611,6 @@ const CardScreen = () => {
             {showCvvInfo && (
                 <CvvInfoBottomSheet
                     onClick={() => setShowCvvInfo(false)}
-                    errorMessage={paymentFailedMessage.current}
                 />
             )}
 
@@ -594,7 +653,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 20,
         marginHorizontal: 16,
-        paddingVertical: 14
+        paddingTop: 14,
+        paddingBottom: 12
     },
     buttonText: {
         color: 'white',
