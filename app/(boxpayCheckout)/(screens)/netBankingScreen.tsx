@@ -18,13 +18,26 @@ import methodsPostRequest from '../(postRequest)/methodsPostRequest';
 import fetchStatus from '../(postRequest)/fetchStatus';
 import WebViewScreen from './webViewScreen';
 
-const WalletScreen = () => {
-    const [walletList, setWalletList] = useState<PaymentClass[]>([]);
-    const screenHeight = Dimensions.get('window').height;
-    const [defaultWalletList, setDefaultWalletList] = useState<PaymentClass[]>([]);
+const NetBankingScreen = () => {
+    const [netBankingList, setNetBankingList] = useState<PaymentClass[]>([]);
+    const [defaultNetBankingList, setDefaultNetBankingList] = useState<PaymentClass[]>([]);
     const [searchText, setSearchText] = useState<string>("");
     const { checkoutDetails } = checkoutDetailsHandler;
     const [loading, setLoading] = useState(false);
+    const screenHeight = Dimensions.get('window').height;
+
+    const [isSearchVisible, setIsSearchVisible] = useState(false);
+    const [checkedOnce, setCheckedOnce] = useState(false);
+
+    const defaultpopularNetBankingList = [
+        "HDFC Bank",
+        "ICICI Bank",
+        "State Bank of India",
+        "Axis Bank",
+        "Punjab National Bank Retail"
+    ]
+
+    const [popularNetBankingList, setPopularNetBankingList] = useState<PaymentClass[]>([]);
 
     const [isFirstLoad, setIsFirstLoad] = useState(true);
 
@@ -45,9 +58,6 @@ const WalletScreen = () => {
 
     const [searchTextFocused, setSearchTextFocused] = useState(false);
 
-    const [isSearchVisible, setIsSearchVisible] = useState(false);
-    const [checkedOnce, setCheckedOnce] = useState(false);
-
     const onProceedBack = () => {
         router.back();
         return true;
@@ -66,9 +76,9 @@ const WalletScreen = () => {
     useEffect(() => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
 
-            const walletList = data
-                .filter((item: any) => item.type === "Wallet")
-                .sort((a: any, b: any) => a.title.localeCompare(b.title))
+            const netBankingList = data
+                .filter((item: any) => item.type === "NetBanking")
+                .sort((a: any, b: any) => a.title.trim().localeCompare(b.title.trim())) // Trim spaces before sorting
                 .map((item: any) => ({
                     id: item.id,
                     title: item.title,
@@ -76,8 +86,12 @@ const WalletScreen = () => {
                     instrumentTypeValue: item.instrumentTypeValue,
                     isSelected: false
                 }));
-            setWalletList(walletList)
-            setDefaultWalletList(walletList)
+
+
+            const popularList = netBankingList.filter((item: any) => defaultpopularNetBankingList.includes(item.title))
+            setPopularNetBankingList(popularList)
+            setNetBankingList(netBankingList)
+            setDefaultNetBankingList(netBankingList)
         });
     }, []);
 
@@ -131,7 +145,7 @@ const WalletScreen = () => {
         setLoading(true);
         const response = await methodsPostRequest(
             instrumentType,
-            "wallet"
+            "netBanking"
         )
         try {
             setStatus(response.status.status)
@@ -174,12 +188,30 @@ const WalletScreen = () => {
     }
 
     const onClickRadioButton = (id: string) => {
-        const updatedWalletList = walletList.map((walletItem) => ({
-            ...walletItem,
-            isSelected: walletItem.id === id
+        const updatedNetBankingList = netBankingList.map((netBankingItem) => ({
+            ...netBankingItem,
+            isSelected: netBankingItem.id === id
         }));
-        setWalletList(updatedWalletList);
+        const updatedPopularNetBankingList = popularNetBankingList.map((popularNetBankingItem) => ({
+            ...popularNetBankingItem,
+            isSelected: false
+        }));
+        setPopularNetBankingList(updatedPopularNetBankingList);
+        setNetBankingList(updatedNetBankingList);
     };
+
+    const onClickPopularBank = (id: string) => {
+        const updatedPopularNetBankingList = popularNetBankingList.map((popularNetBankingItem) => ({
+            ...popularNetBankingItem,
+            isSelected: popularNetBankingItem.id === id
+        }));
+        const updatedNetBankingList = netBankingList.map((netBankingItem) => ({
+            ...netBankingItem,
+            isSelected: false
+        }));
+        setNetBankingList(updatedNetBankingList);
+        setPopularNetBankingList(updatedPopularNetBankingList);
+    }
 
     const onExitCheckout = () => {
         const mockPaymentResult: PaymentResult = {
@@ -191,21 +223,21 @@ const WalletScreen = () => {
     };
 
     useEffect(() => {
-        if (walletList.length > 0) {
+        if (netBankingList.length > 0) {
             setIsFirstLoad(false);
         }
-    }, [walletList]);
+    }, [netBankingList]);
 
     useEffect(() => {
         if (searchText.length > 0) {
-            const filteredWalletList = defaultWalletList.filter((item) => {
+            const filteredNetBankingList = defaultNetBankingList.filter((item) => {
                 const words = item.title.toLowerCase().split(/\s+/); // Split title into words
                 return words.some(word => word.startsWith(searchText.toLowerCase())); // Check if any word starts with searchText
             });
 
-            setWalletList(filteredWalletList);
+            setNetBankingList(filteredNetBankingList);
         } else {
-            setWalletList(defaultWalletList);
+            setNetBankingList(defaultNetBankingList);
         }
     }, [searchText]);
 
@@ -230,14 +262,14 @@ const WalletScreen = () => {
                 </View>
             ) : (
                 <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
-                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Choose Wallet' />
+                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Select Bank' />
                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                     {isSearchVisible && (
                         <View style={{ backgroundColor: 'white', paddingBottom: 20 }}>
                             <TextInput
                                 mode='outlined'
                                 label={
-                                    <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular', color: searchTextFocused ? '#2D2B32' : (searchText != "" && searchText != null) ? '#2D2B32' : '#ADACB0' }}>Search for wallet</Text>
+                                    <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular', color: searchTextFocused ? '#2D2B32' : (searchText != "" && searchText != null) ? '#2D2B32' : '#ADACB0' }}>Search for bank</Text>
                                 }
                                 value={searchText}
                                 onChangeText={(it) => {
@@ -270,7 +302,6 @@ const WalletScreen = () => {
                             />
                         </View>
                     )}
-                    <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>All Wallets</Text>
                     <ScrollView
                         contentContainerStyle={{ flexGrow: 1 }}
                         keyboardShouldPersistTaps="handled"
@@ -282,12 +313,39 @@ const WalletScreen = () => {
                                 setCheckedOnce(true);
                             }
                         }}>
-                        {walletList.length > 0 ? (
+                        {(popularNetBankingList.length > 0 && searchText.length === 0) && (
+                            <>
+                                <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>
+                                    Popular Banks
+                                </Text>
+                                <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12 }}>
+                                    {popularNetBankingList.map((item, index) => (
+                                        <View key={index}>
+                                            <PaymentSelector
+                                                id={item.id}
+                                                title={item.title}
+                                                image={item.image}
+                                                isSelected={item.isSelected}
+                                                instrumentTypeValue={item.instrumentTypeValue}
+                                                onPress={onClickPopularBank}
+                                                onProceedForward={onProceedForward}
+                                            />
+                                            {index !== popularNetBankingList.length - 1 && (
+                                                <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
+                                            )}
+                                        </View>
+                                    ))}
+                                </View>
+                            </>
+                        )}
+
+                        <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>All Banks</Text>
+                        {netBankingList.length > 0 ? (
                             <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginBottom: 32 }}>
-                                {walletList.map((item, index) => (
+                                {netBankingList.map((item, index) => (
                                     <View key={index}>
                                         <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} />
-                                        {index !== walletList.length - 1 && (
+                                        {index !== netBankingList.length - 1 && (
                                             <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                         )}
                                     </View>
@@ -364,4 +422,4 @@ const WalletScreen = () => {
     )
 }
 
-export default WalletScreen;
+export default NetBankingScreen;

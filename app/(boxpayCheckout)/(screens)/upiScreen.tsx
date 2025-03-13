@@ -21,6 +21,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
     const [upiCollectValid, setUpiCollectValid] = useState(false)
     const [upiCollectTextInput, setUpiCollectTextInput] = useState("")
     const [isRotated, setIsRotated] = useState(false)
+    const [upiIdFocused, setUpiIdFocused] = useState(false);
     const { checkoutDetails } = checkoutDetailsHandler
 
     const handleUpiChevronClick = () => {
@@ -245,15 +246,17 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                     <View style={{ paddingBottom: isUpiCollectVisible ? 16 : 0 }}>
                         <TextInput
                             mode='outlined'
-                            label='Enter UPI ID'
+                            label={
+                                <Text style={{ fontSize: 14, fontFamily: 'Poppins-Regular', color: upiIdFocused ? '#2D2B32' : '#ADACB0' }}>Enter UPI Id</Text>
+                            }
                             value={upiCollectTextInput}
                             onChangeText={(it) => {
                                 handleTextChange(it)
                             }}
                             theme={{
                                 colors: {
-                                    primary: checkoutDetails.brandColor,
-                                    outline: '#E6E6E6'
+                                    primary: "#2D2B32",
+                                    outline: '#E6E6E6',
                                 }
                             }}
                             style={styles.textInput}
@@ -269,6 +272,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                                 borderRadius: 8,  // Add this
                                 borderWidth: 1.5
                             }}
+                            onFocus={() => setUpiIdFocused(true)}
+                            onBlur={() => setUpiIdFocused(false)}
                         />
                         {upiCollectError && (
                             <Text style={{
@@ -319,7 +324,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 14
+        paddingTop: 14
     },
     textInput: {
         marginHorizontal: 16,

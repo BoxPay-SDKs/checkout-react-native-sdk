@@ -236,23 +236,18 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("tez:")) {
                 paymentFailedMessage.current = "Payment failed with GPay. Please retry payment with a different UPI app"
                 setFailedModalState(true)
-                stopBackgroundApiTask()
             } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("phonepe:")) {
                 paymentFailedMessage.current = "Payment failed with PhonePe. Please retry payment with a different UPI app"
                 setFailedModalState(true)
-                stopBackgroundApiTask()
             } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("paytmmp:")) {
                 paymentFailedMessage.current = "Payment failed with PayTm. Please retry payment with a different UPI app"
                 setFailedModalState(true)
-                stopBackgroundApiTask()
             } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("upi:")) {
                 paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
                 setFailedModalState(true)
-                stopBackgroundApiTask()
             } else if (['PENDING'].includes(status) && lastOpenendUrl.current != "") {
                 paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
                 setFailedModalState(true)
-                stopBackgroundApiTask()
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
@@ -260,19 +255,17 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
-                stopBackgroundApiTask()
             } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
                 setSuccessfulTimeStamp(response.transactionTimestampLocale)
                 setStatus('Success')
                 setSuccessModalState(true)
-                stopBackgroundApiTask()
             } else if (['EXPIRED'].includes(status)) {
                 setSessionExppireModalState(true)
                 setStatus('Expired')
-                stopBackgroundApiTask()
             }
             setSelectedIntent(null)
             setLoadingState(false)
+            stopBackgroundApiTask()
         }
     }
 
@@ -315,6 +308,26 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             pathname: "/(boxpayCheckout)/(screens)/walletsScreen"
         })
     }
+
+    const navigateToNetBankingScreen = () => {
+        router.push({
+            pathname: "/(boxpayCheckout)/(screens)/netBankingScreen"
+        })
+    }
+
+    const navigateToEmiScreen = () => {
+        // router.push({
+        //     pathname: "/(boxpayCheckout)/(screens)/emiScreen"
+        // })
+        ToastAndroid.show("Coming Soon", ToastAndroid.SHORT);
+    }
+
+    const navigateToBNPLScreen = () => {
+        router.push({
+            pathname: "/(boxpayCheckout)/(screens)/bnplScreen"
+        })
+    }
+
     useEffect(() => {
         const fetchPaymentMethods = async () => {
             const endpoint: string = testEnv
@@ -372,12 +385,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                         setAddress(`${address1Ref.current}, ${address2Ref.current}, ${cityRef.current}, ${stateRef.current}, ${postalCodeRef.current}`)
                     }
                 }
-                if (['FAILED', 'REJECTED'].includes(response.data.status)) {
-                    setTransactionId(response.data.lastTransactionId)
-                    setStatus(response.data.status)
-                    setFailedModalState(true)
-                    stopBackgroundApiTask()
-                } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
+                if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
                     setSuccessfulTimeStamp(response.data.lastPaidAtTimestampLocale)
                     setTransactionId(response.data.lastTransactionId)
                     setStatus(response.data.status)
@@ -540,7 +548,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                 handleCollectPayment={(it) => handleUpiCollectPayment(it)}
                             />
                             <View>
-                                {isCardVisible && isWalletVisible && isNetBankingVisible && isBNPLVisible && isEmiVisible && (
+                                {(isCardVisible || isWalletVisible || isNetBankingVisible || isBNPLVisible || isEmiVisible) && (
                                     <View>
                                         {(isUpiCollectVisible || isUpiIntentVisibile) ? (<Text style={{
                                             marginStart: 16,
@@ -561,6 +569,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                         <View style={{
                                             flex: 1, backgroundColor: 'white', marginVertical: 8, marginHorizontal: 16, borderRadius: 12, flexDirection: 'column', borderColor: '#F1F1F1',
                                             borderWidth: 1,
+                                            paddingBottom: 16
                                         }}>
                                             {isCardVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToCardScreen}>
@@ -578,30 +587,29 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                                     )}
                                                 </Pressable>
                                             )}
-                                            {/* {isNetBankingVisible && (
-                                            <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-                                                <MorePaymentContainer title='Netbanking' image={require('../../assets/images/ic_netbanking.png')} />
-                                                {(isEmiVisible || isBNPLVisible) && (
-                                                    <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
-                                                )}
-                                            </Pressable>
-                                        )}
-                                        {isEmiVisible && (
-                                            <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }}>
-                                                <MorePaymentContainer title='EMI' image={require('../../assets/images/ic_emi.png')} />
-                                                {(isBNPLVisible) && (
-                                                    <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
-                                                )}
-                                            </Pressable>
-                                        )}
-                                        {isBNPLVisible && (
-                                            <Pressable style={{ padding: 16 }}>
-                                                <MorePaymentContainer title='Pay Later' image={require('../../assets/images/ic_bnpl.png')} />
-                                            </Pressable>
-                                        )} */}
+                                            {isNetBankingVisible && (
+                                                <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToNetBankingScreen}>
+                                                    <MorePaymentContainer title='Netbanking' image={require('../../assets/images/ic_netbanking.png')} />
+                                                    {/* {(isEmiVisible || isBNPLVisible) && (
+                                                        <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
+                                                    )} */}
+                                                </Pressable>
+                                            )}
+                                            {/* {isEmiVisible && (
+                                                <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToEmiScreen}>
+                                                    <MorePaymentContainer title='EMI' image={require('../../assets/images/ic_emi.png')} />
+                                                    {(isBNPLVisible) && (
+                                                        <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
+                                                    )}
+                                                </Pressable>
+                                            )} */}
+                                            {/* {isBNPLVisible && (
+                                                <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToBNPLScreen}>
+                                                    <MorePaymentContainer title='Pay Later' image={require('../../assets/images/ic_bnpl.png')} />
+                                                </Pressable>
+                                            )} */}
                                         </View>
                                     </View>
-
                                 )}
 
                             </View>

@@ -18,7 +18,7 @@ interface PaymentSelectorProps {
 const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, onPress, onProceedForward }: PaymentSelectorProps) => {
     const { checkoutDetails } = checkoutDetailsHandler
     return (
-        <View style={{ paddingVertical: 16, paddingHorizontal: 12 }}>
+        <View style={{ paddingVertical: 16, paddingHorizontal: 12, backgroundColor: isSelected ? "#EDF8F4" : "white" }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{
                     width: 32,
@@ -31,23 +31,29 @@ const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, on
                             uri={image}
                             width={100} // Keep original size
                             height={100}
+                            preserveAspectRatio="xMidYMid meet"
                         />
                     </View>
                 </View>
 
-                <Text style={{ paddingStart: 8, fontFamily: 'Poppins-SemiBold', fontSize: 14, color: "#4F4D55", flex: 1 }}>{title}</Text>
+                <Text style={{ paddingStart: 8, fontFamily: 'Poppins-SemiBold', fontSize: 14, color: "#4F4D55", flex: 1 }} onPress={() => onPress(id)} numberOfLines={1} ellipsizeMode='tail'>{title}</Text>
                 <RadioButton
                     value={id}
                     status={isSelected ? 'checked' : 'unchecked'}
                     onPress={() => onPress(id)}
                     color={checkoutDetails.brandColor}
+                    uncheckedColor={"#01010273"}
                 />
             </View>
             {isSelected && (
                 <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={() => {
                     onProceedForward(instrumentTypeValue)
                 }}>
-                    <Text style={styles.buttonText}>Make Payment</Text>
+                    <Text style={styles.buttonText}>Proceed to Pay <Text style={{
+                        fontFamily: 'Inter-SemiBold',
+                        fontSize: 16,
+                        color: 'white'
+                    }}> {checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}</Text>
                 </Pressable>
             )}
         </View>

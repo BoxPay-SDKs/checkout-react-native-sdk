@@ -17,10 +17,6 @@ const methodsPostRequest = async (
             ? 'sandbox-apis.boxpay.tech'
             : 'apis.boxpay.in';
 
-    const formatExpiry = (input: string) => {
-        const [month, year] = input.split('/');
-        return `20${year}-${month}`;
-    };
     const requestBody = {
         browserData: {
             screenHeight: Constants.platform?.ios?.screenHeight || Constants.platform?.android?.screenHeight || 0,
