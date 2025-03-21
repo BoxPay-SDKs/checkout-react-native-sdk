@@ -1,4 +1,4 @@
-import { View, Text, Image, BackHandler, StyleSheet } from 'react-native'; // Import Modal
+import { View, Text, Image, BackHandler, StyleSheet, StatusBar } from 'react-native'; // Import Modal
 import React, { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import Header from '../(components)/header';
@@ -126,10 +126,10 @@ const UpiTimerScreen = () => { // Remove the Props Interface
     const status = response.status.toUpperCase();
     if (['FAILED', 'REJECTED'].includes(status)) {
       const reason = response.reason
-      if (!reasonCode?.startsWith("uf", true)) {
+      if (!reasonCode?.startsWith("UF")) {
         paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
       } else {
-        paymentFailedMessage.current = reason.substringAfter(":")
+        paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
       }
       setStatus('Failed');
       setFailedModalState(true);
@@ -157,6 +157,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+      <StatusBar barStyle="dark-content" />
       <Header onBackPress={onProceedBack} showDesc={true} showSecure={true} text='Payment Details' />
 
       <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>

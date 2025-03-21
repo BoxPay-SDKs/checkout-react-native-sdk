@@ -1,4 +1,4 @@
-import { View, Text, BackHandler, Image, ScrollView } from 'react-native'
+import { View, Text, BackHandler, Image, ScrollView, StatusBar } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { router } from 'expo-router';
 import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
@@ -143,10 +143,10 @@ const BNPLScreen = () => {
                     }
                 }
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                if (!reasonCode?.startsWith("UF")) {
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
                 } else {
-                    paymentFailedMessage.current = reason.substringAfter(":")
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
                 }
                 setStatus('Failed');
                 setFailedModalState(true)
@@ -192,6 +192,7 @@ const BNPLScreen = () => {
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
+            <StatusBar barStyle="dark-content" />
             {loading ? (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                     <LottieView source={require('../../../assets/animations/boxpayLogo.json')} autoPlay loop style={{ width: 80, height: 80 }} />

@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, BackHandler, ToastAndroid, AppState, Image, ScrollView, Pressable } from 'react-native'; // Added ScrollView
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, BackHandler, ToastAndroid, AppState, Image, ScrollView, Pressable, StatusBar } from 'react-native'; // Added ScrollView
 import Header from './(components)/header';
 import axios from 'axios';
 import upiPostRequest from './(postRequest)/upiPostRequest';
@@ -21,6 +21,7 @@ import { setUserDataHandler } from './(sharedContext)/userdataHandler';
 import PaymentResult from './(dataClass)/paymentType';
 import { setCheckoutDetailsHandler } from './(sharedContext)/checkoutDetailsHandler';
 import WebViewScreen from './(screens)/webViewScreen';
+import getSymbolFromCurrency from 'currency-symbol-map'
 
 // Define the props interface
 interface BoxpayCheckoutProps {
@@ -100,10 +101,10 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             if (status === 'REQUIRESACTION' && response.actions?.length > 0) {
                 urlToBase64(response.actions[0].url);
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                if (!reasonCode?.startsWith("UF")) {
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
                 } else {
-                    paymentFailedMessage.current = reason.substringAfter(":")
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
@@ -154,10 +155,10 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             } else if (status === 'REQUIRESACTION' && actionsArray.length == 0) {
                 navigateToUpiTimerModal(upiId)
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                if (!reasonCode?.startsWith("UF")) {
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
                 } else {
-                    paymentFailedMessage.current = reason.substringAfter(":")
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
@@ -272,10 +273,10 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
                 setFailedModalState(true)
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                if (!reasonCode?.startsWith("UF")) {
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
                 } else {
-                    paymentFailedMessage.current = reason.substringAfter(":")
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
@@ -380,7 +381,9 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 setIsEmiVisible(paymentMethods.find((method: any) => method.type === 'Emi'))
                 setIsBNPLVisible(paymentMethods.find((method: any) => method.type === 'BuyNowPayLater'))
                 setAmount(paymentDetails.money.amountLocaleFull)
-                setCurrencySymbol(paymentDetails.money.currencySymbol)
+                const currencyCode: string | undefined = paymentDetails?.money?.currencyCode;
+                const symbol = currencyCode ? getSymbolFromCurrency(currencyCode) ?? "₹" : "₹";
+                setCurrencySymbol(symbol);
                 if (paymentDetails.order != null && paymentDetails.order.items != null) {
                     const total = paymentDetails.order.items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
                     totalItemsRef.current = total;
@@ -446,7 +449,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 })
                 setCheckoutDetailsHandler({
                     checkoutDetails: {
-                        currencySymbol: paymentDetails.money.currencySymbol,
+                        currencySymbol: symbol,
                         amount: paymentDetails.money.amountLocaleFull,
                         token: tokenState.current,
                         brandColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
@@ -455,7 +458,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                     }
                 })
             } catch (error) {
-                ToastAndroid.show("Please check the token and the envirounment selected", ToastAndroid.SHORT);
+                ToastAndroid.show("Please check the token and the environment selected", ToastAndroid.SHORT);
             } finally {
                 setIsFirstLoading(false); // Set loading to false when API request is finished
             }
@@ -499,6 +502,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
 
     return (
         <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+            <StatusBar barStyle="dark-content" />
             {isFirstLoading ? (
                 <View style={{ flex: 1, backgroundColor: 'white' }}>
                     <ShimmerPlaceHolder visible={false} style={{ width: '100%', height: 90, marginTop: 10 }} />

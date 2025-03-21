@@ -1,4 +1,4 @@
-import { View, Text, BackHandler, Dimensions, ScrollView, Image } from 'react-native'
+import { View, Text, BackHandler, Dimensions, ScrollView, Image, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router } from 'expo-router';
 import { Bank, ChooseEmiModel, Emi } from '../(dataClass)/emiDataClass';
@@ -262,6 +262,7 @@ const EmiScreen = () => {
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
+            <StatusBar barStyle="dark-content" />
             {isFirstLoad ? (
                 <View style={{ flex: 1, backgroundColor: 'white', marginHorizontal: 16 }}>
                     <ShimmerPlaceHolder visible={false} style={{ width: '100%', height: 50, borderRadius: 10, marginTop: 30 }} />
