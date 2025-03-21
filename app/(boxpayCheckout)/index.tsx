@@ -20,6 +20,7 @@ import MorePaymentContainer from './(components)/morePaymentContainer';
 import { setUserDataHandler } from './(sharedContext)/userdataHandler';
 import PaymentResult from './(dataClass)/paymentType';
 import { setCheckoutDetailsHandler } from './(sharedContext)/checkoutDetailsHandler';
+import WebViewScreen from './(screens)/webViewScreen';
 
 // Define the props interface
 interface BoxpayCheckoutProps {
@@ -72,11 +73,14 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [failedModalOpen, setFailedModalState] = useState(false)
     const [successModalOpen, setSuccessModalState] = useState(false)
     const lastOpenendUrl = useRef<string>("")
-    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry using other payment methods.")
+    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry.")
     const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false)
     const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     let backgroundApiInterval: NodeJS.Timeout;
+    const [showWebView, setShowWebView] = useState(false)
+    const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
+    const [paymentHtml, setPaymentHtml] = useState<string | null>(null)
 
 
     const handlePaymentIntent = async () => {
@@ -96,9 +100,10 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             if (status === 'REQUIRESACTION' && response.actions?.length > 0) {
                 urlToBase64(response.actions[0].url);
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                } else {
+                    paymentFailedMessage.current = reason.substringAfter(":")
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
@@ -134,13 +139,25 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             setTransactionId(response.transactionId)
             const reason = response.status.statusReason
             const reasonCode = response.status.reasonCode
+            const actionsArray = response.actions
             const status = response.status.status.toUpperCase()
-            if (status === 'REQUIRESACTION') {
+            if (status === 'REQUIRESACTION' && actionsArray.length > 0) {
+                if (Array.isArray(actionsArray)) {
+                    if (actionsArray.length > 0) {
+                        if (actionsArray[0].type == "html") {
+                            setPaymentHtml(actionsArray[0].url)
+                        } else {
+                            setPaymentUrl(actionsArray[0].url)
+                        }
+                    }
+                }
+            } else if (status === 'REQUIRESACTION' && actionsArray.length == 0) {
                 navigateToUpiTimerModal(upiId)
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                } else {
+                    paymentFailedMessage.current = reason.substringAfter(":")
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
@@ -182,6 +199,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
             setLoadingState(false)
         }
     };
+
+    useEffect(() => {
+        if (paymentUrl || paymentHtml) {
+            setShowWebView(true)
+        }
+    }, [paymentUrl, paymentHtml])
 
     const openUPIIntent = async (url: string) => {
         try {
@@ -246,12 +269,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
                 setFailedModalState(true)
             } else if (['PENDING'].includes(status) && lastOpenendUrl.current != "") {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
                 setFailedModalState(true)
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                } else {
+                    paymentFailedMessage.current = reason.substringAfter(":")
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
@@ -270,23 +294,29 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     }
 
     const onExitCheckout = () => {
-        stopExpireTimerCountDown()
-        const mockPaymentResult: PaymentResult = {
-            status: status,
-            transactionId: transactionId,
-        };
-        paymentHandler.onPaymentResult(mockPaymentResult);
-        router.dismissAll()
-        return true
+        if (!loadingState) {
+            stopExpireTimerCountDown()
+            const mockPaymentResult: PaymentResult = {
+                status: status,
+                transactionId: transactionId,
+            };
+            paymentHandler.onPaymentResult(mockPaymentResult);
+            router.dismissAll()
+            return true
+        }
     }
 
 
     useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', onExitCheckout);
-        return () => {
-            backHandler.remove();
-        };
-    }, []);
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (loadingState) {
+                return true; // Prevent default back action
+            }
+            return onExitCheckout(); // Allow back navigation if not loading
+        });
+
+        return () => backHandler.remove();
+    });
 
     const checkAppInstalled = async (packageNames: string[]) => {
         try {
@@ -316,10 +346,9 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     }
 
     const navigateToEmiScreen = () => {
-        // router.push({
-        //     pathname: "/(boxpayCheckout)/(screens)/emiScreen"
-        // })
-        ToastAndroid.show("Coming Soon", ToastAndroid.SHORT);
+        router.push({
+            pathname: "/(boxpayCheckout)/(screens)/emiScreen"
+        })
     }
 
     const navigateToBNPLScreen = () => {
@@ -330,11 +359,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
 
     useEffect(() => {
         const fetchPaymentMethods = async () => {
-            const endpoint: string = testEnv
-                ? 'test-apis.boxpay.tech'
-                : env == 'sandbox'
-                    ? 'sandbox-apis.boxpay.tech'
-                    : 'apis.boxpay.in';
+            // const endpoint: string = testEnv
+            //     ? 'test-apis.boxpay.tech'
+            //     : env == 'sandbox'
+            //         ? 'sandbox-apis.boxpay.tech'
+            //         : 'apis.boxpay.in';
+            const endpoint: string = "test-apis.boxpay.tech"
             try {
                 setIsFirstLoading(true);
                 const response = await axios.get(`https://${endpoint}/v0/checkout/sessions/${tokenState.current}`);
@@ -459,6 +489,14 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
         }, 1000);
     }
 
+    useEffect(() => {
+        if (selectedIntent != null) {
+            if (selectedIntent == "") {
+                handlePaymentIntent()
+            }
+        }
+    }, [selectedIntent])
+
     return (
         <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
             {isFirstLoading ? (
@@ -540,9 +578,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                 selectedIntent={selectedIntent}
                                 setSelectedIntent={(it) => {
                                     setSelectedIntent(it)
-                                    if (it == "") {
-                                        handlePaymentIntent()
-                                    }
                                 }}
                                 handleUpiPayment={handlePaymentIntent}
                                 handleCollectPayment={(it) => handleUpiCollectPayment(it)}
@@ -590,9 +625,9 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                             {isNetBankingVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToNetBankingScreen}>
                                                     <MorePaymentContainer title='Netbanking' image={require('../../assets/images/ic_netbanking.png')} />
-                                                    {/* {(isEmiVisible || isBNPLVisible) && (
+                                                    {(isEmiVisible || isBNPLVisible) && (
                                                         <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
-                                                    )} */}
+                                                    )}
                                                 </Pressable>
                                             )}
                                             {/* {isEmiVisible && (
@@ -603,11 +638,11 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                                     )}
                                                 </Pressable>
                                             )} */}
-                                            {/* {isBNPLVisible && (
+                                            {isBNPLVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToBNPLScreen}>
                                                     <MorePaymentContainer title='Pay Later' image={require('../../assets/images/ic_bnpl.png')} />
                                                 </Pressable>
-                                            )} */}
+                                            )}
                                         </View>
                                     </View>
                                 )}
@@ -691,6 +726,26 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 <SessionExpire
                     onClick={onExitCheckout}
                 />
+            )}
+
+            {showWebView && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'white'
+                }}>
+                    <WebViewScreen
+                        url={paymentUrl}
+                        html={paymentHtml}
+                        onBackPress={() => {
+                            startBackgroundApiTask();
+                            setShowWebView(false);
+                        }}
+                    />
+                </View>
             )}
         </View>
     );

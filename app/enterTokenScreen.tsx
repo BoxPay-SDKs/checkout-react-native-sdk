@@ -37,7 +37,6 @@ const EnterTokenScreen = () => {
 
   const handlePaymentResult = (result: { status: String; transactionId: string }) => {
     alert(`Payment ${result.status} :  + ${result.transactionId}`);
-    navigation.goBack()
   };
 
   useEffect(() => {

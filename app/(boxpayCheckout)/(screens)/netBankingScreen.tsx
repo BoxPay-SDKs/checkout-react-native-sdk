@@ -47,7 +47,7 @@ const NetBankingScreen = () => {
 
     const [failedModalOpen, setFailedModalState] = useState(false)
     const [successModalOpen, setSuccessModalState] = useState(false)
-    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry using other payment methods.")
+    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry.")
     const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false)
     const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
 
@@ -59,19 +59,27 @@ const NetBankingScreen = () => {
     const [searchTextFocused, setSearchTextFocused] = useState(false);
 
     const onProceedBack = () => {
-        router.back();
-        return true;
+        if (!loading) {
+            router.back();
+            return true;
+        }
+        return false
     };
+
     const handleSearchTextChange = (text: string) => {
         setSearchText(text);
     }
 
     useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', onProceedBack);
-        return () => {
-            backHandler.remove();
-        };
-    }, []);
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (loading) {
+                return true; // Prevent default back action
+            }
+            return onProceedBack(); // Allow back navigation if not loading
+        });
+
+        return () => backHandler.remove();
+    });
 
     useEffect(() => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
@@ -103,7 +111,7 @@ const NetBankingScreen = () => {
         const status = response.status.toUpperCase();
         if (['FAILED', 'REJECTED'].includes(status)) {
             if (!reasonCode?.startsWith("uf", true)) {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.";
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
             }
             setFailedModalState(true);
             setStatus('Failed');
@@ -156,17 +164,18 @@ const NetBankingScreen = () => {
             if (status === 'REQUIRESACTION') {
                 if (Array.isArray(response.actions)) {
                     if (response.actions.length > 0) {
-                        if (response.actions[0].type == "redirect") {
-                            setPaymentUrl(response.actions[0].url)
-                        } else {
+                        if (response.actions[0].type == "html") {
                             setPaymentHtml(response.actions[0].url)
+                        } else {
+                            setPaymentUrl(response.actions[0].url)
                         }
                     }
                 }
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                } else {
+                    paymentFailedMessage.current = reason.substringAfter(":")
                 }
                 setStatus('Failed');
                 setFailedModalState(true)
@@ -329,6 +338,7 @@ const NetBankingScreen = () => {
                                                 instrumentTypeValue={item.instrumentTypeValue}
                                                 onPress={onClickPopularBank}
                                                 onProceedForward={onProceedForward}
+                                                errorImage={require("../../../assets/images/ic_netbanking_semi_bold.png")}
                                             />
                                             {index !== popularNetBankingList.length - 1 && (
                                                 <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
@@ -344,7 +354,7 @@ const NetBankingScreen = () => {
                             <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginBottom: 32 }}>
                                 {netBankingList.map((item, index) => (
                                     <View key={index}>
-                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} />
+                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_netbanking_semi_bold.png")} />
                                         {index !== netBankingList.length - 1 && (
                                             <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                         )}

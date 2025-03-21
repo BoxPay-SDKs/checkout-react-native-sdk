@@ -1,22 +1,25 @@
-import { View, Text, Image, Pressable, StyleSheet } from 'react-native'
-import React from 'react'
+import { View, Text, Pressable, StyleSheet, Image } from 'react-native'
+import React, { useState } from 'react'
 import { RadioButton } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 import { SvgUri } from 'react-native-svg';
-import FastImage from 'react-native-fast-image';
+import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 
 interface PaymentSelectorProps {
     id: string;
     title: string;
     image: string;
+    errorImage: any;
     isSelected: boolean;
     instrumentTypeValue: string;
     onPress: (id: string) => void;
     onProceedForward: (instrumentType: string) => void;
 }
 
-const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, onPress, onProceedForward }: PaymentSelectorProps) => {
+const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, onPress, onProceedForward, errorImage }: PaymentSelectorProps) => {
     const { checkoutDetails } = checkoutDetailsHandler
+    const [error, setImageError] = useState(false)
+    const [load, setLoad] = useState(true)
     return (
         <View style={{ paddingVertical: 16, paddingHorizontal: 12, backgroundColor: isSelected ? "#EDF8F4" : "white" }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -26,14 +29,27 @@ const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, on
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                    <View style={{ transform: [{ scale: 0.4 }] }}>
+                    {load && !error && (
+                        <ShimmerPlaceHolder
+                            visible={false} // Keep shimmer until loading is done
+                            style={{ width: 32, height: 32, borderRadius: 8 }}
+                        />
+                    )}
+                    {!error ? (
                         <SvgUri
                             uri={image}
                             width={100} // Keep original size
                             height={100}
-                            preserveAspectRatio="xMidYMid meet"
+                            style={{ transform: [{ scale: 0.4 }] }}
+                            onLoad={() => setLoad(false)}
+                            onError={() => {
+                                setImageError(true);
+                                setLoad(false);
+                            }}
                         />
-                    </View>
+                    ) : (
+                        <Image source={errorImage} style={{ transform: [{ scale: 0.4 }] }} />
+                    )}
                 </View>
 
                 <Text style={{ paddingStart: 8, fontFamily: 'Poppins-SemiBold', fontSize: 14, color: "#4F4D55", flex: 1 }} onPress={() => onPress(id)} numberOfLines={1} ellipsizeMode='tail'>{title}</Text>

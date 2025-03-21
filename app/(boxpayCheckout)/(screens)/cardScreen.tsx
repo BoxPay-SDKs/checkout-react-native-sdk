@@ -55,7 +55,7 @@ const CardScreen = () => {
 
     const [failedModalOpen, setFailedModalState] = useState(false)
     const [successModalOpen, setSuccessModalState] = useState(false)
-    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry using other payment methods.")
+    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry.")
     const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false)
     const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
 
@@ -82,15 +82,6 @@ const CardScreen = () => {
                 }
                 fetchCardDetails(checkoutDetails.token, checkoutDetails.env, formatted.replace(/ /g, '')).then((data) => {
                     setMethodEnabled(data.methodEnabled);
-                    if (!data.methodEnabled) {
-                        if (!cardNumberError) {  // Prevent redundant updates
-                            setCardNumberValid(false);
-                        }
-                    } else {
-                        if (!cardNumberValid) {
-                            setCardNumberValid(true);
-                        }
-                    }
                     if (data.paymentMethod.brand == "VISA") {
                         setCardSelectedIcon(require("../../../assets/images/ic_visa.png"));
                         setMaxCvvLength(3);
@@ -156,7 +147,7 @@ const CardScreen = () => {
     const handleCardNumberBlur = () => {
         const cleaned = cardNumberText?.replace(/ /g, '') || '';
         const cleanedLength = maxCardNumberLength == 19 ? 16 : 15;
-        setCardNumberErrorText(cleaned.length < 1 ? "Required" : (cleaned.length < cleanedLength && methodEnabled) ? "This card number is invalid" : (!cardNumberValid) ? "This card number is invalid" : (!methodEnabled) ? "This card is not supported for the payment" : "");
+        setCardNumberErrorText(cleaned.length < 1 ? "Required" : (cleaned.length < cleanedLength && methodEnabled) ? "This card number is invalid" : (!methodEnabled) ? "This card is not supported for the payment" : (!cardNumberValid) ? "This card number is invalid" : "");
         setCardNumberError((cleaned.length < cleanedLength) || !methodEnabled || !cardNumberValid);
         setCardNumberFocused(false);
     };
@@ -307,8 +298,11 @@ const CardScreen = () => {
         const reasonCode = response.reasonCode;
         const status = response.status.toUpperCase();
         if (['FAILED', 'REJECTED'].includes(status)) {
+            const reason = response.reason
             if (!reasonCode?.startsWith("uf", true)) {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.";
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+            } else {
+                paymentFailedMessage.current = reason.substringAfter(":")
             }
             setStatus('Failed');
             setFailedModalState(true);
@@ -329,14 +323,13 @@ const CardScreen = () => {
     };
 
     const onProceedForward = async () => {
-        setLoading(true);
+        setLoading(true)
         const response = await cardPostRequest(
             cardNumberText || "",
             cardExpiryText || "",
             cardCvvText || "",
             cardHolderNameText || ""
         )
-        console.log("response", response)
         try {
             setStatus(response.status.status)
             setTransactionId(response.transactionId)
@@ -344,19 +337,20 @@ const CardScreen = () => {
             if (status === 'REQUIRESACTION') {
                 if (Array.isArray(response.actions)) {
                     if (response.actions.length > 0) {
-                        if (response.actions[0].type == "redirect") {
-                            setPaymentUrl(response.actions[0].url)
-                        } else {
+                        if (response.actions[0].type == "html") {
                             setPaymentHtml(response.actions[0].url)
+                        } else {
+                            setPaymentUrl(response.actions[0].url)
                         }
                     }
                 }
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 const reason = response.status.reason
                 const reasonCode = response.status.reasonCode
-                paymentFailedMessage.current = reason
                 if (!reasonCode.startsWith("UF")) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                } else {
+                    paymentFailedMessage.current = reason.substringAfter(":")
                 }
                 setStatus('Failed');
                 setFailedModalState(true)
@@ -374,9 +368,10 @@ const CardScreen = () => {
         } catch (error) {
             const reason = response.status.reason
             const reasonCode = response.status.reasonCode
-            paymentFailedMessage.current = reason
             if (!reasonCode.startsWith("UF")) {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+            } else {
+                paymentFailedMessage.current = reason.substringAfter(":")
             }
             setFailedModalState(true)
             setLoading(false)
@@ -384,11 +379,16 @@ const CardScreen = () => {
     }
 
     useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', onProceedBack);
-        return () => {
-            backHandler.remove();
-        };
-    }, []);
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (loading) {
+                return true; // Prevent default back action
+            }
+            return onProceedBack(); // Allow back navigation if not loading
+        });
+
+        return () => backHandler.remove();
+    });
+
 
     useEffect(() => {
         checkCardValid();
@@ -644,7 +644,9 @@ const CardScreen = () => {
 
             {showCvvInfo && (
                 <CvvInfoBottomSheet
-                    onClick={() => setShowCvvInfo(false)}
+                    onClick={() => {
+                        setShowCvvInfo(false)
+                    }}
                 />
             )}
 

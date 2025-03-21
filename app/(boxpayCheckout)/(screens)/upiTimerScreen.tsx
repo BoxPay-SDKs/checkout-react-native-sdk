@@ -21,7 +21,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
   const [cancelClicked, setCancelClicked] = useState(false);
   const [failedModalOpen, setFailedModalState] = useState(false);
   const [successModalOpen, setSuccessModalState] = useState(false);
-  const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.");
+  const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry.");
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("");
   const [status, setStatus] = useState("")
@@ -125,8 +125,11 @@ const UpiTimerScreen = () => { // Remove the Props Interface
     const reasonCode = response.reasonCode;
     const status = response.status.toUpperCase();
     if (['FAILED', 'REJECTED'].includes(status)) {
+      const reason = response.reason
       if (!reasonCode?.startsWith("uf", true)) {
-        paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.";
+        paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+      } else {
+        paymentFailedMessage.current = reason.substringAfter(":")
       }
       setStatus('Failed');
       setFailedModalState(true);

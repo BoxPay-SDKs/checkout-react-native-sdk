@@ -4,7 +4,6 @@ import { router } from 'expo-router';
 import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../(components)/header';
-import { TextInput } from 'react-native-paper';
 import fetchPaymentMethods from '../(postRequest)/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 import PaymentClass from '../(dataClass)/paymentClass';
@@ -31,7 +30,7 @@ const BNPLScreen = () => {
 
     const [failedModalOpen, setFailedModalState] = useState(false)
     const [successModalOpen, setSuccessModalState] = useState(false)
-    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry using other payment methods.")
+    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry.")
     const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false)
     const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
 
@@ -41,16 +40,23 @@ const BNPLScreen = () => {
     const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
 
     const onProceedBack = () => {
-        router.back();
-        return true;
+        if (!loading) {
+            router.back();
+            return true;
+        }
+        return false
     };
 
     useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', onProceedBack);
-        return () => {
-            backHandler.remove();
-        };
-    }, []);
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (loading) {
+                return true; // Prevent default back action
+            }
+            return onProceedBack(); // Allow back navigation if not loading
+        });
+
+        return () => backHandler.remove();
+    });
 
     useEffect(() => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
@@ -64,8 +70,6 @@ const BNPLScreen = () => {
                     instrumentTypeValue: item.instrumentTypeValue,
                     isSelected: false
                 }));
-
-            console.log("bnplList", bnplList)
             setBnplList(bnplList)
         });
     }, []);
@@ -78,7 +82,7 @@ const BNPLScreen = () => {
         const status = response.status.toUpperCase();
         if (['FAILED', 'REJECTED'].includes(status)) {
             if (!reasonCode?.startsWith("uf", true)) {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response from the Bank's page. Please retry using other payment methods.";
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
             }
             setFailedModalState(true);
             setStatus('Failed');
@@ -131,17 +135,18 @@ const BNPLScreen = () => {
             if (status === 'REQUIRESACTION') {
                 if (Array.isArray(response.actions)) {
                     if (response.actions.length > 0) {
-                        if (response.actions[0].type == "redirect") {
-                            setPaymentUrl(response.actions[0].url)
-                        } else {
+                        if (response.actions[0].type == "html") {
                             setPaymentHtml(response.actions[0].url)
+                        } else {
+                            setPaymentUrl(response.actions[0].url)
                         }
                     }
                 }
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                paymentFailedMessage.current = reason.substringAfter(":")
                 if (!reasonCode.startsWith("uf", true)) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry using other payment methods."
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                } else {
+                    paymentFailedMessage.current = reason.substringAfter(":")
                 }
                 setStatus('Failed');
                 setFailedModalState(true)
@@ -187,8 +192,6 @@ const BNPLScreen = () => {
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
-            <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Select BNPL' />
-            <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
             {loading ? (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                     <LottieView source={require('../../../assets/animations/boxpayLogo.json')} autoPlay loop style={{ width: 80, height: 80 }} />
@@ -207,6 +210,8 @@ const BNPLScreen = () => {
                 </View>
             ) : (
                 <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Select BNPL' />
+                    <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                     <ScrollView
                         contentContainerStyle={{ flexGrow: 1 }}
                         keyboardShouldPersistTaps="handled">
@@ -214,7 +219,7 @@ const BNPLScreen = () => {
                             <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginVertical: 16 }}>
                                 {bnplList.map((item, index) => (
                                     <View key={index}>
-                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} />
+                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_bnpl_semi_bold.png")} />
                                         {index !== bnplList.length - 1 && (
                                             <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                         )}
@@ -229,6 +234,21 @@ const BNPLScreen = () => {
                             </View>
                         )}
                     </ScrollView>
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'flex-end',
+                        backgroundColor: '#F5F6FB',
+                        flexDirection: 'row'
+                    }}>
+                        <Text style={{
+                            fontSize: 12, color: "#888888", marginBottom: 15,
+                            fontFamily: 'Poppins-Medium'
+                        }}>Secured by</Text>
+                        <Image
+                            source={require("../../../assets/images/splash-icon.png")}
+                            style={{ height: 50, width: 50, }}
+                        />
+                    </View>
                 </View>
             )
             }
@@ -273,21 +293,6 @@ const BNPLScreen = () => {
                     />
                 </View>
             )}
-            <View style={{
-                justifyContent: 'center',
-                alignItems: 'flex-end',
-                backgroundColor: '#F5F6FB',
-                flexDirection: 'row'
-            }}>
-                <Text style={{
-                    fontSize: 12, color: "#888888", marginBottom: 15,
-                    fontFamily: 'Poppins-Medium'
-                }}>Secured by</Text>
-                <Image
-                    source={require("../../../assets/images/splash-icon.png")}
-                    style={{ height: 50, width: 50, }}
-                />
-            </View>
         </View >
     )
 }
