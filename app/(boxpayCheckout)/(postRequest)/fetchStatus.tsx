@@ -23,7 +23,7 @@ const fetchStatus = async (
     return data;
   } catch (error) {
     console.error("API Error:", error);
-    return { error: "API request failed" };
+    return { status: { reasonCode: "API_FAILED", reason: "" } };
   }
 
   function generateRandomAlphanumericString(length: number): string {

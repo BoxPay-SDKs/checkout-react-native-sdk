@@ -74,7 +74,6 @@ const cardPostRequest = async (
         },
     };
 
-
     const API_URL = `https://${endpoint}/v0/checkout/sessions/${checkoutDetails.token}`;
     try {
         const response = await axios.post(API_URL, requestBody, {
@@ -86,7 +85,7 @@ const cardPostRequest = async (
         const data = await response.data;
         return data;
     } catch (error) {
-        return { error: "API request failed" };
+        return { status: { reasonCode: "API_FAILED", reason: "" } };
     }
 
     function generateRandomAlphanumericString(length: number): string {

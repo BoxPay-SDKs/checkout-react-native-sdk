@@ -16,7 +16,7 @@ const fetchPaymentMethods = async (
         const data = await response.data;
         return data;
     } catch (error) {
-        console.error("API Error:", error);
+        return { status: { reasonCode: "API_FAILED", reason: "" } };
     }
 
 };

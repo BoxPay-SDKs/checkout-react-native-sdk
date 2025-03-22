@@ -43,6 +43,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [isEmiVisible, setIsEmiVisible] = useState(false)
     const [isBNPLVisible, setIsBNPLVisible] = useState(false)
     const [isUpiCollectVisible, setisUpiCollectVisible] = useState(false)
+    const appStateListenerRef = useRef<any>(null);
     const [appState] = useState(AppState.currentState);
     const [isGpayInstalled, setIsGpayInstalled] = useState(false)
     const [isAddressVisible, setIsAddressVisible] = useState(false)
@@ -210,7 +211,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const openUPIIntent = async (url: string) => {
         try {
             await Linking.openURL(url);  // Open the UPI app
-            AppState.addEventListener('change', handleAppStateChange)
+            const listener = AppState.addEventListener('change', handleAppStateChange);
+            appStateListenerRef.current = listener;
         } catch (error) {
             setFailedModalState(true)
             setLoadingState(false)
@@ -252,45 +254,58 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const callFetchStatusApi = async () => {
         const response = await fetchStatus(tokenState.current, testEnv ? 'test' : env)
         if (appState == 'active') {
-            setStatus(response.status)
-            setTransactionId(response.transactionId)
-            const reason = response.statusReason
-            const reasonCode = response.reasonCode
-            const status = response.status.toUpperCase()
-            if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("tez:")) {
-                paymentFailedMessage.current = "Payment failed with GPay. Please retry payment with a different UPI app"
-                setFailedModalState(true)
-            } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("phonepe:")) {
-                paymentFailedMessage.current = "Payment failed with PhonePe. Please retry payment with a different UPI app"
-                setFailedModalState(true)
-            } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("paytmmp:")) {
-                paymentFailedMessage.current = "Payment failed with PayTm. Please retry payment with a different UPI app"
-                setFailedModalState(true)
-            } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("upi:")) {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
-                setFailedModalState(true)
-            } else if (['PENDING'].includes(status) && lastOpenendUrl.current != "") {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
-                setFailedModalState(true)
-            } else if (['FAILED', 'REJECTED'].includes(status)) {
+            try {
+                setStatus(response.status)
+                setTransactionId(response.transactionId)
+                const reason = response.statusReason
+                const reasonCode = response.reasonCode
+                const status = response.status.toUpperCase()
+                if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("tez:")) {
+                    paymentFailedMessage.current = "Payment failed with GPay. Please retry payment with a different UPI app"
+                    setFailedModalState(true)
+                } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("phonepe:")) {
+                    paymentFailedMessage.current = "Payment failed with PhonePe. Please retry payment with a different UPI app"
+                    setFailedModalState(true)
+                } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("paytmmp:")) {
+                    paymentFailedMessage.current = "Payment failed with PayTm. Please retry payment with a different UPI app"
+                    setFailedModalState(true)
+                } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("upi:")) {
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                    setFailedModalState(true)
+                } else if (['PENDING'].includes(status) && lastOpenendUrl.current != "") {
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                    setFailedModalState(true)
+                } else if (['FAILED', 'REJECTED'].includes(status)) {
+                    if (!reasonCode?.startsWith("UF")) {
+                        paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                    } else {
+                        paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                    }
+                    setStatus('Failed')
+                    setFailedModalState(true)
+                } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+                    setSuccessfulTimeStamp(response.transactionTimestampLocale)
+                    setStatus('Success')
+                    setSuccessModalState(true)
+                } else if (['EXPIRED'].includes(status)) {
+                    setSessionExppireModalState(true)
+                    setStatus('Expired')
+                }
+                setSelectedIntent(null)
+                setLoadingState(false)
+                stopBackgroundApiTask()
+                appStateListenerRef.current?.remove();
+            } catch (error) {
+                const reason = response.status.reason
+                const reasonCode = response.status.reasonCode
                 if (!reasonCode?.startsWith("UF")) {
                     paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
                 } else {
                     paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
                 }
-                setStatus('Failed')
                 setFailedModalState(true)
-            } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-                setSuccessfulTimeStamp(response.transactionTimestampLocale)
-                setStatus('Success')
-                setSuccessModalState(true)
-            } else if (['EXPIRED'].includes(status)) {
-                setSessionExppireModalState(true)
-                setStatus('Expired')
+                setLoadingState(false)
             }
-            setSelectedIntent(null)
-            setLoadingState(false)
-            stopBackgroundApiTask()
         }
     }
 

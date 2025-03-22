@@ -63,7 +63,14 @@ const WalletScreen = () => {
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            if (loading) {
+            if (showWebView) {
+                setShowWebView(false);
+                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                setStatus('Failed');
+                setFailedModalState(true);
+                setLoading(false)
+                return true
+            } else if (loading) {
                 return true; // Prevent default back action
             }
             return onProceedBack(); // Allow back navigation if not loading
@@ -92,31 +99,43 @@ const WalletScreen = () => {
 
     const callFetchStatusApi = async () => {
         const response = await fetchStatus(checkoutDetails.token, checkoutDetails.env);
-        setStatus(response.status);
-        setTransactionId(response.transactionId);
-        const reasonCode = response.reasonCode;
-        const status = response.status.toUpperCase();
-        if (['FAILED', 'REJECTED'].includes(status)) {
-            const reason = response.reason
+        try {
+            setStatus(response.status);
+            setTransactionId(response.transactionId);
+            const reasonCode = response.reasonCode;
+            const status = response.status.toUpperCase();
+            if (['FAILED', 'REJECTED'].includes(status)) {
+                const reason = response.reason
+                if (!reasonCode?.startsWith("UF")) {
+                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                } else {
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                }
+                setStatus('Failed');
+                setFailedModalState(true);
+                setLoading(false)
+                stopBackgroundApiTask()
+            } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+                setSuccessfulTimeStamp(response.transactionTimestampLocale);
+                setSuccessModalState(true);
+                setStatus('Success');
+                stopBackgroundApiTask()
+                setLoading(false)
+            } else if (['EXPIRED'].includes(status)) {
+                setSessionExppireModalState(true);
+                setStatus('Expired');
+                stopBackgroundApiTask()
+                setLoading(false)
+            }
+        } catch (error) {
+            const reason = response.status.reason
+            const reasonCode = response.status.reasonCode
             if (!reasonCode?.startsWith("UF")) {
                 paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
             } else {
                 paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
             }
-            setFailedModalState(true);
-            setStatus('Failed');
-            setLoading(false)
-            stopBackgroundApiTask()
-        } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-            setSuccessfulTimeStamp(response.transactionTimestampLocale);
-            setSuccessModalState(true);
-            setStatus('Success');
-            stopBackgroundApiTask()
-            setLoading(false)
-        } else if (['EXPIRED'].includes(status)) {
-            setSessionExppireModalState(true);
-            setStatus('Expired');
-            stopBackgroundApiTask()
+            setFailedModalState(true)
             setLoading(false)
         }
     };

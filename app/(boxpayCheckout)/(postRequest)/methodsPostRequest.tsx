@@ -77,7 +77,7 @@ const methodsPostRequest = async (
         const data = await response.data;
         return data;
     } catch (error) {
-        return { error: "API request failed" };
+        return { status: { reasonCode: "API_FAILED", reason: "" } };
     }
 
     function generateRandomAlphanumericString(length: number): string {

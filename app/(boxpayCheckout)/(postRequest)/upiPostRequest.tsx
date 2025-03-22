@@ -69,7 +69,7 @@ const upiPostRequest = async (
     const data = await response.data;
     return data;
   } catch (error) {
-
+    return { status: { reasonCode: "API_FAILED", reason: "" } };
   }
 
   function generateRandomAlphanumericString(length: number): string {

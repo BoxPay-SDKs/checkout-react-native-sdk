@@ -120,38 +120,40 @@ const UpiTimerScreen = () => { // Remove the Props Interface
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus(checkoutDetails.token, checkoutDetails.env);
-    setStatus(response.status);
-    setTransactionId(response.transactionId);
-    const reasonCode = response.reasonCode;
-    const status = response.status.toUpperCase();
-    if (['FAILED', 'REJECTED'].includes(status)) {
-      const reason = response.reason
+    try {
+      setStatus(response.status);
+      setTransactionId(response.transactionId);
+      const reasonCode = response.reasonCode;
+      const status = response.status.toUpperCase();
+      if (['FAILED', 'REJECTED'].includes(status)) {
+        const reason = response.reason
+        if (!reasonCode?.startsWith("UF")) {
+          paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+        } else {
+          paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+        }
+        setStatus('Failed');
+        setFailedModalState(true);
+        stopBackgroundApiTask()
+      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+        setSuccessfulTimeStamp(response.transactionTimestampLocale);
+        setSuccessModalState(true);
+        setStatus('Success');
+        stopBackgroundApiTask()
+      } else if (['EXPIRED'].includes(status)) {
+        setSessionExppireModalState(true);
+        setStatus('Expired');
+        stopBackgroundApiTask()
+      }
+    } catch (error) {
+      const reason = response.status.reason
+      const reasonCode = response.status.reasonCode
       if (!reasonCode?.startsWith("UF")) {
         paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
       } else {
         paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
       }
-      setStatus('Failed');
-      setFailedModalState(true);
-      stopBackgroundApiTask();
-      if (timerInterval.current) {
-        clearInterval(timerInterval.current);
-      }
-    } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-      setSuccessfulTimeStamp(response.transactionTimestampLocale);
-      setSuccessModalState(true);
-      setStatus('Success');
-      stopBackgroundApiTask();
-      if (timerInterval.current) {
-        clearInterval(timerInterval.current);
-      }
-    } else if (['EXPIRED'].includes(status)) {
-      setSessionExppireModalState(true);
-      setStatus('Expired');
-      stopBackgroundApiTask();
-      if (timerInterval.current) {
-        clearInterval(timerInterval.current);
-      }
+      setFailedModalState(true)
     }
   };
 
