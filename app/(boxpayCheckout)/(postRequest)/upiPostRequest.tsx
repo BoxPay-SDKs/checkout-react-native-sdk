@@ -1,23 +1,18 @@
-import { Dimensions, Platform } from "react-native";
+import { Platform } from "react-native";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
 import axios from 'axios';
+import { userDataHandler } from "../(sharedContext)/userdataHandler";
+import { checkoutDetailsHandler } from "../(sharedContext)/checkoutDetailsHandler";
 
 const upiPostRequest = async (
-  token: string,
-  email: string,
-  firstName: string,
-  lastName: string,
-  phone: string,
-  uniqueRef: string,
-  dob: string,
-  pan: string,
-  instrumentDetails: Record<string, any>,
-  env: string
+  instrumentDetails: Record<string, any>
 ) => {
-  const endpoint: string = env === 'test'
+  const { userData } = userDataHandler
+  const { checkoutDetails } = checkoutDetailsHandler
+  const endpoint: string = checkoutDetails.env === 'test'
     ? 'test-apis.boxpay.tech'
-    : env === 'sandbox'
+    : checkoutDetails.env === 'sandbox'
       ? 'sandbox-apis.boxpay.tech'
       : 'apis.boxpay.in';
   const requestBody = {
@@ -31,18 +26,28 @@ const upiPostRequest = async (
       colorDepth: 24,
       javaEnabled: true,
       timeZoneOffSet: new Date().getTimezoneOffset(),
-      packageId: Constants.manifest?.id || "com.boxpay.checkout.demoapp",
+      packageId: Constants.manifest?.id || "com.boxpay.checkout.sdk",
     },
     instrumentDetails,
     shopper: {
-      email,
-      firstName,
+      email: userData.email,
+      firstName: userData.firstName,
       gender: null,
-      lastName,
-      phoneNumber: phone,
-      uniqueReference: uniqueRef,
-      dateOfBirth: dob,
-      panNumber: pan,
+      lastName: userData.lastName,
+      phoneNumber: userData.phone,
+      uniqueReference: userData.uniqueId,
+      dateOfBirth: userData.dob,
+      panNumber: userData.pan,
+      deliveryAddress: {
+        address1: userData.address1,
+        address2: userData.address2,
+        city: userData.city,
+        state: userData.state,
+        countryCode: userData.country,
+        postalCode: userData.pincode,
+        labelType: userData.labelType,
+        labelName: userData.labelName
+      }
     },
     deviceDetails: {
       browser: Platform.OS,
@@ -53,8 +58,7 @@ const upiPostRequest = async (
     },
   };
 
-
-  const API_URL = `https://${endpoint}/v0/checkout/sessions/${token}`;
+  const API_URL = `https://${endpoint}/v0/checkout/sessions/${checkoutDetails.token}`;
   try {
     const response = await axios.post(API_URL, requestBody, {
       headers: {
@@ -65,7 +69,7 @@ const upiPostRequest = async (
     const data = await response.data;
     return data;
   } catch (error) {
-    return { error: "API request failed" };
+    return { status: { reasonCode: "API_FAILED", reason: "" } };
   }
 
   function generateRandomAlphanumericString(length: number): string {

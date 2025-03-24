@@ -2,16 +2,16 @@ import { View, Text, StyleSheet, Pressable } from 'react-native'
 import React from 'react'
 import Modal from 'react-native-modal'
 import LottieView from 'lottie-react-native'
+import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 
 interface PaymentFailedProps {
     onClick: () => void,
-    buttonColor: string,
     errorMessage: string
 }
-const PaymentFailed: React.FC<PaymentFailedProps> = ({ onClick, buttonColor, errorMessage }) => {
+const PaymentFailed: React.FC<PaymentFailedProps> = ({ onClick, errorMessage }) => {
+    const { checkoutDetails } = checkoutDetailsHandler;
     return (
         <View>
-
             <Modal
                 isVisible={true}
                 style={styles.modal}
@@ -25,7 +25,7 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({ onClick, buttonColor, err
                     />
                     <Text style={styles.successfulHeading}>Payment Failed</Text>
                     <Text style={{ fontSize: 14, fontFamily: 'Poppins-Regular', color: '#000000D9', textAlign: 'center', alignSelf: 'center', paddingTop: 8, paddingBottom: 16, lineHeight: 20 }}>{errorMessage}</Text>
-                    <Pressable style={[styles.buttonContainer, { backgroundColor: buttonColor }]} onPress={onClick}>
+                    <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={onClick}>
                         <Text style={styles.buttonText}>Retry Payment</Text>
                     </Pressable>
                     {/* <Pressable style={[styles.buttonContainer, {backgroundColor:'white', borderColor:'#1CA672', borderWidth:1}]} onPress={onClick}>

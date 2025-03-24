@@ -1,20 +1,18 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { TextInput, HelperText } from 'react-native-paper';
+import { TextInput } from 'react-native-paper';
 import { Modal } from 'react-native';
 import { FlatList } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { Button } from 'react-native';
-import { useNavigation } from 'expo-router';
 import BoxpayCheckout, { setTestEnv } from './(boxpayCheckout)';
-import { setPaymentHandler } from './(boxpayCheckout)/postRequest/paymentStatus';
+import { setPaymentHandler } from './(boxpayCheckout)/(sharedContext)/paymentStatusHandler';
 
 const EnterTokenScreen = () => {
   const [tokenTextInput, setTokenTextInput] = useState("");
   const [environment, setEnvironment] = useState("test");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const navigation = useNavigation()
 
   const environments = [
     { label: "Test", value: "test" },
@@ -37,7 +35,6 @@ const EnterTokenScreen = () => {
 
   const handlePaymentResult = (result: { status: String; transactionId: string }) => {
     alert(`Payment ${result.status} :  + ${result.transactionId}`);
-    navigation.goBack()
   };
 
   useEffect(() => {
