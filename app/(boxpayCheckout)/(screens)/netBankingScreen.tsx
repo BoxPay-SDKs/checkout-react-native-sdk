@@ -74,7 +74,7 @@ const NetBankingScreen = () => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
             if (showWebView) {
                 setShowWebView(false);
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                paymentFailedMessage.current = checkoutDetails.errorMessage
                 setStatus('Failed');
                 setFailedModalState(true);
                 setLoading(false)
@@ -120,9 +120,9 @@ const NetBankingScreen = () => {
             if (['FAILED', 'REJECTED'].includes(status)) {
                 const reason = response.reason
                 if (!reasonCode?.startsWith("UF")) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                    paymentFailedMessage.current = checkoutDetails.errorMessage
                 } else {
-                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
                 }
                 setStatus('Failed');
                 setFailedModalState(true);
@@ -144,9 +144,9 @@ const NetBankingScreen = () => {
             const reason = response.status.reason
             const reasonCode = response.status.reasonCode
             if (!reasonCode?.startsWith("UF")) {
-                paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                paymentFailedMessage.current = checkoutDetails.errorMessage
             } else {
-                paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
             }
             setFailedModalState(true)
             setLoading(false)
@@ -195,9 +195,9 @@ const NetBankingScreen = () => {
                 }
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 if (!reasonCode?.startsWith("UF")) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                    paymentFailedMessage.current = checkoutDetails.errorMessage
                 } else {
-                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
                 }
                 setStatus('Failed');
                 setFailedModalState(true)

@@ -19,7 +19,7 @@ import { checkInstalledApps } from 'expo-check-installed-apps';
 import MorePaymentContainer from './(components)/morePaymentContainer';
 import { setUserDataHandler } from './(sharedContext)/userdataHandler';
 import PaymentResult from './(dataClass)/paymentType';
-import { setCheckoutDetailsHandler } from './(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './(sharedContext)/checkoutDetailsHandler';
 import WebViewScreen from './(screens)/webViewScreen';
 import getSymbolFromCurrency from 'currency-symbol-map'
 
@@ -103,9 +103,9 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 urlToBase64(response.actions[0].url);
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 if (!reasonCode?.startsWith("UF")) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                    paymentFailedMessage.current = checkoutDetailsHandler.checkoutDetails.errorMessage;
                 } else {
-                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
@@ -157,9 +157,9 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 navigateToUpiTimerModal(upiId)
             } else if (['FAILED', 'REJECTED'].includes(status)) {
                 if (!reasonCode?.startsWith("UF")) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                    paymentFailedMessage.current = checkoutDetailsHandler.checkoutDetails.errorMessage;
                 } else {
-                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
                 }
                 setStatus('Failed')
                 setFailedModalState(true)
@@ -270,16 +270,16 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                     paymentFailedMessage.current = "Payment failed with PayTm. Please retry payment with a different UPI app"
                     setFailedModalState(true)
                 } else if (['PENDING'].includes(status) && lastOpenendUrl.current.startsWith("upi:")) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                    paymentFailedMessage.current = checkoutDetailsHandler.checkoutDetails.errorMessage
                     setFailedModalState(true)
                 } else if (['PENDING'].includes(status) && lastOpenendUrl.current != "") {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry."
+                    paymentFailedMessage.current = checkoutDetailsHandler.checkoutDetails.errorMessage
                     setFailedModalState(true)
                 } else if (['FAILED', 'REJECTED'].includes(status)) {
                     if (!reasonCode?.startsWith("UF")) {
-                        paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                        paymentFailedMessage.current = checkoutDetailsHandler.checkoutDetails.errorMessage
                     } else {
-                        paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                        paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
                     }
                     setStatus('Failed')
                     setFailedModalState(true)
@@ -299,11 +299,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 const reason = response.status.reason
                 const reasonCode = response.status.reasonCode
                 if (!reasonCode?.startsWith("UF")) {
-                    paymentFailedMessage.current = "You may have cancelled the payment or there was a delay in response. Please retry.";
+                    paymentFailedMessage.current = checkoutDetailsHandler.checkoutDetails.errorMessage
                 } else {
-                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || "Unknown error";
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetailsHandler.checkoutDetails.errorMessage
                 }
                 setFailedModalState(true)
+                stopBackgroundApiTask()
+                appStateListenerRef.current?.remove();
                 setLoadingState(false)
             }
         }
@@ -469,7 +471,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                         token: tokenState.current,
                         brandColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
                         env: testEnv ? 'test' : env,
-                        itemsLength: totalItemsRef.current
+                        itemsLength: totalItemsRef.current,
+                        errorMessage: "You may have cancelled the payment or there was a delay in response. Please retry."
                     }
                 })
             } catch (error) {

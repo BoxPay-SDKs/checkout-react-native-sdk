@@ -1,9 +1,10 @@
 import { Link } from "expo-router";
-import { Text, View, StyleSheet, Image } from "react-native";
+import { Text, View, StyleSheet, Image, StatusBar } from "react-native";
 
 export default function Index() {
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />
       <Link href={"/check"} style={styles.buttonText}>Open Checkout By Default</Link>
       <Link href={"/enterTokenScreen"} style={styles.buttonText}>Open Checkout By Enter Token</Link>
     </View>

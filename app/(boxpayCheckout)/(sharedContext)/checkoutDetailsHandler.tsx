@@ -11,7 +11,8 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
         token: "",
         brandColor: "",
         env: "",
-        itemsLength: 0
+        itemsLength: 0,
+        errorMessage: ""
     }
 };
 
