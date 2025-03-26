@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Image, BackHandler, Pressable, StatusBar } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import Header from '../(components)/header';
 import { TextInput } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
@@ -15,7 +15,20 @@ import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
 import CvvInfoBottomSheet from '../(components)/cvvInfoBottomSheet';
 import WebViewScreen from './webViewScreen';
 import fetchStatus from '../(postRequest)/fetchStatus';
+import { SvgUri } from 'react-native-svg';
+import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
+import emiPostRequest from '../(postRequest)/emiPostRequest';
+
 const CardScreen = () => {
+    const { duration, bankName, bankUrl, offerCode, amount, percent, cardType } = useLocalSearchParams();
+    const durationNumber = Array.isArray(duration) ? duration[0] : duration;
+    const bankNameStr = Array.isArray(bankName) ? bankName[0] : bankName;
+    const bankUrlStr = Array.isArray(bankUrl) ? bankUrl[0] : bankUrl;
+    const offerCodeStr = Array.isArray(offerCode) ? offerCode[0] : offerCode;
+    const amountStr = Array.isArray(amount) ? amount[0] : amount;
+    const percentNumber = Array.isArray(percent) ? percent[0] : percent;
+    const cardTypeStr = Array.isArray(cardType) ? cardType[0] : cardType;
+
     const { checkoutDetails } = checkoutDetailsHandler;
 
     const [cardNumberText, setCardNumberText] = useState<string | null>(null);
@@ -64,6 +77,11 @@ const CardScreen = () => {
 
     const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
 
+    const [imageLoad, setImageLoad] = useState(true)
+    const [imageError, setImageError] = useState(false)
+
+    const [emiIssuerExist, setEmiIssuerExist] = useState(true)
+
     const handleCardNumberTextChange = (text: string) => {
         if (text == "") {
             setCardNumberText(text);
@@ -81,6 +99,9 @@ const CardScreen = () => {
                     }
                 }
                 fetchCardDetails(checkoutDetails.token, checkoutDetails.env, formatted.replace(/ /g, '')).then((data) => {
+                    if (durationNumber != undefined && durationNumber != "") {
+                        setEmiIssuerExist(data.issuerName != "" && data.issuerName != null)
+                    }
                     setMethodEnabled(data.methodEnabled);
                     if (data.paymentMethod.brand == "VISA") {
                         setCardSelectedIcon(require("../../../assets/images/ic_visa.png"));
@@ -147,8 +168,8 @@ const CardScreen = () => {
     const handleCardNumberBlur = () => {
         const cleaned = cardNumberText?.replace(/ /g, '') || '';
         const cleanedLength = maxCardNumberLength == 19 ? 16 : 15;
-        setCardNumberErrorText(cleaned.length < 1 ? "Required" : (cleaned.length < cleanedLength && methodEnabled) ? "This card number is invalid" : (!methodEnabled) ? "This card is not supported for the payment" : (!cardNumberValid) ? "This card number is invalid" : "");
-        setCardNumberError((cleaned.length < cleanedLength) || !methodEnabled || !cardNumberValid);
+        setCardNumberErrorText(cleaned.length < 1 ? "Required" : (cleaned.length < cleanedLength && methodEnabled) ? "This card number is invalid" : (!methodEnabled) ? "This card is not supported for the payment" : (!cardNumberValid) ? "This card number is invalid" : (!emiIssuerExist) ? "We couldn't find any EMI plans for this card. Please try using a different card number" : "");
+        setCardNumberError((cleaned.length < cleanedLength) || !methodEnabled || !cardNumberValid || !emiIssuerExist);
         setCardNumberFocused(false);
     };
 
@@ -279,10 +300,18 @@ const CardScreen = () => {
         }
     };
     const checkCardValid = () => {
-        if (cardNumberError || cardExpiryError || cardCvvError || cardHolderNameError || cardNumberText?.length != maxCardNumberLength || cardExpiryText?.length != 5 || cardCvvText?.length != maxCvvLength || (cardHolderNameText?.length ?? 0) < 1 || !cardNumberValid) {
-            setCardValid(false);
+        if (durationNumber != undefined && durationNumber != "") {
+            if (cardNumberError || cardExpiryError || cardCvvError || cardHolderNameError || cardNumberText?.length != maxCardNumberLength || cardExpiryText?.length != 5 || cardCvvText?.length != maxCvvLength || (cardHolderNameText?.length ?? 0) < 1 || !cardNumberValid || !emiIssuerExist) {
+                setCardValid(false);
+            } else {
+                setCardValid(true);
+            }
         } else {
-            setCardValid(true);
+            if (cardNumberError || cardExpiryError || cardCvvError || cardHolderNameError || cardNumberText?.length != maxCardNumberLength || cardExpiryText?.length != 5 || cardCvvText?.length != maxCvvLength || (cardHolderNameText?.length ?? 0) < 1 || !cardNumberValid) {
+                setCardValid(false);
+            } else {
+                setCardValid(true);
+            }
         }
     }
 
@@ -335,60 +364,82 @@ const CardScreen = () => {
     };
 
     const onProceedForward = async () => {
-        setLoading(true)
-        const response = await cardPostRequest(
-            cardNumberText || "",
-            cardExpiryText || "",
-            cardCvvText || "",
-            cardHolderNameText || ""
-        )
+        let response;
         try {
-            setStatus(response.status.status)
-            setTransactionId(response.transactionId)
-            const status = response.status.status.toUpperCase()
+            setLoading(true);
+
+            if (durationNumber !== undefined && durationNumber !== "") {
+                response = await emiPostRequest(
+                    cardNumberText || "",
+                    cardExpiryText || "",
+                    cardCvvText || "",
+                    cardHolderNameText || "",
+                    cardTypeStr,
+                    offerCodeStr,
+                    durationNumber
+                );
+            } else {
+                response = await cardPostRequest(
+                    cardNumberText || "",
+                    cardExpiryText || "",
+                    cardCvvText || "",
+                    cardHolderNameText || ""
+                );
+            }
+
+            setStatus(response.status.status);
+            setTransactionId(response.transactionId);
+
+            const status = response.status.status.toUpperCase();
+
             if (status === 'REQUIRESACTION') {
-                if (Array.isArray(response.actions)) {
-                    if (response.actions.length > 0) {
-                        if (response.actions[0].type == "html") {
-                            setPaymentHtml(response.actions[0].url)
-                        } else {
-                            setPaymentUrl(response.actions[0].url)
-                        }
+                if (Array.isArray(response.actions) && response.actions.length > 0) {
+                    if (response.actions[0].type === "html") {
+                        setPaymentHtml(response.actions[0].url);
+                    } else {
+                        setPaymentUrl(response.actions[0].url);
                     }
                 }
             } else if (['FAILED', 'REJECTED'].includes(status)) {
-                const reason = response.status.reason
-                const reasonCode = response.status.reasonCode
+                const reason = response.status.reason || "";
+                const reasonCode = response.status.reasonCode || "";
+
                 if (!reasonCode.startsWith("UF")) {
-                    paymentFailedMessage.current = checkoutDetails.errorMessage
+                    paymentFailedMessage.current = checkoutDetails.errorMessage;
                 } else {
-                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
+                    paymentFailedMessage.current = reason.includes(":")
+                        ? reason.split(":")[1]?.trim()
+                        : reason || checkoutDetails.errorMessage;
                 }
+
+                setFailedModalState(true);
                 setStatus('Failed');
-                setFailedModalState(true)
-                setLoading(false)
             } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-                setSuccessfulTimeStamp(response.transactionTimestampLocale)
-                setSuccessModalState(true)
+                setSuccessfulTimeStamp(response.transactionTimestampLocale);
+                setSuccessModalState(true);
                 setStatus('Success');
-                setLoading(false)
-            } else if (['EXPIRED'].includes(status)) {
-                setSessionExppireModalState(true)
+            } else if (status === 'EXPIRED') {
+                setSessionExppireModalState(true);
                 setStatus('Expired');
-                setLoading(false)
             }
         } catch (error) {
-            const reason = response.status.reason
-            const reasonCode = response.status.reasonCode
-            if (!reasonCode?.startsWith("UF")) {
-                paymentFailedMessage.current = checkoutDetails.errorMessage
+            const reason = response.status.reason || "";
+            const reasonCode = response.status.reasonCode || "";
+
+            if (!reasonCode.startsWith("UF")) {
+                paymentFailedMessage.current = checkoutDetails.errorMessage;
             } else {
-                paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
+                paymentFailedMessage.current = reason.includes(":")
+                    ? reason.split(":")[1]?.trim()
+                    : reason || checkoutDetails.errorMessage;
             }
-            setFailedModalState(true)
-            setLoading(false)
+
+            setFailedModalState(true);
+            setStatus('Failed');
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -419,7 +470,9 @@ const CardScreen = () => {
             transactionId: transactionId || ""
         };
         paymentHandler.onPaymentResult(mockPaymentResult);
-        router.dismissAll()
+        while (router.canGoBack()) {
+            router.back()
+        }
     };
 
     useEffect(() => {
@@ -440,6 +493,56 @@ const CardScreen = () => {
                 <View style={{ flex: 1, backgroundColor: 'white' }}>
                     <Header onBackPress={onProceedBack} showDesc={true} showSecure={true} text='Pay via Card' />
                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
+                    {bankNameStr != "" && bankName != undefined && (
+                        <View style={{ borderColor: "#E6E6E6", borderWidth: 1, borderRadius: 8, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 16, marginTop: 8 }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <View style={{
+                                    width: 32,
+                                    height: 32,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    {imageLoad && !imageError && (
+                                        <ShimmerPlaceHolder
+                                            visible={false} // Keep shimmer until loading is done
+                                            style={{ width: 32, height: 32, borderRadius: 8 }}
+                                        />
+                                    )}
+                                    {!imageError ? (
+                                        <SvgUri
+                                            uri={bankUrlStr}
+                                            width={100} // Keep original size
+                                            height={100}
+                                            style={{ transform: [{ scale: 0.4 }] }}
+                                            onLoad={() => setImageLoad(false)}
+                                            onError={() => {
+                                                setImageError(true);
+                                                setImageLoad(false);
+                                            }}
+                                        />
+                                    ) : (
+                                        <Image source={require("../../../assets/images/ic_netbanking_semi_bold.png")} style={{ transform: [{ scale: 0.4 }] }} />
+                                    )}
+                                </View>
+                                <Text style={{ paddingStart: 8, fontFamily: "Poppins-SemiBold", fontSize: 14 }}>{bankNameStr}</Text>
+                            </View>
+                            <View style={{ borderWidth: 1.5, borderStartColor: "#E6E6E6", borderTopColor: 'white', borderEndColor: 'white', borderBottomColor: 'white', paddingStart: 8 }}>
+                                <Text style={{
+                                    fontFamily: "Poppins-SemiBold",
+                                    fontSize: 12,
+                                    color: "#2D2B32"
+                                }}>
+                                    {duration} months x
+                                    <Text style={{
+                                        fontFamily: 'Inter-SemiBold',
+                                        fontSize: 12,
+                                        color: "#2D2B32"
+                                    }}> {checkoutDetails.currencySymbol}</Text>{amountStr}
+                                </Text>
+                                <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 12, color: "#2D2B32" }}>@{percentNumber}% p.a.</Text>
+                            </View>
+                        </View>
+                    )}
                     <TextInput
                         mode='outlined'
                         label={
@@ -684,6 +787,7 @@ const CardScreen = () => {
                         html={paymentHtml}
                         onBackPress={() => {
                             startBackgroundApiTask();
+                            setLoading(true)
                             setShowWebView(false);
                         }}
                     />
