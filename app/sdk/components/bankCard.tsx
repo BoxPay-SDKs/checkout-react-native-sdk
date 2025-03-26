@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { SvgUri } from 'react-native-svg';
+import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 
 interface BankCardProps {
     name: string;
@@ -11,23 +12,38 @@ interface BankCardProps {
 }
 
 const BankCard: React.FC<BankCardProps> = ({ name, iconUrl, hasNoCostEmi, hasLowCostEmi, onPress }) => {
+    const [error, setImageError] = useState(false)
+    const [load, setLoad] = useState(true)
     return (
         <TouchableOpacity style={styles.container} onPress={onPress}>
             {/* Bank Icon */}
             <View style={{
-                width: 34,
-                height: 34,
+                width: 32,
+                height: 32,
                 justifyContent: 'center',
                 alignItems: 'center',
             }}>
-                <View style={{ transform: [{ scale: 0.4 }] }}>
+                {load && !error && (
+                    <ShimmerPlaceHolder
+                        visible={false} // Keep shimmer until loading is done
+                        style={{ width: 32, height: 32, borderRadius: 8 }}
+                    />
+                )}
+                {!error ? (
                     <SvgUri
                         uri={iconUrl}
                         width={100} // Keep original size
                         height={100}
-                        preserveAspectRatio="xMidYMid meet"
+                        style={{ transform: [{ scale: 0.4 }] }}
+                        onLoad={() => setLoad(false)}
+                        onError={() => {
+                            setImageError(true);
+                            setLoad(false);
+                        }}
                     />
-                </View>
+                ) : (
+                    <Image source={require("../../../assets/images/ic_netbanking_semi_bold.png")} style={{ transform: [{ scale: 0.4 }] }} />
+                )}
             </View>
 
             {/* Bank Name & Offers */}

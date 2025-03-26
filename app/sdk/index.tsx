@@ -84,6 +84,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const [showWebView, setShowWebView] = useState(false)
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
     const [paymentHtml, setPaymentHtml] = useState<string | null>(null)
+    const isUpiOpeningRef = useRef(false)
 
 
     const handlePaymentIntent = async () => {
@@ -212,17 +213,19 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const openUPIIntent = async (url: string) => {
         try {
             await Linking.openURL(url);  // Open the UPI app
-            const listener = AppState.addEventListener('change', handleAppStateChange);
-            appStateListenerRef.current = listener;
+            appStateListenerRef.current = AppState.addEventListener('change', handleAppStateChange)
+            isUpiOpeningRef.current = true
         } catch (error) {
+            isUpiOpeningRef.current = false
             setFailedModalState(true)
             setLoadingState(false)
         }
     };
 
     const handleAppStateChange = (nextAppState: string) => {
-        if (nextAppState === 'background') {
-            startBackgroundApiTask();
+        ToastAndroid.show(`Appstate current ${AppState.currentState}`, ToastAndroid.SHORT);
+        if (AppState.currentState === 'active' && isUpiOpeningRef.current) {
+            callFetchStatusApi()
         }
     };
 
@@ -233,18 +236,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
         }
         loadFonts();
     }, []);
-
-    const startBackgroundApiTask = () => {
-        backgroundApiInterval = setInterval(() => {
-            callFetchStatusApi()
-        }, 4000);
-    };
-
-    const stopBackgroundApiTask = () => {
-        if (backgroundApiInterval) {
-            clearInterval(backgroundApiInterval)
-        }
-    };
 
     const stopExpireTimerCountDown = () => {
         if (timerRef.current) {
@@ -292,10 +283,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                     setSessionExppireModalState(true)
                     setStatus('Expired')
                 }
-                setSelectedIntent(null)
-                setLoadingState(false)
-                stopBackgroundApiTask()
-                appStateListenerRef.current?.remove();
             } catch (error) {
                 const reason = response.status.reason
                 const reasonCode = response.status.reasonCode
@@ -304,10 +291,11 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                 } else {
                     paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetailsHandler.checkoutDetails.errorMessage
                 }
-                setFailedModalState(true)
-                stopBackgroundApiTask()
-                appStateListenerRef.current?.remove();
+            } finally {
+                setSelectedIntent(null)
                 setLoadingState(false)
+                appStateListenerRef.current?.remove();
+                isUpiOpeningRef.current = false
             }
         }
     }
@@ -328,8 +316,15 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            if (loadingState) {
-                return true; // Prevent default back action
+            if (showWebView) {
+                setShowWebView(false);
+                paymentFailedMessage.current = checkoutDetailsHandler.checkoutDetails.errorMessage
+                setStatus('Failed');
+                setFailedModalState(true);
+                setLoadingState(false)
+                return true
+            } else if (loadingState) {
+                return true
             }
             return onExitCheckout(); // Allow back navigation if not loading
         });
@@ -441,10 +436,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                     setTransactionId(response.data.lastTransactionId)
                     setStatus(response.data.status)
                     setSuccessModalState(true)
-                    stopBackgroundApiTask()
                 } else if (['EXPIRED'].includes(response.data.status)) {
                     setSessionExppireModalState(true)
-                    stopBackgroundApiTask()
                 }
                 setUserDataHandler({
                     userData: {
@@ -656,14 +649,14 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                                     )}
                                                 </Pressable>
                                             )}
-                                            {/* {isEmiVisible && (
+                                            {isEmiVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToEmiScreen}>
                                                     <MorePaymentContainer title='EMI' image={require('../../assets/images/ic_emi.png')} />
                                                     {(isBNPLVisible) && (
                                                         <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
                                                     )}
                                                 </Pressable>
-                                            )} */}
+                                            )}
                                             {isBNPLVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToBNPLScreen}>
                                                     <MorePaymentContainer title='Pay Later' image={require('../../assets/images/ic_bnpl.png')} />
@@ -767,7 +760,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                         url={paymentUrl}
                         html={paymentHtml}
                         onBackPress={() => {
-                            startBackgroundApiTask();
+                            callFetchStatusApi()
                             setShowWebView(false);
                         }}
                     />

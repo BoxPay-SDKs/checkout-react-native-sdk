@@ -1,5 +1,5 @@
 import { View, Text, BackHandler, Dimensions, ScrollView, Image, StatusBar } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { router } from 'expo-router';
 import { Bank, ChooseEmiModel, Emi } from '../../../interface/emiDataClass'
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
@@ -9,10 +9,19 @@ import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
 import BankCard from '../components/bankCard';
 import PaymentSelector from '../components/paymentSelector';
+import SelectTenureScreen from './selectTenureScreen';
+import emiPostRequest from '../postRequest/emiPostRequest';
+import LottieView from 'lottie-react-native';
+import PaymentFailed from '../components/paymentFailed';
+import PaymentSuccess from '../components/paymentSuccess';
+import SessionExpire from '../components/sessionExpire';
+import { PaymentResult } from '../../../interface'
+import { paymentHandler } from '../sharedContext/paymentStatusHandler';
+import WebViewScreen from './webViewScreen';
+import fetchStatus from '../postRequest/fetchStatus';
 
 const EmiScreen = () => {
     const [emiBankList, setEmiBankList] = useState<ChooseEmiModel>({ cards: [] });
-    const [selectedCard, setSelectedCard] = useState<string>("");
     const [selectedOthersOption, setSelectedOthersOption] = useState("")
     const [defaultEmiBankList, setDefaultEmiBankList] = useState<ChooseEmiModel>({ cards: [] });
     const [searchText, setSearchText] = useState<string>("");
@@ -25,6 +34,29 @@ const EmiScreen = () => {
     const [checkedOnce, setCheckedOnce] = useState(false);
     const [isFirstLoad, setIsFirstLoad] = useState(true);
     const [searchTextFocused, setSearchTextFocused] = useState(false);
+
+    const [selectTenureScreen, setSelectTenureScreen] = useState(false)
+
+    const [selectedCard, setSelectedCard] = useState<string>("");
+    const [selectedBank, setSelectedBank] = useState<Bank>();
+    const [selectedEmi, setSelectedEmi] = useState<Emi[]>([])
+
+    const [loading, setLoading] = useState(false)
+    const [failedModalOpen, setFailedModalOpen] = useState(false)
+    const [successModalOpen, setSuccessModalOpen] = useState(false)
+    const [sessionExpireModalOpen, setSessionExppireModalOpen] = useState(false)
+    const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
+
+    const [status, setStatus] = useState("")
+    const [transactionId, setTransactionId] = useState("")
+
+    const [paymentHtml, setPaymentHtml] = useState("")
+    const [paymentUrl, setPaymentUrl] = useState("")
+
+    const [showWebView, setShowWebView] = useState(false)
+    const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
+
+    const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry.")
 
     useEffect(() => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
@@ -75,7 +107,7 @@ const EmiScreen = () => {
                             discount: emiMethod.merchantBorneInterestAmountLocaleFull,
                             interestCharged: lowApplicableOffer ? emiMethod.interestChargedAmountLocaleFull : emiMethod.bankChargedInterestAmountLocaleFull,
                             noCostApplied: noApplicableOffer,
-                            processingFee: emiMethod.processingFee?.amountLocale || "0",
+                            processingFee: emiMethod.processingFee?.amountLocaleFull || "0",
                             lowCostApplied: lowApplicableOffer,
                             code: emiMethod.applicableOffer?.code || "",
                             netAmount: emiMethod.netAmountLocaleFull,
@@ -113,11 +145,146 @@ const EmiScreen = () => {
         }
     }, [defaultEmiBankList])
 
+    const startBackgroundApiTask = () => {
+        backgroundApiInterval.current = setInterval(() => {
+            callFetchStatusApi();
+        }, 4000);
+    };
+
+    const stopBackgroundApiTask = () => {
+        if (backgroundApiInterval.current) {
+            clearInterval(backgroundApiInterval.current);
+        }
+    };
+
+    const callFetchStatusApi = async () => {
+        const response = await fetchStatus(checkoutDetails.token, checkoutDetails.env);
+        try {
+            setStatus(response.status);
+            setTransactionId(response.transactionId);
+            const reasonCode = response.reasonCode;
+            const status = response.status.toUpperCase();
+            if (['FAILED', 'REJECTED'].includes(status)) {
+                const reason = response.reason
+                if (!reasonCode?.startsWith("UF")) {
+                    paymentFailedMessage.current = checkoutDetails.errorMessage
+                } else {
+                    paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
+                }
+                setStatus('Failed');
+                setFailedModalOpen(true);
+                setLoading(false)
+                stopBackgroundApiTask()
+            } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+                setSuccessfulTimeStamp(response.transactionTimestampLocale);
+                setSuccessModalOpen(true);
+                setStatus('Success');
+                stopBackgroundApiTask()
+                setLoading(false)
+            } else if (['EXPIRED'].includes(status)) {
+                setSessionExppireModalOpen(true);
+                setStatus('Expired');
+                stopBackgroundApiTask()
+                setLoading(false)
+            }
+        } catch (error) {
+            const reason = response.status.reason
+            const reasonCode = response.status.reasonCode
+            if (!reasonCode?.startsWith("UF")) {
+                paymentFailedMessage.current = checkoutDetails.errorMessage
+            } else {
+                paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
+            }
+            setFailedModalOpen(true)
+            setLoading(false)
+        }
+    };
+
     useEffect(() => {
         if (emiBankList.cards.length > 0) {
             setIsFirstLoad(false)
         }
     }, [emiBankList])
+
+    useEffect(() => {
+        if (paymentUrl) {
+            setShowWebView(true)
+        }
+    }, [paymentUrl])
+
+    useEffect(() => {
+        if (paymentHtml) {
+            setShowWebView(true)
+        }
+    }, [paymentHtml])
+
+    const onProceedForward = async () => {
+        let response;
+        try {
+            setLoading(true);
+
+            response = await emiPostRequest(
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                selectedOthersOption
+            );
+            setStatus(response.status.status);
+            setTransactionId(response.transactionId);
+
+            const status = response.status.status.toUpperCase();
+
+            if (status === 'REQUIRESACTION') {
+                if (Array.isArray(response.actions) && response.actions.length > 0) {
+                    if (response.actions[0].type === "html") {
+                        setPaymentHtml(response.actions[0].url);
+                    } else {
+                        setPaymentUrl(response.actions[0].url);
+                    }
+                }
+            } else if (['FAILED', 'REJECTED'].includes(status)) {
+                const reason = response.status.reason || "";
+                const reasonCode = response.status.reasonCode || "";
+
+                if (!reasonCode.startsWith("UF")) {
+                    paymentFailedMessage.current = checkoutDetails.errorMessage;
+                } else {
+                    paymentFailedMessage.current = reason.includes(":")
+                        ? reason.split(":")[1]?.trim()
+                        : reason || checkoutDetails.errorMessage;
+                }
+
+                setFailedModalOpen(true);
+                setStatus('Failed');
+            } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+                setSuccessfulTimeStamp(response.transactionTimestampLocale);
+                setSuccessModalOpen(true);
+                setStatus('Success');
+            } else if (status === 'EXPIRED') {
+                setSessionExppireModalOpen(true);
+                setStatus('Expired');
+            }
+        } catch (error) {
+            const reason = response.status.reason || "";
+            const reasonCode = response.status.reasonCode || "";
+
+            if (!reasonCode.startsWith("UF")) {
+                paymentFailedMessage.current = checkoutDetails.errorMessage;
+            } else {
+                paymentFailedMessage.current = reason.includes(":")
+                    ? reason.split(":")[1]?.trim()
+                    : reason || checkoutDetails.errorMessage;
+            }
+
+            setFailedModalOpen(true);
+            setStatus('Failed');
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     const addBankDetails = (cardType: string, bank: Bank, emi: Emi) => {
@@ -190,11 +357,40 @@ const EmiScreen = () => {
         return true;
     };
     useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', onProceedBack);
-        return () => {
-            backHandler.remove();
-        };
-    }, []);
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            if (showWebView) {
+                setShowWebView(false);
+                paymentFailedMessage.current = checkoutDetails.errorMessage
+                setStatus('Failed');
+                setFailedModalOpen(true);
+                setLoading(false)
+                return true
+            } else if (loading) {
+                return true; // Prevent default back action
+            } else if (selectTenureScreen) {
+                setSelectTenureScreen(false)
+                return true
+            }
+            return onProceedBack(); // Allow back navigation if not loading
+        });
+
+        return () => backHandler.remove();
+    });
+
+    const navigateToCardScreen = (duration: number, bankName: string, bankUrl: string, offerCode: string, amount: string, percent: number) => {
+        router.push({
+            pathname: "/cardScreen",
+            params: {
+                duration: duration,
+                bankName: bankName,
+                bankUrl: bankUrl,
+                offerCode: offerCode,
+                amount: amount,
+                percent: percent,
+                cardType: selectedCard
+            }
+        })
+    }
 
 
     useEffect((() => {
@@ -260,6 +456,45 @@ const EmiScreen = () => {
         );
     }
 
+    const handleSelectedBank = (selectedBank: Bank) => {
+        try {
+            setSelectedBank(selectedBank)
+            setFilterList((prevFilters) =>
+                prevFilters.map(([filter]) => [filter, false])
+            );
+            setSelectedEmi(sortEmiList(selectedBank))
+            setSelectTenureScreen(true)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const sortEmiList = (bank: Bank): Emi[] => {
+        return [...bank.emiList].sort((a, b) => {
+            // Sort by `noCostApplied` first (true comes before false)
+            if (a.noCostApplied !== b.noCostApplied) {
+                return a.noCostApplied ? -1 : 1;
+            }
+            // Then by `lowCostApplied` (true comes before false)
+            if (a.lowCostApplied !== b.lowCostApplied) {
+                return a.lowCostApplied ? -1 : 1;
+            }
+            // Finally, sort by `duration` in ascending order
+            return a.duration - b.duration;
+        });
+    };
+
+    const onExitCheckout = () => {
+        const mockPaymentResult: PaymentResult = {
+            status: status || "",
+            transactionId: transactionId || ""
+        };
+        paymentHandler.onPaymentResult(mockPaymentResult);
+        while (router.canGoBack()) {
+            router.back()
+        }
+    };
+
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <StatusBar barStyle="dark-content" />
@@ -274,187 +509,256 @@ const EmiScreen = () => {
                     <ShimmerPlaceHolder visible={false} style={{ width: '100%', height: 50, borderRadius: 10, marginTop: 25 }} />
                     <ShimmerPlaceHolder visible={false} style={{ width: '100%', height: 50, borderRadius: 10, marginTop: 25 }} />
                 </View>
+            ) : loading ? (
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <LottieView source={require('../../../assets/animations/boxpayLogo.json')} autoPlay loop style={{ width: 80, height: 80 }} />
+                    <Text>Loading...</Text>
+                </View>
             ) : (
                 <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
-                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Choose EMI Option' />
-                    <View style={{ backgroundColor: 'white', marginTop: 4, paddingBottom: 16 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            {emiBankList.cards.map((item, index) => (
-                                <View key={index} style={{ paddingHorizontal: 16, paddingTop: 12 }}>
-                                    <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, color: selectedCard === item.cardType ? checkoutDetails.brandColor : "#01010273" }} onPress={() => handleCardClick(item.cardType)}>{item.cardType}</Text>
-                                    <View style={{
-                                        height: 2, backgroundColor: selectedCard === item.cardType ? checkoutDetails.brandColor : "", width: "120%",
-                                        minWidth: 40,
-                                        alignSelf: 'center',
-                                        borderRadius: 1
-                                    }}></View>
-                                </View>
-                            ))}
-                        </View>
-                        <View style={{
-                            height: 2, backgroundColor: "#DCDCDE",
-                            borderRadius: 1
-                        }}></View>
-                        {isSearchVisible && (
-                            <View style={{ backgroundColor: 'white' }}>
-                                <TextInput
-                                    mode='outlined'
-                                    label={
-                                        <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular', color: searchTextFocused ? '#2D2B32' : (searchText != "" && searchText != null) ? '#2D2B32' : '#ADACB0' }}>Search for bank</Text>
-                                    }
-                                    value={searchText}
-                                    onChangeText={(it) => {
-                                        setSearchText(it);
-                                    }}
-                                    theme={{
-                                        colors: {
-                                            primary: "#2D2B32",
-                                            outline: '#E6E6E6',
-                                        }
-                                    }}
-                                    style={{
-                                        marginTop: 16, marginHorizontal: 16, backgroundColor: 'white',
-                                        fontSize: 16,
-                                        fontFamily: 'Poppins-Regular',
-                                        color: '#0A090B'
-                                    }}
-                                    left={
-                                        <TextInput.Icon
-                                            icon={() => <Image source={require("../../../assets/images/ic_search.png")} style={{ width: 20, height: 20 }} />}
-                                        />
-                                    }
-                                    outlineStyle={{
-                                        borderRadius: 6,
-                                        borderWidth: 1
-                                    }}
-                                    onFocus={() => setSearchTextFocused(true)}
-                                    onBlur={() => setSearchTextFocused(false)}
-                                />
-                            </View>
-                        )}
-                        {isFilterExisted && (
-                            filterList.map(([item, isSelected], index) => (
-                                <View key={index} style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 20 }}>
-                                    <View style={{ borderColor: isSelected ? "#1CA672" : "#E6E6E6", borderWidth: 1, flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 6, alignItems: 'center', borderRadius: 20, backgroundColor: isSelected ? "#E8F6F1" : "white" }}>
-                                        <Text style={{ fontFamily: 'Poppins-SemiBoold', fontSize: 12, color: '#2D2B32' }} onPress={() => {
-                                            getBanksByFilter(selectedCard, item)
-                                        }}>{item}</Text>
-                                        <Image source={require("../../../assets/images/add_icon.png")} style={{ height: 10, width: 10, marginStart: 4 }} />
-                                    </View>
-                                </View>
-                            ))
-                        )}
-                    </View>
-                    <ScrollView
-                        contentContainerStyle={{ flexGrow: 1 }}
-                        keyboardShouldPersistTaps="handled"
-                        onContentSizeChange={(_, contentHeight) => {
-                            if (!checkedOnce) {
-                                if (contentHeight > screenHeight) {
-                                    setIsSearchVisible(true);
-                                }
-                                setCheckedOnce(true);
-                            }
-                        }}>
-                        <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>All Banks</Text>
-                        <View
-                            style={{
-                                backgroundColor: 'white',
-                                borderColor: '#F1F1F1',
-                                borderWidth: 1,
-                                borderRadius: 12,
-                                marginHorizontal: 16,
-                                marginBottom: 30,
-                            }}
-                        >
-                            {
-                                (() => {
-                                    const selectedCardData = emiBankList.cards.find((card) => card.cardType === selectedCard);
-
-                                    return selectedCardData && selectedCardData.banks?.length > 0 ? (
-                                        selectedCardData.banks.map((bank, index, bankArray) => (
-                                            <View key={index} style={{ flexDirection: "column" }}>
-                                                {selectedCard === "Others" ? (
-                                                    <PaymentSelector
-                                                        id={""}
-                                                        title={bank.name}
-                                                        image={bank.iconUrl}
-                                                        isSelected={bank.cardLessEmiValue === selectedOthersOption}
-                                                        instrumentTypeValue={bank.cardLessEmiValue}
-                                                        onPress={(it) => {
-                                                            setSelectedOthersOption(it);
-                                                        }}
-                                                        onProceedForward={() => {
-                                                            // Todo will add the proceed forward function 
-                                                        }}
-                                                        errorImage={require("../../../assets/images/ic_bnpl_semi_bold.png")}
-                                                    />
-                                                ) : (
-                                                    <BankCard
-                                                        name={bank.name}
-                                                        iconUrl={bank.iconUrl}
-                                                        hasNoCostEmi={bank.noCostApplied}
-                                                        hasLowCostEmi={bank.lowCostApplied}
-                                                        onPress={() => {
-                                                            // Handle press event for BankCard
-                                                        }}
-                                                    />
-                                                )}
-
-                                                {/* ✅ Corrected Divider Condition */}
-                                                {index !== bankArray.length - 1 && (
-                                                    <View style={{ height: 1, backgroundColor: "#ECECED" }} />
-                                                )}
-                                            </View>
-                                        ))
-                                    ) : (
-                                        <View
-                                            style={{
-                                                marginHorizontal: 16,
-                                                backgroundColor: "white",
-                                                marginBottom: 32,
-                                                height: 300,
-                                                alignItems: "center",
-                                                justifyContent: "center",
-                                            }}
-                                        >
-                                            <Image
-                                                source={require("../../../assets/images/no_results_found.png")}
-                                                style={{ width: 100, height: 100 }}
-                                            />
-                                            <Text
-                                                style={{
-                                                    fontFamily: "Poppins-SemiBold",
-                                                    fontSize: 16,
-                                                    color: "#212426",
-                                                    marginTop: 16,
-                                                }}
-                                            >
-                                                Oops!! No result found
-                                            </Text>
-                                            <Text
-                                                style={{
-                                                    fontFamily: "Poppins-Regular",
-                                                    fontSize: 14,
-                                                    color: "#4F4D55",
-                                                    marginTop: -4,
-                                                }}
-                                            >
-                                                Please try another search
-                                            </Text>
+                    {!selectTenureScreen && (
+                        <>
+                            <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Choose EMI Option' />
+                            <View style={{ backgroundColor: 'white', marginTop: 4, paddingBottom: 16 }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    {emiBankList.cards.map((item, index) => (
+                                        <View key={index} style={{ paddingHorizontal: 16, paddingTop: 12 }}>
+                                            <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, color: selectedCard === item.cardType ? checkoutDetails.brandColor : "#01010273" }} onPress={() => handleCardClick(item.cardType)}>{item.cardType}</Text>
+                                            <View style={{
+                                                height: 2, backgroundColor: selectedCard === item.cardType ? checkoutDetails.brandColor : "", width: "120%",
+                                                minWidth: 40,
+                                                alignSelf: 'center',
+                                                borderRadius: 1
+                                            }}></View>
                                         </View>
-                                    );
-                                })()
-                            }
+                                    ))}
+                                </View>
+                                <View style={{
+                                    height: 2, backgroundColor: "#DCDCDE",
+                                    borderRadius: 1
+                                }}></View>
+                                {isSearchVisible && (
+                                    <View style={{ backgroundColor: 'white' }}>
+                                        <TextInput
+                                            mode='outlined'
+                                            label={
+                                                <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular', color: searchTextFocused ? '#2D2B32' : (searchText != "" && searchText != null) ? '#2D2B32' : '#ADACB0' }}>Search for bank</Text>
+                                            }
+                                            value={searchText}
+                                            onChangeText={(it) => {
+                                                setSearchText(it);
+                                            }}
+                                            theme={{
+                                                colors: {
+                                                    primary: "#2D2B32",
+                                                    outline: '#E6E6E6',
+                                                }
+                                            }}
+                                            style={{
+                                                marginTop: 16, marginHorizontal: 16, backgroundColor: 'white',
+                                                fontSize: 16,
+                                                fontFamily: 'Poppins-Regular',
+                                                color: '#0A090B'
+                                            }}
+                                            left={
+                                                <TextInput.Icon
+                                                    icon={() => <Image source={require("../../../assets/images/ic_search.png")} style={{ width: 20, height: 20 }} />}
+                                                />
+                                            }
+                                            outlineStyle={{
+                                                borderRadius: 6,
+                                                borderWidth: 1
+                                            }}
+                                            onFocus={() => setSearchTextFocused(true)}
+                                            onBlur={() => setSearchTextFocused(false)}
+                                        />
+                                    </View>
+                                )}
+                                {isFilterExisted && (
+                                    filterList.map(([item, isSelected], index) => (
+                                        <View key={index} style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 20 }}>
+                                            <View style={{ borderColor: isSelected ? "#1CA672" : "#E6E6E6", borderWidth: 1, flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 6, alignItems: 'center', borderRadius: 20, backgroundColor: isSelected ? "#E8F6F1" : "white" }}>
+                                                <Text style={{ fontFamily: 'Poppins-SemiBoold', fontSize: 12, color: '#2D2B32' }} onPress={() => {
+                                                    getBanksByFilter(selectedCard, item)
+                                                }}>{item}</Text>
+                                                <Image source={require("../../../assets/images/add_icon.png")} style={{ height: 10, width: 10, marginStart: 4 }} />
+                                            </View>
+                                        </View>
+                                    ))
+                                )}
+                            </View>
+                            <ScrollView
+                                contentContainerStyle={{ flexGrow: 1 }}
+                                keyboardShouldPersistTaps="handled"
+                                onContentSizeChange={(_, contentHeight) => {
+                                    if (!checkedOnce) {
+                                        if (contentHeight > screenHeight) {
+                                            setIsSearchVisible(true);
+                                        }
+                                        setCheckedOnce(true);
+                                    }
+                                }}>
+                                <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>All Banks</Text>
+                                <View
+                                    style={{
+                                        backgroundColor: 'white',
+                                        borderColor: '#F1F1F1',
+                                        borderWidth: 1,
+                                        borderRadius: 12,
+                                        marginHorizontal: 16,
+                                        marginBottom: 30,
+                                    }}
+                                >
+                                    {
+                                        (() => {
+                                            const selectedCardData = emiBankList.cards.find((card) => card.cardType === selectedCard);
+
+                                            return selectedCardData && selectedCardData.banks?.length > 0 ? (
+                                                selectedCardData.banks.map((bank, index, bankArray) => (
+                                                    <View key={index} style={{ flexDirection: "column" }}>
+                                                        {selectedCard === "Others" ? (
+                                                            <PaymentSelector
+                                                                id={bank.cardLessEmiValue}
+                                                                title={bank.name}
+                                                                image={bank.iconUrl}
+                                                                isSelected={bank.cardLessEmiValue === selectedOthersOption}
+                                                                instrumentTypeValue={bank.cardLessEmiValue}
+                                                                onPress={(it) => {
+                                                                    setSelectedOthersOption(it);
+                                                                }}
+                                                                onProceedForward={() => {
+                                                                    onProceedForward()
+                                                                }}
+                                                                errorImage={require("../../../assets/images/ic_bnpl_semi_bold.png")}
+                                                            />
+                                                        ) : (
+                                                            <BankCard
+                                                                name={bank.name}
+                                                                iconUrl={bank.iconUrl}
+                                                                hasNoCostEmi={bank.noCostApplied}
+                                                                hasLowCostEmi={bank.lowCostApplied}
+                                                                onPress={() => {
+                                                                    // Handle press event for BankCard
+                                                                    handleSelectedBank(bank)
+                                                                }}
+                                                            />
+                                                        )}
+
+                                                        {/* ✅ Corrected Divider Condition */}
+                                                        {index !== bankArray.length - 1 && (
+                                                            <View style={{ height: 1, backgroundColor: "#ECECED" }} />
+                                                        )}
+                                                    </View>
+                                                ))
+                                            ) : (
+                                                <View
+                                                    style={{
+                                                        marginHorizontal: 16,
+                                                        backgroundColor: "white",
+                                                        marginBottom: 32,
+                                                        height: 300,
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                    }}
+                                                >
+                                                    <Image
+                                                        source={require("../../../assets/images/no_results_found.png")}
+                                                        style={{ width: 100, height: 100 }}
+                                                    />
+                                                    <Text
+                                                        style={{
+                                                            fontFamily: "Poppins-SemiBold",
+                                                            fontSize: 16,
+                                                            color: "#212426",
+                                                            marginTop: 16,
+                                                        }}
+                                                    >
+                                                        Oops!! No result found
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            fontFamily: "Poppins-Regular",
+                                                            fontSize: 14,
+                                                            color: "#4F4D55",
+                                                            marginTop: -4,
+                                                        }}
+                                                    >
+                                                        Please try another search
+                                                    </Text>
+                                                </View>
+                                            );
+                                        })()
+                                    }
 
 
+                                </View>
+
+
+                            </ScrollView>
+                        </>
+                    )}
+
+                    {selectTenureScreen && (
+                        <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+                            <SelectTenureScreen
+                                bankName={selectedBank?.name || ""}
+                                bankUrl={selectedBank?.iconUrl || ""}
+                                onbackPress={() => {
+                                    setSelectTenureScreen(false)
+                                }}
+                                cardType={selectedCard}
+                                emiModel={selectedEmi ? selectedEmi : []}
+                                onProceedForward={(duration: number, bankName: string, bankUrl: string, offerCode: string, amount: string, percent: number) => {
+                                    navigateToCardScreen(duration, bankName, bankUrl, offerCode, amount, percent)
+                                }}
+                            />
                         </View>
-
-
-                    </ScrollView>
+                    )}
                 </View>
             )
             }
+            {failedModalOpen && (
+                <PaymentFailed
+                    onClick={() => setFailedModalOpen(false)}
+                    errorMessage={paymentFailedMessage.current}
+                />
+            )}
+
+            {successModalOpen && (
+                <PaymentSuccess
+                    onClick={onExitCheckout}
+                    transactionId={transactionId || ""}
+                    method="Card"
+                    localDateTime={successfulTimeStamp}
+                />
+            )}
+
+            {sessionExpireModalOpen && (
+                <SessionExpire
+                    onClick={onExitCheckout}
+                />
+            )}
+
+            {showWebView && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'white'
+                }}>
+                    <WebViewScreen
+                        url={paymentUrl}
+                        html={paymentHtml}
+                        onBackPress={() => {
+                            startBackgroundApiTask();
+                            setLoading(true)
+                            setShowWebView(false);
+                        }}
+                    />
+                </View>
+            )}
         </View >
     )
 }
