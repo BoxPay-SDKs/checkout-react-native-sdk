@@ -134,7 +134,7 @@ const EmiScreen = () => {
                 });
 
             } catch (error) {
-                console.log(error);
+
             }
         });
     }, []);
@@ -348,7 +348,7 @@ const EmiScreen = () => {
                 return newEmiBankList;
             });
         } catch (error) {
-            console.log(error)
+
         }
     };
 
@@ -465,7 +465,7 @@ const EmiScreen = () => {
             setSelectedEmi(sortEmiList(selectedBank))
             setSelectTenureScreen(true)
         } catch (error) {
-            console.log(error)
+
         }
     }
 

@@ -93,7 +93,6 @@ const emiPostRequest = async (
         },
     };
 
-    console.log(requestBody)
     const API_URL = `https://${endpoint}/v0/checkout/sessions/${checkoutDetails.token}`;
     try {
         const response = await axios.post(API_URL, requestBody, {
