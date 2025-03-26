@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
         marginRight: 6,
     },
     tagText: {
-        fontSize: 12,
+        fontSize: 10,
         fontFamily: 'Poppins-Medium',
         color: '#EB2F96',
     }
