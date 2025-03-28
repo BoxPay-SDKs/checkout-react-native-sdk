@@ -23,11 +23,11 @@ const Header: React.FC<HeaderProps> = ({ onBackPress, showDesc, showSecure, text
           <Text style={styles.headerTitle}>{text}</Text>
           {showDesc && (
             <Text style={styles.headerDesc}>
-              {/* {checkoutDetails.itemsLength > 0 && (
+              {checkoutDetails.itemsLength > 0 && (
                 <>
                   {checkoutDetails.itemsLength} {checkoutDetails.itemsLength === 1 ? "item" : "items"} .
                 </>
-              )} */}
+              )}
               Total:
               <Text style={styles.amount}>
                 <Text style={styles.currencySymbol}> {checkoutDetails.currencySymbol}</Text>{checkoutDetails.amount}

@@ -22,6 +22,7 @@ import PaymentResult from './(dataClass)/paymentType';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './(sharedContext)/checkoutDetailsHandler';
 import WebViewScreen from './(screens)/webViewScreen';
 import getSymbolFromCurrency from 'currency-symbol-map'
+import OrderDetails, { ItemsProp } from './(components)/orderDetails';
 
 // Define the props interface
 interface BoxpayCheckoutProps {
@@ -84,7 +85,10 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
     const [paymentHtml, setPaymentHtml] = useState<string | null>(null)
     const isUpiOpeningRef = useRef(false)
-
+    const shippingAmountRef = useRef("")
+    const taxAmountRef = useRef("")
+    const subTotalAmountRef = useRef("")
+    const orderItemsArrayRef = useRef<ItemsProp[]>([])
 
     const handlePaymentIntent = async () => {
         setLoadingState(true)
@@ -399,6 +403,16 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                 if (paymentDetails.order != null && paymentDetails.order.items != null) {
                     const total = paymentDetails.order.items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
                     totalItemsRef.current = total;
+                    shippingAmountRef.current = paymentDetails.order.shippingAmountLocaleFull != null ? paymentDetails.order.shippingAmountLocaleFull : ""
+                    taxAmountRef.current = paymentDetails.order.taxAmountLocaleFull != null ? paymentDetails.order.taxAmountLocaleFull : ""
+                    subTotalAmountRef.current = paymentDetails.order.originalAmountLocaleFull != null ? paymentDetails.order.originalAmountLocaleFull : ""
+                    const formattedItemsArray: ItemsProp[] = paymentDetails.order.items.map((item: any) => ({
+                        imageUrl: item.imageUrl,
+                        imageTitle: item.itemName,
+                        imageOty: item.quantity,
+                        imageAmount: item.amountWithoutTaxLocaleFull
+                    }));
+                    orderItemsArrayRef.current = formattedItemsArray
                 }
                 setPrimaryButtonColor(response.data.merchantDetails.checkoutTheme.primaryButtonColor)
                 emailRef.current = paymentDetails.shopper.email
@@ -671,30 +685,14 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                                     color: '#020815B5',
                                     fontFamily: 'Poppins-SemiBold'
                                 }}>Order Summary</Text>
-                                <View style={{
-                                    borderColor: '#F1F1F1',
-                                    borderWidth: 1,
-                                    marginHorizontal: 16,
-                                    marginVertical: 8,
-                                    paddingVertical: 16,
-                                    paddingHorizontal: 12,
-                                    backgroundColor: "white",
-                                    flexDirection: 'row',
-                                    borderRadius: 12,
-                                    justifyContent: 'space-between'
-                                }}>
-                                    <Text style={{
-                                        fontSize: 14, color: "#363840",
-                                        fontFamily: 'Poppins-SemiBold'
-                                    }}>Price Details</Text>
-                                    <Text style={{
-                                        fontSize: 14, color: "#363840",
-                                        fontFamily: 'Poppins-SemiBold'
-                                    }}><Text style={{
-                                        fontSize: 14, color: "#363840",
-                                        fontFamily: 'Inter-SemiBold'
-                                    }}>{currencySymbol}</Text>{amount}</Text>
-                                </View>
+
+                                <OrderDetails
+                                    subTotalAmount={subTotalAmountRef.current}
+                                    shippingAmount={shippingAmountRef.current}
+                                    totalAmount={amount}
+                                    itemsArray={orderItemsArrayRef.current}
+                                    taxAmount={taxAmountRef.current}
+                                />
                             </View>
 
                             {/* Secured by BoxPay - Fixed at Bottom */}
