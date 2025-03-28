@@ -14,7 +14,6 @@ const BoxpayCheckoutLayout = () => {
       <Stack.Screen name='(screens)/netBankingScreen' options={{ headerShown: false }} />
       <Stack.Screen name='(screens)/bnplScreen' options={{ headerShown: false }} />
       <Stack.Screen name='(screens)/emiScreen' options={{ headerShown: false }} />
-      <Stack.Screen name='(screens)/selectTenureScreen' options={{ headerShown: false }} />
     </Stack>
   )
 }
