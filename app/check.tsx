@@ -104,6 +104,10 @@ const requestBody = {
     panNumber: 'CTGPA0002G',
   },
   order: {
+    originalAmount: 100000,
+    shippingAmount: 500000,
+    voucherCode: "VOUCHER",
+    taxAmount: 100000,
     items: [
       {
         id: 'test',
