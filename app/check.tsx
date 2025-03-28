@@ -80,7 +80,7 @@ const requestBody = {
   },
   paymentType: 'S',
   money: {
-    amount: '10000',
+    amount: '13000',
     currencyCode: 'INR',
   },
   descriptor: {
@@ -103,29 +103,43 @@ const requestBody = {
     panNumber: 'CTGPA0002G',
   },
   order: {
-    originalAmount: 100000,
-    shippingAmount: 500000,
+    originalAmount: 10000,
+    shippingAmount: 2000,
     voucherCode: "VOUCHER",
-    taxAmount: 100000,
+    taxAmount: 1000,
     items: [
       {
         id: 'test',
         itemName: 'La Fille Regular Solid Handheld Bag Blue',
         description: 'testProduct',
-        quantity: 4,
-        imageUrl:
-          'https://assetscdn1.paytm.com/images/catalog/product/B/BA/BAGLAFILLE-BLUEINTO887307A255D05/1563381583133_0..jpg',
-        amountWithoutTax: 50000,
+        quantity: 1,
+        imageUrl: 'https://assetscdn1.paytm.com/images/catalog/product/B/BA/BAGLAFILLE-BLUEINTO887307A255D05/1563381583133_0..jpg',
+        amountWithoutTax: 3000,
       },
       {
         id: 'test',
-        itemName: 'La Fille Regular Solid Handheld Bag Blue',
+        itemName: 'Women High-Rise Straight Fit Side Slit Jeans (30)',
         description: 'testProduct',
-        quantity: 5,
-        imageUrl:
-          'https://assetscdn1.paytm.com/images/catalog/product/B/BA/BAGLAFILLE-BLUEINTO887307A255D05/1563381583133_0..jpg',
-        amountWithoutTax: 50000,
+        quantity: 1,
+        imageUrl: 'https://assets.myntassets.com/h_1440,q_100,w_1080/v1/assets/images/19202976/2022/7/28/50409467-e71a-44e1-a782-8e6f3e27f9061658997566628-SASSAFRAS-Women-Jeans-241658997565825-1.jpg',
+        amountWithoutTax: 2000,
       },
+      {
+        id: 'test',
+        itemName: 'Women Long Full Length Wool Jacket, long Cozy Coat, plus Size Winter Coat',
+        description: 'testProduct',
+        quantity: 1,
+        imageUrl: 'https://i.etsystatic.com/11387641/r/il/96434a/2584644492/il_570xN.2584644492_ju94.jpg',
+        amountWithoutTax: 3000,
+      },
+      {
+        id: 'test',
+        itemName: 'Women Boots',
+        description: 'testProduct',
+        quantity: 1,
+        imageUrl: 'https://admin.mochishoes.com/product/31-4858/660/31-4858H97.jpg',
+        amountWithoutTax: 2000,
+      }
     ],
   },
   statusNotifyUrl: 'https://www.boxpay.tech',
