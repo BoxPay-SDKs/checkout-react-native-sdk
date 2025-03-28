@@ -259,13 +259,16 @@ const EmiScreen = () => {
 
                 setFailedModalOpen(true);
                 setStatus('Failed');
+                setLoading(false);
             } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
                 setSuccessfulTimeStamp(response.transactionTimestampLocale);
                 setSuccessModalOpen(true);
                 setStatus('Success');
+                setLoading(false);
             } else if (status === 'EXPIRED') {
                 setSessionExppireModalOpen(true);
                 setStatus('Expired');
+                setLoading(false);
             }
         } catch (error) {
             const reason = response.status.reason || "";
@@ -281,7 +284,6 @@ const EmiScreen = () => {
 
             setFailedModalOpen(true);
             setStatus('Failed');
-        } finally {
             setLoading(false);
         }
     };
@@ -520,7 +522,7 @@ const EmiScreen = () => {
                         <>
                             <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Choose EMI Option' />
                             <View style={{ backgroundColor: 'white', marginTop: 4, paddingBottom: 16 }}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16 }}>
                                     {emiBankList.cards.map((item, index) => (
                                         <View key={index} style={{ paddingHorizontal: 16, paddingTop: 12 }}>
                                             <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, color: selectedCard === item.cardType ? checkoutDetails.brandColor : "#01010273" }} onPress={() => handleCardClick(item.cardType)}>{item.cardType}</Text>
@@ -534,7 +536,7 @@ const EmiScreen = () => {
                                     ))}
                                 </View>
                                 <View style={{
-                                    height: 2, backgroundColor: "#DCDCDE",
+                                    height: 1, backgroundColor: "#DCDCDE",
                                     borderRadius: 1
                                 }}></View>
                                 {isSearchVisible && (
@@ -577,11 +579,11 @@ const EmiScreen = () => {
                                 {isFilterExisted && (
                                     filterList.map(([item, isSelected], index) => (
                                         <View key={index} style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 20 }}>
-                                            <View style={{ borderColor: isSelected ? "#1CA672" : "#E6E6E6", borderWidth: 1, flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 6, alignItems: 'center', borderRadius: 20, backgroundColor: isSelected ? "#E8F6F1" : "white" }}>
-                                                <Text style={{ fontFamily: 'Poppins-SemiBoold', fontSize: 12, color: '#2D2B32' }} onPress={() => {
+                                            <View style={{ borderColor: isSelected ? "#1CA672" : "#E6E6E6", borderWidth: 1, flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 8, alignItems: 'baseline', borderRadius: 20, backgroundColor: isSelected ? "#E8F6F1" : "white" }}>
+                                                <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 12, color: '#2D2B32' }} onPress={() => {
                                                     getBanksByFilter(selectedCard, item)
                                                 }}>{item}</Text>
-                                                <Image source={require("../../../assets/images/add_icon.png")} style={{ height: 10, width: 10, marginStart: 4 }} />
+                                                <Image source={require("../../../assets/images/add_icon.png")} style={{ height: 10, width: 10, marginStart: 4, }} />
                                             </View>
                                         </View>
                                     ))

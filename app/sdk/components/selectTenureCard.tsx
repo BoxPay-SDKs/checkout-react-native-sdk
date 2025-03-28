@@ -187,7 +187,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({ duration, monthlyEm
                 </View>
             ) : (
                 <View style={{ padding: 14 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
                         {/* Radio Button */}
                         <RadioButton
                             value={monthlyEmiAmount}
@@ -203,7 +203,8 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({ duration, monthlyEm
                                 style={{
                                     fontFamily: "Poppins-SemiBold",
                                     fontSize: 14,
-                                    color: "#2D2B32"
+                                    color: "#2D2B32",
+                                    alignSelf: 'center'
                                 }}
                                 onPress={() => onRadioClick(duration, monthlyEmiAmount)}
                             >
@@ -216,7 +217,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({ duration, monthlyEm
                             </Text>
 
                             {/* Tag Container (Moves to next line if needed) */}
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 4, alignSelf: 'flex-start' }}>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignSelf: 'flex-start' }}>
                                 {isLowCostOffer && (
                                     <View style={styles.tag}>
                                         <Text style={styles.tagText}>LOW COST EMI</Text>

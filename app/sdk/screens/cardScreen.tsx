@@ -414,13 +414,16 @@ const CardScreen = () => {
 
                 setFailedModalState(true);
                 setStatus('Failed');
+                setLoading(false);
             } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
                 setSuccessfulTimeStamp(response.transactionTimestampLocale);
                 setSuccessModalState(true);
                 setStatus('Success');
+                setLoading(false);
             } else if (status === 'EXPIRED') {
                 setSessionExppireModalState(true);
                 setStatus('Expired');
+                setLoading(false);
             }
         } catch (error) {
             const reason = response.status.reason || "";
@@ -436,7 +439,6 @@ const CardScreen = () => {
 
             setFailedModalState(true);
             setStatus('Failed');
-        } finally {
             setLoading(false);
         }
     };
