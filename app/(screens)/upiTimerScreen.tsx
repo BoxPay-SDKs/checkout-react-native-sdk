@@ -9,7 +9,7 @@ import SessionExpire from '../(components)/sessionExpire';
 import CancelPaymentModal from '../(components)/cancelPaymentModal';
 import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
 import CircularProgressBar from '../(components)/circularProgress';
-import PaymentResult from '../(dataClass)/paymentType';
+import PaymentResult from '../../(dataClass)/paymentType';
 import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 const UpiTimerScreen = () => { // Remove the Props Interface
   const { upiId } = useLocalSearchParams();

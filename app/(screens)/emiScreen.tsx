@@ -1,7 +1,7 @@
 import { View, Text, BackHandler, Dimensions, ScrollView, Image, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router } from 'expo-router';
-import { Bank, ChooseEmiModel, Emi } from '../(dataClass)/emiDataClass';
+import { Bank, ChooseEmiModel, Emi } from '../../(dataClass)/emiDataClass';
 import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
 import fetchPaymentMethods from '../(postRequest)/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";

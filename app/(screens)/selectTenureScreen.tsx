@@ -1,7 +1,7 @@
 import { View, Text, BackHandler } from 'react-native'
 import React, { useEffect } from 'react'
 import { router } from 'expo-router';
-import { Emi } from '../(dataClass)/emiDataClass';
+import { Emi } from '../../(dataClass)/emiDataClass';
 import Header from '../(components)/header';
 
 interface SelectTenureProps {

@@ -10,7 +10,7 @@ import cardPostRequest from '../(postRequest)/cardPostRequest';
 import PaymentFailed from '../(components)/paymentFailed';
 import PaymentSuccess from '../(components)/paymentSuccess';
 import SessionExpire from '../(components)/sessionExpire';
-import PaymentResult from '../(dataClass)/paymentType';
+import PaymentResult from '../../(dataClass)/paymentType';
 import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
 import CvvInfoBottomSheet from '../(components)/cvvInfoBottomSheet';
 import WebViewScreen from './webViewScreen';
