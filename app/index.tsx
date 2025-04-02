@@ -1,26 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, BackHandler, ToastAndroid, AppState, Image, ScrollView, Pressable, StatusBar } from 'react-native'; // Added ScrollView
-import Header from './(components)/header';
+import Header from './components/header';
 import axios from 'axios';
-import upiPostRequest from './(postRequest)/upiPostRequest';
+import upiPostRequest from './postRequest/upiPostRequest';
 import { decode as atob } from 'base-64';
 import { Linking } from 'react-native';
 import LottieView from 'lottie-react-native';
-import PaymentSuccess from './(components)/paymentSuccess';
-import SessionExpire from './(components)/sessionExpire';
-import PaymentFailed from './(components)/paymentFailed';
+import PaymentSuccess from './components/paymentSuccess';
+import SessionExpire from './components/sessionExpire';
+import PaymentFailed from './components/paymentFailed';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import fetchStatus from './(postRequest)/fetchStatus';
-import UpiScreen from './(screens)/upiScreen';
+import fetchStatus from './postRequest/fetchStatus';
+import UpiScreen from './screens/upiScreen';
 import { router } from 'expo-router';
-import { paymentHandler, setPaymentHandler } from "./(sharedContext)/paymentStatusHandler";
-import { loadCustomFonts, loadInterCustomFonts } from './(components)/fontFamily';
+import { paymentHandler, setPaymentHandler } from "./sharedContext/paymentStatusHandler";
+import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
 import { checkInstalledApps } from 'expo-check-installed-apps';
-import MorePaymentContainer from './(components)/morePaymentContainer';
-import { setUserDataHandler } from './(sharedContext)/userdataHandler';
-import { PaymentResult } from '../(dataClass)';
-import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './(sharedContext)/checkoutDetailsHandler';
-import WebViewScreen from './(screens)/webViewScreen';
+import MorePaymentContainer from './components/morePaymentContainer';
+import { setUserDataHandler } from './sharedContext/userdataHandler';
+import { PaymentResult } from '../dataClass';
+import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './sharedContext/checkoutDetailsHandler';
+import WebViewScreen from './screens/webViewScreen';
 import getSymbolFromCurrency from 'currency-symbol-map'
 
 // Define the props interface
@@ -184,7 +184,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
     const navigateToUpiTimerModal = (upiId: string) => {
         setLoadingState(false)
         router.push({
-            pathname: "/upiTimerScreen",
+            pathname: "/screens/upiTimerScreen",
             params: {
                 upiId: upiId
             }
@@ -348,31 +348,31 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
 
     const navigateToCardScreen = () => {
         router.push({
-            pathname: "/cardScreen"
+            pathname: "/screens/cardScreen"
         })
     }
 
     const navigateToWalletScreen = () => {
         router.push({
-            pathname: "/(boxpayCheckout)/(screens)/walletsScreen"
+            pathname: "/screens/walletsScreen"
         })
     }
 
     const navigateToNetBankingScreen = () => {
         router.push({
-            pathname: "/(boxpayCheckout)/(screens)/netBankingScreen"
+            pathname: "/screens/netBankingScreen"
         })
     }
 
     const navigateToEmiScreen = () => {
         router.push({
-            pathname: "/(boxpayCheckout)/(screens)/emiScreen"
+            pathname: "/screens/emiScreen"
         })
     }
 
     const navigateToBNPLScreen = () => {
         router.push({
-            pathname: "/(boxpayCheckout)/(screens)/bnplScreen"
+            pathname: "/screens/bnplScreen"
         })
     }
 
@@ -535,7 +535,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
                 </View>
             ) : loadingState ? (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <LottieView source={require('../../assets/animations/boxpayLogo.json')} autoPlay loop style={{ width: 80, height: 80 }} />
+                    <LottieView source={require('../assets/animations/boxpayLogo.json')} autoPlay loop style={{ width: 80, height: 80 }} />
                     <Text>Loading...</Text>
                 </View>
             ) : (
@@ -567,7 +567,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
                                         flexDirection: 'row',
                                         borderRadius: 12,
                                     }}>
-                                        <Image source={require("../../assets/images/ic_location.png")} style={{ height: 20, width: 20, marginStart: 12, marginTop: 20 }} />
+                                        <Image source={require("../assets/images/ic_location.png")} style={{ height: 20, width: 20, marginStart: 12, marginTop: 20 }} />
                                         <View style={{ flexDirection: 'column', marginStart: 8, marginTop: 12, marginEnd: 8, flex: 1 }}>
                                             <Text style={{
                                                 fontSize: 12,
@@ -634,7 +634,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
                                         }}>
                                             {isCardVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToCardScreen}>
-                                                    <MorePaymentContainer title='Cards' image={require('../../assets/images/ic_card.png')} />
+                                                    <MorePaymentContainer title='Cards' image={require('../assets/images/ic_card.png')} />
                                                     {(isWalletVisible || isNetBankingVisible || isEmiVisible || isBNPLVisible) && (
                                                         <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
                                                     )}
@@ -642,7 +642,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
                                             )}
                                             {isWalletVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToWalletScreen}>
-                                                    <MorePaymentContainer title='Wallet' image={require('../../assets/images/ic_wallet.png')} />
+                                                    <MorePaymentContainer title='Wallet' image={require('../assets/images/ic_wallet.png')} />
                                                     {(isNetBankingVisible || isEmiVisible || isBNPLVisible) && (
                                                         <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
                                                     )}
@@ -650,7 +650,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
                                             )}
                                             {isNetBankingVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToNetBankingScreen}>
-                                                    <MorePaymentContainer title='Netbanking' image={require('../../assets/images/ic_netbanking.png')} />
+                                                    <MorePaymentContainer title='Netbanking' image={require('../assets/images/ic_netbanking.png')} />
                                                     {(isEmiVisible || isBNPLVisible) && (
                                                         <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED', marginTop: 16, marginHorizontal: -16 }} />
                                                     )}
@@ -666,7 +666,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
                                             )} */}
                                             {isBNPLVisible && (
                                                 <Pressable style={{ paddingHorizontal: 16, paddingTop: 16 }} onPress={navigateToBNPLScreen}>
-                                                    <MorePaymentContainer title='Pay Later' image={require('../../assets/images/ic_bnpl.png')} />
+                                                    <MorePaymentContainer title='Pay Later' image={require('../assets/images/ic_bnpl.png')} />
                                                 </Pressable>
                                             )}
                                         </View>
@@ -721,7 +721,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv, onPa
                                     fontFamily: 'Poppins-Medium'
                                 }}>Secured by</Text>
                                 <Image
-                                    source={require("../../assets/images/splash-icon.png")}
+                                    source={require("../assets/images/splash-icon.png")}
                                     style={{ height: 50, width: 50, }}
                                 />
                             </View>

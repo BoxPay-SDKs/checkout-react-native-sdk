@@ -1,16 +1,16 @@
 import { View, Text, Image, BackHandler, StyleSheet, StatusBar } from 'react-native'; // Import Modal
 import React, { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import Header from '../(components)/header';
-import fetchStatus from '../(postRequest)/fetchStatus';
-import PaymentFailed from '../(components)/paymentFailed';
-import PaymentSuccess from '../(components)/paymentSuccess';
-import SessionExpire from '../(components)/sessionExpire';
-import CancelPaymentModal from '../(components)/cancelPaymentModal';
-import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
-import CircularProgressBar from '../(components)/circularProgress';
-import PaymentResult from '../../(dataClass)/paymentType';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import Header from '../components/header';
+import fetchStatus from '../postRequest/fetchStatus';
+import PaymentFailed from '../components/paymentFailed';
+import PaymentSuccess from '../components/paymentSuccess';
+import SessionExpire from '../components/sessionExpire';
+import CancelPaymentModal from '../components/cancelPaymentModal';
+import { paymentHandler } from '../sharedContext/paymentStatusHandler';
+import CircularProgressBar from '../components/circularProgress';
+import { PaymentResult } from '../../dataClass';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 const UpiTimerScreen = () => { // Remove the Props Interface
   const { upiId } = useLocalSearchParams();
   const { checkoutDetails } = checkoutDetailsHandler
@@ -170,7 +170,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
           Open your UPI application and confirm the payment before the time expires
         </Text>
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', borderColor: '#BABABA', borderWidth: 2, borderRadius: 8, paddingVertical: 6, paddingHorizontal: 8, marginTop: 12 }}>
-          <Image source={require("../../../assets/images/upi-timer-sheet-upi-icon.png")} style={{ height: 16, width: 16, marginRight: 4 }} />
+          <Image source={require("../../assets/images/upi-timer-sheet-upi-icon.png")} style={{ height: 16, width: 16, marginRight: 4 }} />
           <Text style={{ color: '#1D1C20', fontSize: 12, fontFamily: 'Poppins-Regular' }}>UPI Id : {upiIdStr}</Text>
         </View>
         <Text style={{ color: '#1D1C20', fontSize: 16, textAlign: 'center', marginTop: 32, fontFamily: 'Poppins-Medium' }}>
@@ -180,7 +180,7 @@ const UpiTimerScreen = () => { // Remove the Props Interface
           <CircularProgressBar size={150} strokeWidth={10} progressColor={timerValue <= 30 ? '#FAA4A4' : checkoutDetails.brandColor} progress={timerValue} formatTime={formatTime()} textColor={timerValue <= 30 ? '#F53535' : checkoutDetails.brandColor} />
         </View>
         <View style={{ flexDirection: 'row', borderColor: '#ECECED', borderWidth: 2, borderRadius: 8, paddingVertical: 16, paddingHorizontal: 16, marginTop: 32 }}>
-          <Image source={require("../../../assets/images/ic_info.png")} style={{ height: 26, width: 26 }} />
+          <Image source={require("../../assets/images/ic_info.png")} style={{ height: 26, width: 26 }} />
           <Text style={{ color: '#1D1C20', fontSize: 12, paddingStart: 16, lineHeight: 18, fontFamily: 'Poppins-Regular' }}>
             Kindly avoid using the back button until the transaction process is complete
           </Text>

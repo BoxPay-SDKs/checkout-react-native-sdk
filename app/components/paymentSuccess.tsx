@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-nativ
 import React, { useEffect, useState } from 'react'
 import Modal from 'react-native-modal'
 import LottieView from 'lottie-react-native'
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface PaymentSuccessProps {
     onClick: () => void,
@@ -51,7 +51,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ onClick, transactionId,
             >
                 <View style={styles.sheet}>
                     <LottieView
-                        source={require('../../../assets/animations/payment_successful.json')}
+                        source={require('../../assets/animations/payment_successful.json')}
                         autoPlay
                         loop={false}
                         speed={0.6}

@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native'
 import React from 'react'
 import Modal from 'react-native-modal'
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 interface CvvInfoBottomSheetProps {
     onClick: () => void
 }
@@ -20,11 +20,11 @@ const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick }) => {
                         fontSize: 20,
                         color: '#2D2B32',
                     }}>Where to find CVV?</Text>
-                    <Image source={require('../../../assets/images/cvv_info_image.png')} style={{ width: 120, height: 58, marginTop: 28 }} />
+                    <Image source={require('../../assets/images/cvv_info_image.png')} style={{ width: 120, height: 58, marginTop: 28 }} />
                     <Text style={styles.secondaryHeading}>Generic position for CVV</Text>
                     <Text style={styles.desc}>3 digit numeric code on the back side of card</Text>
                     <View style={{ flexDirection: 'row', height: 2, backgroundColor: '#ECECED', marginTop: 28 }} />
-                    <Image source={require('../../../assets/images/cvv_info_image_amex.png')} style={{ width: 120, height: 58, marginTop: 28 }} />
+                    <Image source={require('../../assets/images/cvv_info_image_amex.png')} style={{ width: 120, height: 58, marginTop: 28 }} />
                     <Text style={styles.secondaryHeading}>CVV for American Express Card</Text>
                     <Text style={styles.desc}>4 digit numeric code on the front side of the card, just above the card number</Text>
                     <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={onClick}>

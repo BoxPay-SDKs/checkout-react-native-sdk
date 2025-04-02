@@ -1,14 +1,14 @@
 import { View, Text, BackHandler, Dimensions, ScrollView, Image, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router } from 'expo-router';
-import { Bank, ChooseEmiModel, Emi } from '../../(dataClass)/emiDataClass';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
-import fetchPaymentMethods from '../(postRequest)/fetchPaymentMethods';
+import { Bank, ChooseEmiModel, Emi } from '../../dataClass/emiDataClass';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import Header from '../(components)/header';
+import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
-import BankCard from '../(components)/bankCard';
-import PaymentSelector from '../(components)/paymentSelector';
+import BankCard from '../components/bankCard';
+import PaymentSelector from '../components/paymentSelector';
 
 const EmiScreen = () => {
     const [emiBankList, setEmiBankList] = useState<ChooseEmiModel>({ cards: [] });
@@ -320,7 +320,7 @@ const EmiScreen = () => {
                                     }}
                                     left={
                                         <TextInput.Icon
-                                            icon={() => <Image source={require("../../../assets/images/ic_search.png")} style={{ width: 20, height: 20 }} />}
+                                            icon={() => <Image source={require("../../assets/images/ic_search.png")} style={{ width: 20, height: 20 }} />}
                                         />
                                     }
                                     outlineStyle={{
@@ -339,7 +339,7 @@ const EmiScreen = () => {
                                         <Text style={{ fontFamily: 'Poppins-SemiBoold', fontSize: 12, color: '#2D2B32' }} onPress={() => {
                                             getBanksByFilter(selectedCard, item)
                                         }}>{item}</Text>
-                                        <Image source={require("../../../assets/images/add_icon.png")} style={{ height: 10, width: 10, marginStart: 4 }} />
+                                        <Image source={require("../../assets/images/add_icon.png")} style={{ height: 10, width: 10, marginStart: 4 }} />
                                     </View>
                                 </View>
                             ))
@@ -387,7 +387,7 @@ const EmiScreen = () => {
                                                         onProceedForward={() => {
                                                             // Todo will add the proceed forward function 
                                                         }}
-                                                        errorImage={require("../../../assets/images/ic_bnpl_semi_bold.png")}
+                                                        errorImage={require("../../assets/images/ic_bnpl_semi_bold.png")}
                                                     />
                                                 ) : (
                                                     <BankCard
@@ -419,7 +419,7 @@ const EmiScreen = () => {
                                             }}
                                         >
                                             <Image
-                                                source={require("../../../assets/images/no_results_found.png")}
+                                                source={require("../../assets/images/no_results_found.png")}
                                                 style={{ width: 100, height: 100 }}
                                             />
                                             <Text

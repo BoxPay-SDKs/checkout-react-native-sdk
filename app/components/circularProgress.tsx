@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated, Easing } from 'react-native';
 import { Svg, Circle } from 'react-native-svg';
-import { useDerivedValue, withTiming } from 'react-native-reanimated';
 
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);

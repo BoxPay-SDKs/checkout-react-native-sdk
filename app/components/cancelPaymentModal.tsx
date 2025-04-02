@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import Modal from 'react-native-modal';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface CancelPaymentModalProps {
     onYesClick: () => void;
@@ -20,7 +20,7 @@ const CancelPaymentModal: React.FC<CancelPaymentModalProps> = ({ onYesClick, onN
 
                 <View style={styles.modalContent}>
                     <View style={styles.iconContainer}>
-                        <Image source={require("../../../assets/images/ic_info.png")} style={styles.iconImage} />
+                        <Image source={require("../../assets/images/ic_info.png")} style={styles.iconImage} />
                         <Text style={styles.modalTitle}>Cancel Transaction?</Text>
                     </View>
                     <Text style={styles.modalText}>

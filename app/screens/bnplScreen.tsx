@@ -1,29 +1,24 @@
-import { View, Text, BackHandler, Image, ScrollView, Dimensions, StatusBar } from 'react-native'
+import { View, Text, BackHandler, Image, ScrollView, StatusBar } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { router } from 'expo-router';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
-import Header from '../(components)/header';
-import { TextInput } from 'react-native-paper';
-import fetchPaymentMethods from '../(postRequest)/fetchPaymentMethods';
+import Header from '../components/header';
+import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import PaymentClass from '../../(dataClass)/paymentClass';
-import PaymentSelector from '../(components)/paymentSelector';
-import PaymentSuccess from '../(components)/paymentSuccess';
-import SessionExpire from '../(components)/sessionExpire';
-import PaymentFailed from '../(components)/paymentFailed';
-import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
-import PaymentResult from '../../(dataClass)/paymentType';
-import methodsPostRequest from '../(postRequest)/methodsPostRequest';
-import fetchStatus from '../(postRequest)/fetchStatus';
+import PaymentClass from '../../dataClass/paymentClass';
+import PaymentSelector from '../components/paymentSelector';
+import PaymentSuccess from '../components/paymentSuccess';
+import SessionExpire from '../components/sessionExpire';
+import PaymentFailed from '../components/paymentFailed';
+import { paymentHandler } from '../sharedContext/paymentStatusHandler';
+import { PaymentResult } from '../../dataClass'
+import methodsPostRequest from '../postRequest/methodsPostRequest';
+import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
-import { isLoaded } from 'expo-font';
 
-const WalletScreen = () => {
-    const [walletList, setWalletList] = useState<PaymentClass[]>([]);
-    const screenHeight = Dimensions.get('window').height;
-    const [defaultWalletList, setDefaultWalletList] = useState<PaymentClass[]>([]);
-    const [searchText, setSearchText] = useState<string>("");
+const BNPLScreen = () => {
+    const [bnplList, setBnplList] = useState<PaymentClass[]>([]);
     const { checkoutDetails } = checkoutDetailsHandler;
     const [loading, setLoading] = useState(false);
 
@@ -44,11 +39,6 @@ const WalletScreen = () => {
 
     const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
 
-    const [searchTextFocused, setSearchTextFocused] = useState(false);
-
-    const [isSearchVisible, setIsSearchVisible] = useState(false);
-    const [checkedOnce, setCheckedOnce] = useState(false);
-
     const onProceedBack = () => {
         if (!loading) {
             router.back();
@@ -56,10 +46,6 @@ const WalletScreen = () => {
         }
         return false
     };
-
-    const handleSearchTextChange = (text: string) => {
-        setSearchText(text);
-    }
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -81,10 +67,9 @@ const WalletScreen = () => {
 
     useEffect(() => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
-
-            const walletList = data
-                .filter((item: any) => item.type === "Wallet")
-                .sort((a: any, b: any) => a.title.localeCompare(b.title))
+            const bnplList = data
+                .filter((item: any) => item.type === "BuyNowPayLater")
+                .sort((a: any, b: any) => a.title.trim().localeCompare(b.title.trim())) // Trim spaces before sorting
                 .map((item: any) => ({
                     id: item.id,
                     title: item.title,
@@ -92,8 +77,7 @@ const WalletScreen = () => {
                     instrumentTypeValue: item.instrumentTypeValue,
                     isSelected: false
                 }));
-            setWalletList(walletList)
-            setDefaultWalletList(walletList)
+            setBnplList(bnplList)
         });
     }, []);
 
@@ -162,7 +146,7 @@ const WalletScreen = () => {
         setLoading(true);
         const response = await methodsPostRequest(
             instrumentType,
-            "wallet"
+            "buynowpaylater"
         )
         try {
             setStatus(response.status.status)
@@ -206,11 +190,11 @@ const WalletScreen = () => {
     }
 
     const onClickRadioButton = (id: string) => {
-        const updatedWalletList = walletList.map((walletItem) => ({
-            ...walletItem,
-            isSelected: walletItem.id === id
+        const updatedBnplList = bnplList.map((bnplItem) => ({
+            ...bnplItem,
+            isSelected: bnplItem.id === id
         }));
-        setWalletList(updatedWalletList);
+        setBnplList(updatedBnplList);
     };
 
     const onExitCheckout = () => {
@@ -223,31 +207,17 @@ const WalletScreen = () => {
     };
 
     useEffect(() => {
-        if (walletList.length > 0) {
+        if (bnplList.length > 0) {
             setIsFirstLoad(false);
         }
-    }, [walletList]);
-
-    useEffect(() => {
-        if (searchText.length > 0) {
-            const filteredWalletList = defaultWalletList.filter((item) => {
-                const words = item.title.toLowerCase().split(/\s+/); // Split title into words
-                return words.some(word => word.startsWith(searchText.toLowerCase())); // Check if any word starts with searchText
-            });
-
-            setWalletList(filteredWalletList);
-        } else {
-            setWalletList(defaultWalletList);
-        }
-    }, [searchText]);
-
+    }, [bnplList]);
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
             <StatusBar barStyle="dark-content" />
             {loading ? (
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <LottieView source={require('../../../assets/animations/boxpayLogo.json')} autoPlay loop style={{ width: 80, height: 80 }} />
+                    <LottieView source={require('../../assets/animations/boxpayLogo.json')} autoPlay loop style={{ width: 80, height: 80 }} />
                     <Text>Loading...</Text>
                 </View>
             ) : isFirstLoad ? (
@@ -263,64 +233,17 @@ const WalletScreen = () => {
                 </View>
             ) : (
                 <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
-                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Choose Wallet' />
+                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Select BNPL' />
                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
-                    {isSearchVisible && (
-                        <View style={{ backgroundColor: 'white', paddingBottom: 20 }}>
-                            <TextInput
-                                mode='outlined'
-                                label={
-                                    <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular', color: searchTextFocused ? '#2D2B32' : (searchText != "" && searchText != null) ? '#2D2B32' : '#ADACB0' }}>Search for wallet</Text>
-                                }
-                                value={searchText}
-                                onChangeText={(it) => {
-                                    handleSearchTextChange(it)
-                                }}
-                                theme={{
-                                    colors: {
-                                        primary: "#2D2B32",
-                                        outline: '#E6E6E6',
-                                    }
-                                }}
-                                style={{
-                                    marginTop: 16, marginHorizontal: 16, backgroundColor: 'white',
-                                    fontSize: 16,
-                                    fontFamily: 'Poppins-Regular',
-                                    color: '#0A090B',
-                                    height: 60
-                                }}
-                                left={
-                                    <TextInput.Icon
-                                        icon={() => <Image source={require("../../../assets/images/ic_search.png")} style={{ width: 20, height: 20 }} />}
-                                    />
-                                }
-                                outlineStyle={{
-                                    borderRadius: 6,
-                                    borderWidth: 1
-                                }}
-                                onFocus={() => setSearchTextFocused(true)}
-                                onBlur={() => setSearchTextFocused(false)}
-                            />
-                        </View>
-                    )}
-                    <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>All Wallets</Text>
                     <ScrollView
                         contentContainerStyle={{ flexGrow: 1 }}
-                        keyboardShouldPersistTaps="handled"
-                        onContentSizeChange={(_, contentHeight) => {
-                            if (!checkedOnce) {
-                                if (contentHeight > screenHeight) {
-                                    setIsSearchVisible(true);
-                                }
-                                setCheckedOnce(true);
-                            }
-                        }}>
-                        {walletList.length > 0 ? (
-                            <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginBottom: 32 }}>
-                                {walletList.map((item, index) => (
+                        keyboardShouldPersistTaps="handled">
+                        {bnplList.length > 0 ? (
+                            <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginVertical: 16 }}>
+                                {bnplList.map((item, index) => (
                                     <View key={index}>
-                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_wallet_semi_bold.png")} />
-                                        {index !== walletList.length - 1 && (
+                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../assets/images/ic_bnpl_semi_bold.png")} />
+                                        {index !== bnplList.length - 1 && (
                                             <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                         )}
                                     </View>
@@ -328,7 +251,7 @@ const WalletScreen = () => {
                             </View>
                         ) : (
                             <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginBottom: 32, height: 300, alignItems: 'center', justifyContent: 'center' }}>
-                                <Image source={require("../../../assets/images/no_results_found.png")} style={{ width: 100, height: 100 }} />
+                                <Image source={require("../../assets/images/no_results_found.png")} style={{ width: 100, height: 100 }} />
                                 <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 16, color: '#212426', marginTop: 16 }}>Oops!! No result found</Text>
                                 <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, color: '#4F4D55', marginTop: -4 }}>Please try another search</Text>
                             </View>
@@ -345,7 +268,7 @@ const WalletScreen = () => {
                             fontFamily: 'Poppins-Medium'
                         }}>Secured by</Text>
                         <Image
-                            source={require("../../../assets/images/splash-icon.png")}
+                            source={require("../../assets/images/splash-icon.png")}
                             style={{ height: 50, width: 50, }}
                         />
                     </View>
@@ -397,4 +320,4 @@ const WalletScreen = () => {
     )
 }
 
-export default WalletScreen;
+export default BNPLScreen;

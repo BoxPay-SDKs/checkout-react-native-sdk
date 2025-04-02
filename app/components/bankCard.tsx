@@ -47,7 +47,7 @@ const BankCard: React.FC<BankCardProps> = ({ name, iconUrl, hasNoCostEmi, hasLow
                 </View>
             </View>
 
-            <Image source={require('../../../assets/images/chervon-down.png')} style={{
+            <Image source={require('../../assets/images/chervon-down.png')} style={{
                 alignSelf: 'center', height: 6, width: 14, marginLeft: 'auto', transform: [{
                     rotate: "270deg"
                 }]

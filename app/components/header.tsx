@@ -1,6 +1,6 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import React from 'react';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface HeaderProps {
   showDesc: boolean,
@@ -17,7 +17,7 @@ const Header: React.FC<HeaderProps> = ({ onBackPress, showDesc, showSecure, text
         <Pressable onPress={() => {
           onBackPress(); // Trigger the passed function
         }}>
-          <Image source={require("../../../assets/images/arrow-left.png")} style={styles.backArrow} />
+          <Image source={require("../../assets/images/arrow-left.png")} style={styles.backArrow} />
         </Pressable>
         <View style={styles.headerColumn}>
           <Text style={styles.headerTitle}>{text}</Text>
@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ onBackPress, showDesc, showSecure, text
         {showSecure && (
           <View style={styles.btnContainer}>
             <View style={styles.headerSecure}>
-              <Image source={require("../../../assets/images/Lock.png")} style={styles.lockIcon} />
+              <Image source={require("../../assets/images/Lock.png")} style={styles.lockIcon} />
               <Text style={styles.secureText}>100% Secure</Text>
             </View>
           </View>
