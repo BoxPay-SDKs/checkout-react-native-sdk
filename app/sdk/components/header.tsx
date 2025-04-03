@@ -1,6 +1,6 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 import React from 'react';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface HeaderProps {
   showDesc: boolean,

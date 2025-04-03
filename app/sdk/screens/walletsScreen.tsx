@@ -1,21 +1,21 @@
 import { View, Text, BackHandler, Image, ScrollView, Dimensions, StatusBar } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { router } from 'expo-router';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
-import Header from '../(components)/header';
+import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
-import fetchPaymentMethods from '../(postRequest)/fetchPaymentMethods';
+import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import PaymentClass from '../(dataClass)/paymentClass';
-import PaymentSelector from '../(components)/paymentSelector';
-import PaymentSuccess from '../(components)/paymentSuccess';
-import SessionExpire from '../(components)/sessionExpire';
-import PaymentFailed from '../(components)/paymentFailed';
-import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
-import PaymentResult from '../(dataClass)/paymentType';
-import methodsPostRequest from '../(postRequest)/methodsPostRequest';
-import fetchStatus from '../(postRequest)/fetchStatus';
+import PaymentClass from '../../../interface/paymentClass'
+import PaymentSelector from '../components/paymentSelector';
+import PaymentSuccess from '../components/paymentSuccess';
+import SessionExpire from '../components/sessionExpire';
+import PaymentFailed from '../components/paymentFailed';
+import { paymentHandler } from '../sharedContext/paymentStatusHandler';
+import { PaymentResult } from '../../../interface'
+import methodsPostRequest from '../postRequest/methodsPostRequest';
+import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
 import { isLoaded } from 'expo-font';
 

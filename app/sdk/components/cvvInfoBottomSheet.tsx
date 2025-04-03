@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native'
 import React from 'react'
 import Modal from 'react-native-modal'
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 interface CvvInfoBottomSheetProps {
     onClick: () => void
 }

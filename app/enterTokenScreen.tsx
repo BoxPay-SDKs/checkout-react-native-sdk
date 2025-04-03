@@ -5,8 +5,8 @@ import { Modal } from 'react-native';
 import { FlatList } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { Button } from 'react-native';
-import BoxpayCheckout, { setTestEnv } from './(boxpayCheckout)';
-import { setPaymentHandler } from './(boxpayCheckout)/(sharedContext)/paymentStatusHandler';
+import BoxpayCheckout, { setTestEnv } from './sdk';
+import { PaymentResult, ConfigurationOptions } from '@/interface';
 
 const EnterTokenScreen = () => {
   const [tokenTextInput, setTokenTextInput] = useState("");
@@ -33,14 +33,11 @@ const EnterTokenScreen = () => {
     setToken(tokenTextInput)
   };
 
-  const handlePaymentResult = (result: { status: String; transactionId: string }) => {
+  const handlePaymentResult = (result: PaymentResult) => {
     alert(`Payment ${result.status} :  + ${result.transactionId}`);
   };
 
   useEffect(() => {
-    setPaymentHandler({
-      onPaymentResult: handlePaymentResult,
-    });
     setTestEnv({
       testEnv: environment == "test"
     })
@@ -51,7 +48,11 @@ const EnterTokenScreen = () => {
       {token ? (
         <BoxpayCheckout
           token={token}
-          sandboxEnv={environment == "sandbox"}
+          configurationOptions={{
+            [ConfigurationOptions.SHOW_BOXPAY_SUCCESS_SCREEN]: true,
+            [ConfigurationOptions.ENABLE_SANDBOX_ENV]: environment == "sandbox"
+          }}
+          onPaymentResult={handlePaymentResult}
         />
       ) : (
         <View style={styles.container}>

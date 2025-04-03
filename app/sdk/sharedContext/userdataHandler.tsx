@@ -1,4 +1,4 @@
-import UserData from "../(dataClass)/userData";
+import UserData from '../../../interface/userData'
 
 export type UserDataHandler = {
     userData: UserData

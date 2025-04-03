@@ -1,41 +1,42 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, BackHandler, ToastAndroid, AppState, Image, ScrollView, Pressable, StatusBar } from 'react-native'; // Added ScrollView
-import Header from './(components)/header';
+import Header from './components/header';
 import axios from 'axios';
-import upiPostRequest from './(postRequest)/upiPostRequest';
+import upiPostRequest from './postRequest/upiPostRequest';
 import { decode as atob } from 'base-64';
 import { Linking } from 'react-native';
 import LottieView from 'lottie-react-native';
-import PaymentSuccess from './(components)/paymentSuccess';
-import SessionExpire from './(components)/sessionExpire';
-import PaymentFailed from './(components)/paymentFailed';
+import PaymentSuccess from './components/paymentSuccess';
+import SessionExpire from './components/sessionExpire';
+import PaymentFailed from './components/paymentFailed';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import fetchStatus from './(postRequest)/fetchStatus';
-import UpiScreen from './(screens)/upiScreen';
+import fetchStatus from './postRequest/fetchStatus';
+import UpiScreen from './screens/upiScreen';
 import { router } from 'expo-router';
-import { paymentHandler } from "./(sharedContext)/paymentStatusHandler";
-import { loadCustomFonts, loadInterCustomFonts } from './(components)/fontFamily';
+import { paymentHandler, setPaymentHandler } from "./sharedContext/paymentStatusHandler";
+import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
 import { checkInstalledApps } from 'expo-check-installed-apps';
-import MorePaymentContainer from './(components)/morePaymentContainer';
-import { setUserDataHandler } from './(sharedContext)/userdataHandler';
-import PaymentResult from './(dataClass)/paymentType';
-import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './(sharedContext)/checkoutDetailsHandler';
-import WebViewScreen from './(screens)/webViewScreen';
+import MorePaymentContainer from './components/morePaymentContainer';
+import { setUserDataHandler } from './sharedContext/userdataHandler';
+import { ConfigurationOptions, PaymentResult } from '../../interface';
+import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './sharedContext/checkoutDetailsHandler';
+import WebViewScreen from './screens/webViewScreen';
 import getSymbolFromCurrency from 'currency-symbol-map'
 
 // Define the props interface
 interface BoxpayCheckoutProps {
     token: string;
-    sandboxEnv: boolean
+    configurationOptions?: Partial<Record<ConfigurationOptions, any>>,
+    onPaymentResult: (result: PaymentResult) => void
 }
 
-const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) => {
+const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOptions = {}, onPaymentResult }) => {
     const [status, setStatus] = useState("NOACTION")
     const [transactionId, setTransactionId] = useState("")
     const tokenState = useRef(token)
-    const sandboxEnvState = useRef(sandboxEnv)
+    const showSuccessScreen = configurationOptions?.[ConfigurationOptions?.ShowBoxpaySuccessScreen] ?? true;
     const testEnv = testHandler.testEnv
-    const env = sandboxEnvState.current ? 'sandbox' : 'prod'
+    const env = configurationOptions?.[ConfigurationOptions?.EnableSandboxEnv] ? 'sandbox' : 'prod'
     const [isUpiIntentVisibile, setIsUpiVisible] = useState(false)
     const [isCardVisible, setIsCardVisible] = useState(false)
     const [isWalletVisible, setIsWalletVisible] = useState(false)
@@ -183,7 +184,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
     const navigateToUpiTimerModal = (upiId: string) => {
         setLoadingState(false)
         router.push({
-            pathname: "/upiTimerScreen",
+            pathname: "/sdk/screens/upiTimerScreen",
             params: {
                 upiId: upiId
             }
@@ -347,42 +348,42 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
 
     const navigateToCardScreen = () => {
         router.push({
-            pathname: "/cardScreen"
+            pathname: "/sdk/screens/cardScreen"
         })
     }
 
     const navigateToWalletScreen = () => {
         router.push({
-            pathname: "/(boxpayCheckout)/(screens)/walletsScreen"
+            pathname: "/sdk/screens/walletsScreen"
         })
     }
 
     const navigateToNetBankingScreen = () => {
         router.push({
-            pathname: "/(boxpayCheckout)/(screens)/netBankingScreen"
+            pathname: "/sdk/screens/netBankingScreen"
         })
     }
 
     const navigateToEmiScreen = () => {
         router.push({
-            pathname: "/(boxpayCheckout)/(screens)/emiScreen"
+            pathname: "/sdk/screens/emiScreen"
         })
     }
 
     const navigateToBNPLScreen = () => {
         router.push({
-            pathname: "/(boxpayCheckout)/(screens)/bnplScreen"
+            pathname: "/sdk/screens/bnplScreen"
         })
     }
 
     useEffect(() => {
         const fetchPaymentMethods = async () => {
-            const endpoint: string = testEnv
-                ? 'test-apis.boxpay.tech'
-                : env == 'sandbox'
-                    ? 'sandbox-apis.boxpay.tech'
-                    : 'apis.boxpay.in';
-            // const endpoint: string = "test-apis.boxpay.tech"
+            // const endpoint: string = testEnv
+            //     ? 'test-apis.boxpay.tech'
+            //     : env == 'sandbox'
+            //         ? 'sandbox-apis.boxpay.tech'
+            //         : 'apis.boxpay.in';
+            const endpoint: string = "test-apis.boxpay.tech"
             try {
                 setIsFirstLoading(true);
                 const response = await axios.get(`https://${endpoint}/v0/checkout/sessions/${tokenState.current}`);
@@ -474,6 +475,9 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, sandboxEnv }) =>
                         itemsLength: totalItemsRef.current,
                         errorMessage: "You may have cancelled the payment or there was a delay in response. Please retry."
                     }
+                })
+                setPaymentHandler({
+                    onPaymentResult: onPaymentResult
                 })
             } catch (error) {
                 ToastAndroid.show("Please check the token and the environment selected", ToastAndroid.SHORT);

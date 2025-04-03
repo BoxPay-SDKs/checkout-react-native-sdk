@@ -2,8 +2,8 @@ import { Platform } from "react-native";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
 import axios from 'axios';
-import { userDataHandler } from "../(sharedContext)/userdataHandler";
-import { checkoutDetailsHandler } from "../(sharedContext)/checkoutDetailsHandler";
+import { userDataHandler } from "../sharedContext/userdataHandler";
+import { checkoutDetailsHandler } from "../sharedContext/checkoutDetailsHandler";
 
 const upiPostRequest = async (
   instrumentDetails: Record<string, any>
