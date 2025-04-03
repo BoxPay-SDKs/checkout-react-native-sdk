@@ -1,14 +1,14 @@
 import { View, Text, BackHandler, Dimensions, ScrollView, Image, StatusBar } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { router } from 'expo-router';
-import { Bank, ChooseEmiModel, Emi } from '../(dataClass)/emiDataClass';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
-import fetchPaymentMethods from '../(postRequest)/fetchPaymentMethods';
+import { Bank, ChooseEmiModel, Emi } from '../../../interface/emiDataClass'
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import Header from '../(components)/header';
+import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
-import BankCard from '../(components)/bankCard';
-import PaymentSelector from '../(components)/paymentSelector';
+import BankCard from '../components/bankCard';
+import PaymentSelector from '../components/paymentSelector';
 
 const EmiScreen = () => {
     const [emiBankList, setEmiBankList] = useState<ChooseEmiModel>({ cards: [] });

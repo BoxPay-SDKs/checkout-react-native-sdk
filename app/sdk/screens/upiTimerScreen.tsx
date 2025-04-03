@@ -1,16 +1,16 @@
 import { View, Text, Image, BackHandler, StyleSheet, StatusBar } from 'react-native'; // Import Modal
 import React, { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import Header from '../(components)/header';
-import fetchStatus from '../(postRequest)/fetchStatus';
-import PaymentFailed from '../(components)/paymentFailed';
-import PaymentSuccess from '../(components)/paymentSuccess';
-import SessionExpire from '../(components)/sessionExpire';
-import CancelPaymentModal from '../(components)/cancelPaymentModal';
-import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
-import CircularProgressBar from '../(components)/circularProgress';
-import PaymentResult from '../(dataClass)/paymentType';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import Header from '../components/header';
+import fetchStatus from '../postRequest/fetchStatus';
+import PaymentFailed from '../components/paymentFailed';
+import PaymentSuccess from '../components/paymentSuccess';
+import SessionExpire from '../components/sessionExpire';
+import CancelPaymentModal from '../components/cancelPaymentModal';
+import { paymentHandler } from '../sharedContext/paymentStatusHandler';
+import CircularProgressBar from '../components/circularProgress';
+import { PaymentResult } from '../../../interface'
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 const UpiTimerScreen = () => { // Remove the Props Interface
   const { upiId } = useLocalSearchParams();
   const { checkoutDetails } = checkoutDetailsHandler

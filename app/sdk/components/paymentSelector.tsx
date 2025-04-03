@@ -1,7 +1,7 @@
 import { View, Text, Pressable, StyleSheet, Image } from 'react-native'
 import React, { useState } from 'react'
 import { RadioButton } from 'react-native-paper';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import { SvgUri } from 'react-native-svg';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 

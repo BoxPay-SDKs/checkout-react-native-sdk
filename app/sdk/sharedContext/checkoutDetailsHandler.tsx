@@ -1,4 +1,4 @@
-import CheckoutDetails from "../(dataClass)/checkoutDetails";
+import CheckoutDetails from '../../../interface/checkoutDetails'
 
 export type CheckoutDetailsHandler = {
     checkoutDetails: CheckoutDetails

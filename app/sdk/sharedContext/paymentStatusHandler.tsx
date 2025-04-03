@@ -1,4 +1,4 @@
-import PaymentResult from "../(dataClass)/paymentType";
+import { PaymentResult } from '../../../interface'
 export type PaymentHandler = {
     onPaymentResult: (result: PaymentResult) => void;
 };

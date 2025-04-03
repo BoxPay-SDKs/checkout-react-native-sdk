@@ -1,43 +1,26 @@
-import { View, Text, BackHandler, Image, ScrollView, Dimensions, StatusBar } from 'react-native'
+import { View, Text, BackHandler, Image, ScrollView, StatusBar } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { router } from 'expo-router';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
-import Header from '../(components)/header';
-import { TextInput } from 'react-native-paper';
-import fetchPaymentMethods from '../(postRequest)/fetchPaymentMethods';
+import Header from '../components/header';
+import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import PaymentClass from '../(dataClass)/paymentClass';
-import PaymentSelector from '../(components)/paymentSelector';
-import PaymentSuccess from '../(components)/paymentSuccess';
-import SessionExpire from '../(components)/sessionExpire';
-import PaymentFailed from '../(components)/paymentFailed';
-import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
-import PaymentResult from '../(dataClass)/paymentType';
-import methodsPostRequest from '../(postRequest)/methodsPostRequest';
-import fetchStatus from '../(postRequest)/fetchStatus';
+import PaymentClass from "../../../interface/paymentClass";
+import PaymentSelector from '../components/paymentSelector';
+import PaymentSuccess from '../components/paymentSuccess';
+import SessionExpire from '../components/sessionExpire';
+import PaymentFailed from '../components/paymentFailed';
+import { paymentHandler } from '../sharedContext/paymentStatusHandler';
+import { PaymentResult } from "../../../interface"
+import methodsPostRequest from '../postRequest/methodsPostRequest';
+import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
 
-const NetBankingScreen = () => {
-    const [netBankingList, setNetBankingList] = useState<PaymentClass[]>([]);
-    const [defaultNetBankingList, setDefaultNetBankingList] = useState<PaymentClass[]>([]);
-    const [searchText, setSearchText] = useState<string>("");
+const BNPLScreen = () => {
+    const [bnplList, setBnplList] = useState<PaymentClass[]>([]);
     const { checkoutDetails } = checkoutDetailsHandler;
     const [loading, setLoading] = useState(false);
-    const screenHeight = Dimensions.get('window').height;
-
-    const [isSearchVisible, setIsSearchVisible] = useState(false);
-    const [checkedOnce, setCheckedOnce] = useState(false);
-
-    const defaultpopularNetBankingList = [
-        "HDFC Bank",
-        "ICICI Bank",
-        "State Bank of India",
-        "Axis Bank",
-        "Punjab National Bank Retail"
-    ]
-
-    const [popularNetBankingList, setPopularNetBankingList] = useState<PaymentClass[]>([]);
 
     const [isFirstLoad, setIsFirstLoad] = useState(true);
 
@@ -56,8 +39,6 @@ const NetBankingScreen = () => {
 
     const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
 
-    const [searchTextFocused, setSearchTextFocused] = useState(false);
-
     const onProceedBack = () => {
         if (!loading) {
             router.back();
@@ -65,10 +46,6 @@ const NetBankingScreen = () => {
         }
         return false
     };
-
-    const handleSearchTextChange = (text: string) => {
-        setSearchText(text);
-    }
 
     useEffect(() => {
         const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -90,9 +67,8 @@ const NetBankingScreen = () => {
 
     useEffect(() => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
-
-            const netBankingList = data
-                .filter((item: any) => item.type === "NetBanking")
+            const bnplList = data
+                .filter((item: any) => item.type === "BuyNowPayLater")
                 .sort((a: any, b: any) => a.title.trim().localeCompare(b.title.trim())) // Trim spaces before sorting
                 .map((item: any) => ({
                     id: item.id,
@@ -101,12 +77,7 @@ const NetBankingScreen = () => {
                     instrumentTypeValue: item.instrumentTypeValue,
                     isSelected: false
                 }));
-
-
-            const popularList = netBankingList.filter((item: any) => defaultpopularNetBankingList.includes(item.title))
-            setPopularNetBankingList(popularList)
-            setNetBankingList(netBankingList)
-            setDefaultNetBankingList(netBankingList)
+            setBnplList(bnplList)
         });
     }, []);
 
@@ -175,7 +146,7 @@ const NetBankingScreen = () => {
         setLoading(true);
         const response = await methodsPostRequest(
             instrumentType,
-            "netBanking"
+            "buynowpaylater"
         )
         try {
             setStatus(response.status.status)
@@ -219,30 +190,12 @@ const NetBankingScreen = () => {
     }
 
     const onClickRadioButton = (id: string) => {
-        const updatedNetBankingList = netBankingList.map((netBankingItem) => ({
-            ...netBankingItem,
-            isSelected: netBankingItem.id === id
+        const updatedBnplList = bnplList.map((bnplItem) => ({
+            ...bnplItem,
+            isSelected: bnplItem.id === id
         }));
-        const updatedPopularNetBankingList = popularNetBankingList.map((popularNetBankingItem) => ({
-            ...popularNetBankingItem,
-            isSelected: false
-        }));
-        setPopularNetBankingList(updatedPopularNetBankingList);
-        setNetBankingList(updatedNetBankingList);
+        setBnplList(updatedBnplList);
     };
-
-    const onClickPopularBank = (id: string) => {
-        const updatedPopularNetBankingList = popularNetBankingList.map((popularNetBankingItem) => ({
-            ...popularNetBankingItem,
-            isSelected: popularNetBankingItem.id === id
-        }));
-        const updatedNetBankingList = netBankingList.map((netBankingItem) => ({
-            ...netBankingItem,
-            isSelected: false
-        }));
-        setNetBankingList(updatedNetBankingList);
-        setPopularNetBankingList(updatedPopularNetBankingList);
-    }
 
     const onExitCheckout = () => {
         const mockPaymentResult: PaymentResult = {
@@ -254,24 +207,10 @@ const NetBankingScreen = () => {
     };
 
     useEffect(() => {
-        if (netBankingList.length > 0) {
+        if (bnplList.length > 0) {
             setIsFirstLoad(false);
         }
-    }, [netBankingList]);
-
-    useEffect(() => {
-        if (searchText.length > 0) {
-            const filteredNetBankingList = defaultNetBankingList.filter((item) => {
-                const words = item.title.toLowerCase().split(/\s+/); // Split title into words
-                return words.some(word => word.startsWith(searchText.toLowerCase())); // Check if any word starts with searchText
-            });
-
-            setNetBankingList(filteredNetBankingList);
-        } else {
-            setNetBankingList(defaultNetBankingList);
-        }
-    }, [searchText]);
-
+    }, [bnplList]);
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -294,91 +233,17 @@ const NetBankingScreen = () => {
                 </View>
             ) : (
                 <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
-                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Select Bank' />
+                    <Header onBackPress={onProceedBack} showDesc={true} showSecure={false} text='Select BNPL' />
                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
-                    {isSearchVisible && (
-                        <View style={{ backgroundColor: 'white', paddingBottom: 20 }}>
-                            <TextInput
-                                mode='outlined'
-                                label={
-                                    <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular', color: searchTextFocused ? '#2D2B32' : (searchText != "" && searchText != null) ? '#2D2B32' : '#ADACB0' }}>Search for bank</Text>
-                                }
-                                value={searchText}
-                                onChangeText={(it) => {
-                                    handleSearchTextChange(it)
-                                }}
-                                theme={{
-                                    colors: {
-                                        primary: "#2D2B32",
-                                        outline: '#E6E6E6',
-                                    }
-                                }}
-                                style={{
-                                    marginTop: 16, marginHorizontal: 16, backgroundColor: 'white',
-                                    fontSize: 16,
-                                    fontFamily: 'Poppins-Regular',
-                                    color: '#0A090B',
-                                    height: 60
-                                }}
-                                left={
-                                    <TextInput.Icon
-                                        icon={() => <Image source={require("../../../assets/images/ic_search.png")} style={{ width: 20, height: 20 }} />}
-                                    />
-                                }
-                                outlineStyle={{
-                                    borderRadius: 6,
-                                    borderWidth: 1
-                                }}
-                                onFocus={() => setSearchTextFocused(true)}
-                                onBlur={() => setSearchTextFocused(false)}
-                            />
-                        </View>
-                    )}
                     <ScrollView
                         contentContainerStyle={{ flexGrow: 1 }}
-                        keyboardShouldPersistTaps="handled"
-                        onContentSizeChange={(_, contentHeight) => {
-                            if (!checkedOnce) {
-                                if (contentHeight > screenHeight) {
-                                    setIsSearchVisible(true);
-                                }
-                                setCheckedOnce(true);
-                            }
-                        }}>
-                        {(popularNetBankingList.length > 0 && searchText.length === 0) && (
-                            <>
-                                <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>
-                                    Popular Banks
-                                </Text>
-                                <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12 }}>
-                                    {popularNetBankingList.map((item, index) => (
-                                        <View key={index}>
-                                            <PaymentSelector
-                                                id={item.id}
-                                                title={item.title}
-                                                image={item.image}
-                                                isSelected={item.isSelected}
-                                                instrumentTypeValue={item.instrumentTypeValue}
-                                                onPress={onClickPopularBank}
-                                                onProceedForward={onProceedForward}
-                                                errorImage={require("../../../assets/images/ic_netbanking_semi_bold.png")}
-                                            />
-                                            {index !== popularNetBankingList.length - 1 && (
-                                                <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
-                                            )}
-                                        </View>
-                                    ))}
-                                </View>
-                            </>
-                        )}
-
-                        <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>All Banks</Text>
-                        {netBankingList.length > 0 ? (
-                            <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginBottom: 32 }}>
-                                {netBankingList.map((item, index) => (
+                        keyboardShouldPersistTaps="handled">
+                        {bnplList.length > 0 ? (
+                            <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginVertical: 16 }}>
+                                {bnplList.map((item, index) => (
                                     <View key={index}>
-                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_netbanking_semi_bold.png")} />
-                                        {index !== netBankingList.length - 1 && (
+                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_bnpl_semi_bold.png")} />
+                                        {index !== bnplList.length - 1 && (
                                             <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                         )}
                                     </View>
@@ -455,4 +320,4 @@ const NetBankingScreen = () => {
     )
 }
 
-export default NetBankingScreen;
+export default BNPLScreen;

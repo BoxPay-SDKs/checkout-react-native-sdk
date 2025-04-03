@@ -1,20 +1,20 @@
 import { View, Text, StyleSheet, Image, BackHandler, Pressable, StatusBar } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { router } from 'expo-router';
-import Header from '../(components)/header';
+import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
-import fetchCardDetails from '../(postRequest)/fetchCardDetails';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
-import cardPostRequest from '../(postRequest)/cardPostRequest';
-import PaymentFailed from '../(components)/paymentFailed';
-import PaymentSuccess from '../(components)/paymentSuccess';
-import SessionExpire from '../(components)/sessionExpire';
-import PaymentResult from '../(dataClass)/paymentType';
-import { paymentHandler } from '../(sharedContext)/paymentStatusHandler';
-import CvvInfoBottomSheet from '../(components)/cvvInfoBottomSheet';
+import fetchCardDetails from '../postRequest/fetchCardDetails';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import cardPostRequest from '../postRequest/cardPostRequest';
+import PaymentFailed from '../components/paymentFailed';
+import PaymentSuccess from '../components/paymentSuccess';
+import SessionExpire from '../components/sessionExpire';
+import { PaymentResult } from '../../../interface'
+import { paymentHandler } from '../sharedContext/paymentStatusHandler';
+import CvvInfoBottomSheet from '../components/cvvInfoBottomSheet';
 import WebViewScreen from './webViewScreen';
-import fetchStatus from '../(postRequest)/fetchStatus';
+import fetchStatus from '../postRequest/fetchStatus';
 const CardScreen = () => {
     const { checkoutDetails } = checkoutDetailsHandler;
 

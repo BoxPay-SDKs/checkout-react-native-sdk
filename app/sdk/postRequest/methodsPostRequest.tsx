@@ -1,15 +1,13 @@
-import { Platform } from "react-native";
-import * as Device from "expo-device";
 import Constants from "expo-constants";
+import { checkoutDetailsHandler } from "../sharedContext/checkoutDetailsHandler";
+import * as Device from "expo-device";
+import { Platform } from "react-native";
 import axios from 'axios';
-import { userDataHandler } from "../(sharedContext)/userdataHandler";
-import { checkoutDetailsHandler } from "../(sharedContext)/checkoutDetailsHandler";
+import { userDataHandler } from "../sharedContext/userdataHandler";
 
-const cardPostRequest = async (
-    cardNumber: string,
-    expiryDate: string,
-    cvv: string,
-    holderName: string
+const methodsPostRequest = async (
+    instrumentDetails: string,
+    paymentMethod: string
 ) => {
     const { userData } = userDataHandler
     const { checkoutDetails } = checkoutDetailsHandler
@@ -19,10 +17,6 @@ const cardPostRequest = async (
             ? 'sandbox-apis.boxpay.tech'
             : 'apis.boxpay.in';
 
-    const formatExpiry = (input: string) => {
-        const [month, year] = input.split('/');
-        return `20${year}-${month}`;
-    };
     const requestBody = {
         browserData: {
             screenHeight: Constants.platform?.ios?.screenHeight || Constants.platform?.android?.screenHeight || 0,
@@ -37,12 +31,9 @@ const cardPostRequest = async (
             packageId: Constants.manifest?.id || "com.boxpay.checkout.sdk",
         },
         instrumentDetails: {
-            type: "card/plain",
-            card: {
-                number: cardNumber.replace(/ /g, ''),
-                expiry: formatExpiry(expiryDate),
-                cvc: cvv,
-                holderName: holderName
+            type: instrumentDetails,
+            [paymentMethod]: {
+                token: checkoutDetails.token
             }
         },
         shopper: {
@@ -74,6 +65,7 @@ const cardPostRequest = async (
         },
     };
 
+
     const API_URL = `https://${endpoint}/v0/checkout/sessions/${checkoutDetails.token}`;
     try {
         const response = await axios.post(API_URL, requestBody, {
@@ -99,7 +91,6 @@ const cardPostRequest = async (
 
         return result;
     }
-
 };
 
-export default cardPostRequest;
+export default methodsPostRequest;

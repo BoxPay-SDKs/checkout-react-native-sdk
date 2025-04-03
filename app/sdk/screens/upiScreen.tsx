@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Pressable, Image, Animated, ImageBackground } from 'react-native'
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { TextInput } from 'react-native-paper';
-import { checkoutDetailsHandler } from '../(sharedContext)/checkoutDetailsHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface UpiScreenProps {
     isUpiIntentVisible: boolean,

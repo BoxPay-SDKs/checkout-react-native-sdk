@@ -1,9 +1,8 @@
 import { View, Text } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import BoxpayCheckout, { setTestEnv } from '../app/(boxpayCheckout)/index';  // Import the SDK component
-import { setPaymentHandler } from './(boxpayCheckout)/(sharedContext)/paymentStatusHandler'
-import PaymentResult from './(boxpayCheckout)/(dataClass)/paymentType';
+import BoxpayCheckout, { setTestEnv } from './sdk'
+import { PaymentResult, ConfigurationOptions } from '../interface'
 
 const Check = () => {
   const [token, setToken] = useState<string | null>(null); // Store the token
@@ -26,9 +25,6 @@ const Check = () => {
 
   useEffect(() => {
     handleApiCall();  // Call the function to fetch the token when the component mounts
-    setPaymentHandler({
-      onPaymentResult: handlePaymentResult,
-    });
     setTestEnv({
       testEnv: true
     })
@@ -44,8 +40,13 @@ const Check = () => {
       {token ? (
         <BoxpayCheckout
           token={token}
-          sandboxEnv={false}
+          onPaymentResult={handlePaymentResult}
+          configurationOptions={{
+            [ConfigurationOptions.ShowBoxpaySuccessScreen]: true,
+            [ConfigurationOptions.EnableSandboxEnv]: true
+          }}
         />
+
       ) : (
         <Text style={{ alignSelf: 'center', justifyContent: 'center', paddingTop: 100 }}>{error ? `Error: ${error}` : 'Loading token...'}</Text>
       )}

@@ -1,4 +1,4 @@
-export default interface PaymentResult {
+export interface PaymentResult {
     status: string;
     transactionId: string;
 };
