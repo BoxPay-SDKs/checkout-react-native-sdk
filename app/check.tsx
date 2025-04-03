@@ -6,6 +6,7 @@ import { PaymentResult, ConfigurationOptions } from '../interface'
 
 const Check = () => {
   const [token, setToken] = useState<string | null>(null); // Store the token
+  const [shopperToken, setShopperToken] = useState<string | null>(null); // Store the token
   const [error, setError] = useState<string | null>(null); // Store any error messages
 
   // Function to fetch the token
@@ -13,6 +14,9 @@ const Check = () => {
     try {
       const result = await fetchToken();  // Get the token
       setToken(result.token); // Set the token in state
+      if (result.payload != null) {
+        setShopperToken(result.payload.shopper_token)
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message); // Set the error message in state if the API call fails
@@ -43,8 +47,9 @@ const Check = () => {
           onPaymentResult={handlePaymentResult}
           configurationOptions={{
             [ConfigurationOptions.ShowBoxpaySuccessScreen]: true,
-            [ConfigurationOptions.EnableSandboxEnv]: true
+            [ConfigurationOptions.EnableSandboxEnv]: false
           }}
+          shopperToken={shopperToken}
         />
 
       ) : (
@@ -146,6 +151,7 @@ const requestBody = {
   statusNotifyUrl: 'https://www.boxpay.tech',
   frontendBackUrl: 'https://www.boxp.tech',
   expiryDurationSec: 900,
+  createShopperToken: true
 };
 
 export default Check;

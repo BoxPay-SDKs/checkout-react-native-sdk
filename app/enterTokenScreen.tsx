@@ -49,8 +49,8 @@ const EnterTokenScreen = () => {
         <BoxpayCheckout
           token={token}
           configurationOptions={{
-            [ConfigurationOptions.SHOW_BOXPAY_SUCCESS_SCREEN]: true,
-            [ConfigurationOptions.ENABLE_SANDBOX_ENV]: environment == "sandbox"
+            [ConfigurationOptions.ShowBoxpaySuccessScreen]: true,
+            [ConfigurationOptions.EnableSandboxEnv]: environment == "sandbox"
           }}
           onPaymentResult={handlePaymentResult}
         />

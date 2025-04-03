@@ -28,10 +28,11 @@ import OrderDetails, { ItemsProp } from './components/orderDetails';
 interface BoxpayCheckoutProps {
     token: string;
     configurationOptions?: Partial<Record<ConfigurationOptions, any>>,
-    onPaymentResult: (result: PaymentResult) => void
+    onPaymentResult: (result: PaymentResult) => void,
+    shopperToken?: string | null
 }
 
-const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOptions = {}, onPaymentResult }) => {
+const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOptions = {}, onPaymentResult, shopperToken = null }) => {
     const [status, setStatus] = useState("NOACTION")
     const [transactionId, setTransactionId] = useState("")
     const tokenState = useRef(token)
@@ -377,12 +378,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
 
     useEffect(() => {
         const fetchPaymentMethods = async () => {
-            const endpoint: string = testEnv
-                ? 'test-apis.boxpay.tech'
-                : env == 'sandbox'
-                    ? 'sandbox-apis.boxpay.tech'
-                    : 'apis.boxpay.in';
-            // const endpoint: string = "test-apis.boxpay.tech"
+            // const endpoint: string = testEnv
+            //     ? 'test-apis.boxpay.tech'
+            //     : env == 'sandbox'
+            //         ? 'sandbox-apis.boxpay.tech'
+            //         : 'apis.boxpay.in';
+            const endpoint: string = "test-apis.boxpay.tech"
             try {
                 setIsFirstLoading(true);
                 const response = await axios.get(`https://${endpoint}/v0/checkout/sessions/${tokenState.current}`);
@@ -480,7 +481,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                         brandColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
                         env: testEnv ? 'test' : env,
                         itemsLength: totalItemsRef.current,
-                        errorMessage: "You may have cancelled the payment or there was a delay in response. Please retry."
+                        errorMessage: "You may have cancelled the payment or there was a delay in response. Please retry.",
+                        shopperToken: shopperToken
                     }
                 })
                 setPaymentHandler({
