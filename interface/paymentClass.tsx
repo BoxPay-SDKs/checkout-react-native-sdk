@@ -3,5 +3,6 @@ export default interface PaymentClass {
     title: string;
     image: string;
     instrumentTypeValue: string;
-    isSelected: boolean
+    isSelected: boolean,
+    isLastUsed?: boolean | null
 }

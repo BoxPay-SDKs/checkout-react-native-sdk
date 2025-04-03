@@ -13,10 +13,10 @@ const Check = () => {
   const handleApiCall = async () => {
     try {
       const result = await fetchToken();  // Get the token
-      setToken(result.token); // Set the token in state
       if (result.payload != null) {
         setShopperToken(result.payload.shopper_token)
       }
+      setToken(result.token); // Set the token in state
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message); // Set the error message in state if the API call fails

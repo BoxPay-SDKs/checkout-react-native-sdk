@@ -12,22 +12,21 @@ interface UpiScreenProps {
     selectedIntent: string | null,
     setSelectedIntent: (intent: string | null) => void,
     handleUpiPayment: () => void,
-    handleCollectPayment: (upiId: string) => void
+    handleCollectPayment: (upiId: string) => void,
+    upiCollectVisible: boolean,
+    setUpiCollectVisible: (selected: boolean) => void
 }
 
-const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible, isPaytmVisible, isPhonePeVisible, isUpiCollectVisible, selectedIntent, setSelectedIntent, handleUpiPayment, handleCollectPayment }) => {
-    const [upiCollectVisible, setUpiCollectVisible] = useState(false)
+const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible, isPaytmVisible, isPhonePeVisible, isUpiCollectVisible, selectedIntent, setSelectedIntent, handleUpiPayment, handleCollectPayment, upiCollectVisible, setUpiCollectVisible }) => {
     const [upiCollectError, setUpiCollectError] = useState(false)
     const [upiCollectValid, setUpiCollectValid] = useState(false)
     const [upiCollectTextInput, setUpiCollectTextInput] = useState("")
-    const [isRotated, setIsRotated] = useState(false)
     const [upiIdFocused, setUpiIdFocused] = useState(false);
     const { checkoutDetails } = checkoutDetailsHandler
 
     const handleUpiChevronClick = () => {
         setSelectedIntent(null)
         setUpiCollectVisible(!upiCollectVisible)
-        setIsRotated(!isRotated)
     }
 
     const handleTextChange = (text: string) => {
@@ -66,7 +65,6 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                                         onPress={() => {
                                             setUpiCollectVisible(false)
                                             setUpiCollectError(false)
-                                            setIsRotated(false)
                                             setSelectedIntent("GPay")
                                         }}
                                     >
@@ -87,7 +85,6 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                                         ]}
                                         onPress={() => {
                                             setUpiCollectVisible(false)
-                                            setIsRotated(false)
                                             setUpiCollectError(false);
                                             setSelectedIntent("PhonePe")
                                         }}
@@ -111,7 +108,6 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                                         onPress={() => {
                                             setUpiCollectVisible(false)
                                             setUpiCollectError(false);
-                                            setIsRotated(false)
                                             setSelectedIntent("PayTm")
                                         }}
                                     >
@@ -126,7 +122,6 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                             <View style={styles.intentContainer}>
                                 <Pressable style={styles.intentIconBorder} onPress={() => {
                                     setUpiCollectVisible(false)
-                                    setIsRotated(false)
                                     setUpiCollectError(false);
                                     setSelectedIntent("")
                                 }}>
@@ -149,7 +144,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
 
                 {isUpiCollectVisible && (
                     <View>
-                        {isRotated ? (
+                        {upiCollectVisible ? (
                             <ImageBackground
                                 source={require("../../../assets/images/add_upi_id_background.png")} // Replace with your background image
                                 resizeMode="cover"
@@ -188,7 +183,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                                         source={require("../../../assets/images/chervon-down.png")}
                                         style={{
                                             alignSelf: 'center', height: 6, width: 14, transform: [{
-                                                rotate: isRotated ? "180deg" : "0deg"
+                                                rotate: upiCollectVisible ? "180deg" : "0deg"
                                             }]
                                         }}
                                     />
@@ -232,7 +227,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                                         source={require("../../../assets/images/chervon-down.png")}
                                         style={{
                                             alignSelf: 'center', height: 6, width: 14, transform: [{
-                                                rotate: isRotated ? "180deg" : "0deg"
+                                                rotate: upiCollectVisible ? "180deg" : "0deg"
                                             }]
                                         }}
                                     />

@@ -1,3 +1,3 @@
-export * from './paymentType'
+export * from './paymentResult'
 
 export * from './configurationOption'
