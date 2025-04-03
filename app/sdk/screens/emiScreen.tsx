@@ -381,7 +381,7 @@ const EmiScreen = () => {
 
     const navigateToCardScreen = (duration: number, bankName: string, bankUrl: string, offerCode: string, amount: string, percent: number) => {
         router.push({
-            pathname: "/cardScreen",
+            pathname: "/sdk/screens/cardScreen",
             params: {
                 duration: duration,
                 bankName: bankName,

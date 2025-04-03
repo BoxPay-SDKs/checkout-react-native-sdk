@@ -22,7 +22,7 @@ import { ConfigurationOptions, PaymentResult } from '../../interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './sharedContext/checkoutDetailsHandler';
 import WebViewScreen from './screens/webViewScreen';
 import getSymbolFromCurrency from 'currency-symbol-map'
-import OrderDetails, { ItemsProp } from './(components)/orderDetails';
+import OrderDetails, { ItemsProp } from './components/orderDetails';
 
 // Define the props interface
 interface BoxpayCheckoutProps {
@@ -377,12 +377,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
 
     useEffect(() => {
         const fetchPaymentMethods = async () => {
-            // const endpoint: string = testEnv
-            //     ? 'test-apis.boxpay.tech'
-            //     : env == 'sandbox'
-            //         ? 'sandbox-apis.boxpay.tech'
-            //         : 'apis.boxpay.in';
-            const endpoint: string = "test-apis.boxpay.tech"
+            const endpoint: string = testEnv
+                ? 'test-apis.boxpay.tech'
+                : env == 'sandbox'
+                    ? 'sandbox-apis.boxpay.tech'
+                    : 'apis.boxpay.in';
+            // const endpoint: string = "test-apis.boxpay.tech"
             try {
                 setIsFirstLoading(true);
                 const response = await axios.get(`https://${endpoint}/v0/checkout/sessions/${tokenState.current}`);

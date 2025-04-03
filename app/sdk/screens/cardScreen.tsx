@@ -563,56 +563,6 @@ const CardScreen = () => {
                             </View>
                         </View>
                     )}
-                    {bankNameStr != "" && bankName != undefined && (
-                        <View style={{ borderColor: "#E6E6E6", borderWidth: 1, borderRadius: 8, padding: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 16, marginTop: 8 }}>
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={{
-                                    width: 32,
-                                    height: 32,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                    {imageLoad && !imageError && (
-                                        <ShimmerPlaceHolder
-                                            visible={false} // Keep shimmer until loading is done
-                                            style={{ width: 32, height: 32, borderRadius: 8 }}
-                                        />
-                                    )}
-                                    {!imageError ? (
-                                        <SvgUri
-                                            uri={bankUrlStr}
-                                            width={100} // Keep original size
-                                            height={100}
-                                            style={{ transform: [{ scale: 0.4 }] }}
-                                            onLoad={() => setImageLoad(false)}
-                                            onError={() => {
-                                                setImageError(true);
-                                                setImageLoad(false);
-                                            }}
-                                        />
-                                    ) : (
-                                        <Image source={require("../../../assets/images/ic_netbanking_semi_bold.png")} style={{ transform: [{ scale: 0.4 }] }} />
-                                    )}
-                                </View>
-                                <Text style={{ paddingStart: 8, fontFamily: "Poppins-SemiBold", fontSize: 14 }}>{bankNameStr}</Text>
-                            </View>
-                            <View style={{ borderWidth: 1.5, borderStartColor: "#E6E6E6", borderTopColor: 'white', borderEndColor: 'white', borderBottomColor: 'white', paddingStart: 8 }}>
-                                <Text style={{
-                                    fontFamily: "Poppins-SemiBold",
-                                    fontSize: 12,
-                                    color: "#2D2B32"
-                                }}>
-                                    {duration} months x
-                                    <Text style={{
-                                        fontFamily: 'Inter-SemiBold',
-                                        fontSize: 12,
-                                        color: "#2D2B32"
-                                    }}> {checkoutDetails.currencySymbol}</Text>{amountStr}
-                                </Text>
-                                <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 12, color: "#2D2B32" }}>@{percentNumber}% p.a.</Text>
-                            </View>
-                        </View>
-                    )}
                     <TextInput
                         mode='outlined'
                         label={
