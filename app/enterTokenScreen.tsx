@@ -10,9 +10,11 @@ import { PaymentResult, ConfigurationOptions } from '@/interface';
 
 const EnterTokenScreen = () => {
   const [tokenTextInput, setTokenTextInput] = useState("");
+  const [shopperTokenTextInput, setShopperTokenTextInput] = useState("");
   const [environment, setEnvironment] = useState("test");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [shopperToken, setShopperToken] = useState<string | null>(null);
 
   const environments = [
     { label: "Test", value: "test" },
@@ -30,6 +32,7 @@ const EnterTokenScreen = () => {
   };
 
   const handleProceedPress = () => {
+    setShopperToken(shopperTokenTextInput)
     setToken(tokenTextInput)
   };
 
@@ -53,6 +56,7 @@ const EnterTokenScreen = () => {
             [ConfigurationOptions.EnableSandboxEnv]: environment == "sandbox"
           }}
           onPaymentResult={handlePaymentResult}
+          shopperToken={shopperToken}
         />
       ) : (
         <View style={styles.container}>
@@ -62,6 +66,15 @@ const EnterTokenScreen = () => {
             value={tokenTextInput}
             onChangeText={(it) => {
               setTokenTextInput(it);
+            }}
+            style={styles.textInput}
+          />
+          <TextInput
+            mode="outlined"
+            label="Enter Shopper Token"
+            value={shopperTokenTextInput}
+            onChangeText={(it) => {
+              setShopperTokenTextInput(it);
             }}
             style={styles.textInput}
           />

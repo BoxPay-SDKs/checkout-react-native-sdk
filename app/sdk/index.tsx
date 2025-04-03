@@ -212,11 +212,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     };
 
     const getRecommendedInstruments = async () => {
-        const response = await fetchRecommendedInstruments();
-
-        // Ensure we only take the first two instruments
         try {
-            const instruments = response.slice(0, 2).map((instrument: any, index: number) => ({
+            const response = await fetchRecommendedInstruments();
+
+            // Ensure response is an array; default to an empty array if null/undefined
+            const instrumentsList = Array.isArray(response) ? response.slice(0, 2) : [];
+
+            const instruments = instrumentsList.map((instrument: any, index: number) => ({
                 id: instrument.instrumentRef,
                 title: instrument.displayValue,
                 image: "", // Add appropriate image logic if needed
@@ -224,12 +226,15 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                 isSelected: false,
                 isLastUsed: index === 0, // Only the first item should have isLastUsed = true
             }));
-            setRecommendedInstruments(instruments)
+
+            setRecommendedInstruments(instruments);
         } catch (error) {
-            // n o
+            setRecommendedInstruments([]); // Ensure the list is explicitly set to empty
+        } finally {
+            setIsFirstLoading(false);
         }
-        setIsFirstLoading(false)
     };
+
 
 
     useEffect(() => {
@@ -515,7 +520,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                 ToastAndroid.show("Please check the token and the environment selected", ToastAndroid.SHORT);
             } finally {
                 if (shopperToken != null && shopperToken != "") {
-                    console.log("inside functio")
                     getRecommendedInstruments()
                 } else {
                     setIsFirstLoading(false);
