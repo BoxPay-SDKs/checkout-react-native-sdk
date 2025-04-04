@@ -5,5 +5,6 @@ export default interface CheckoutDetails {
     brandColor: string;
     env: string;
     itemsLength: number;
-    errorMessage: string
+    errorMessage: string,
+    shopperToken: string | null
 }

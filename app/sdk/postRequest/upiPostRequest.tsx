@@ -63,6 +63,7 @@ const upiPostRequest = async (
     const response = await axios.post(API_URL, requestBody, {
       headers: {
         'X-Request-Id': generateRandomAlphanumericString(10),
+        ...(checkoutDetails.shopperToken ? { Authorization: `Session ${checkoutDetails.shopperToken}` } : {}),
       },
     });
 

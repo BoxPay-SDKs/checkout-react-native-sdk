@@ -14,14 +14,15 @@ interface PaymentSelectorProps {
     instrumentTypeValue: string;
     onPress: (id: string) => void;
     onProceedForward: (instrumentType: string) => void;
+    isLastUsed?: boolean | null
 }
 
-const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, onPress, onProceedForward, errorImage }: PaymentSelectorProps) => {
+const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, onPress, onProceedForward, errorImage, isLastUsed }: PaymentSelectorProps) => {
     const { checkoutDetails } = checkoutDetailsHandler
     const [error, setImageError] = useState(false)
     const [load, setLoad] = useState(true)
     return (
-        <View style={{ paddingVertical: 16, paddingHorizontal: 12, backgroundColor: isSelected ? "#EDF8F4" : "white" }}>
+        <View style={{ paddingVertical: 16, paddingHorizontal: 12, backgroundColor: isSelected ? "#EDF8F4" : "white", borderRadius: isSelected ? 0 : 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{
                     width: 32,
@@ -52,7 +53,14 @@ const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, on
                     )}
                 </View>
 
-                <Text style={{ paddingStart: 8, fontFamily: 'Poppins-SemiBold', fontSize: 14, color: "#4F4D55", flex: 1 }} onPress={() => onPress(id)} numberOfLines={1} ellipsizeMode='tail'>{title}</Text>
+                <View style={{ paddingStart: 12, flex: 1 }}>
+                    <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 14, color: "#4F4D55" }} onPress={() => onPress(id)} numberOfLines={1} ellipsizeMode='tail'>{title}</Text>
+                    {isLastUsed && (
+                        <View style={styles.tag}>
+                            <Text style={styles.tagText}>Last Used</Text>
+                        </View>
+                    )}
+                </View>
                 <RadioButton
                     value={id}
                     status={isSelected ? 'checked' : 'unchecked'}
@@ -90,5 +98,19 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontFamily: 'Poppins-SemiBold'
+    },
+    tag: {
+        borderColor: '#1CA672',
+        borderRadius: 6,
+        backgroundColor: '#1CA67214',
+        borderWidth: 0.5,
+        paddingHorizontal: 4,
+        marginTop: 4,
+        alignSelf: 'flex-start'
+    },
+    tagText: {
+        fontSize: 10,
+        fontFamily: 'Poppins-Medium',
+        color: '#1CA672',
     }
 })

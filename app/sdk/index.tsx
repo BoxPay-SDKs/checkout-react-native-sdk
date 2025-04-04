@@ -23,15 +23,19 @@ import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './sharedConte
 import WebViewScreen from './screens/webViewScreen';
 import getSymbolFromCurrency from 'currency-symbol-map'
 import OrderDetails, { ItemsProp } from './components/orderDetails';
+import PaymentClass from '@/interface/paymentClass';
+import fetchRecommendedInstruments from './postRequest/fetchRecommendedInstruments';
+import PaymentSelector from './components/paymentSelector';
 
 // Define the props interface
 interface BoxpayCheckoutProps {
     token: string;
     configurationOptions?: Partial<Record<ConfigurationOptions, any>>,
-    onPaymentResult: (result: PaymentResult) => void
+    onPaymentResult: (result: PaymentResult) => void,
+    shopperToken?: string | null
 }
 
-const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOptions = {}, onPaymentResult }) => {
+const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOptions = {}, onPaymentResult, shopperToken = null }) => {
     const [status, setStatus] = useState("NOACTION")
     const [transactionId, setTransactionId] = useState("")
     const tokenState = useRef(token)
@@ -90,6 +94,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const taxAmountRef = useRef("")
     const subTotalAmountRef = useRef("")
     const orderItemsArrayRef = useRef<ItemsProp[]>([])
+    const [recommendedInstrumentsArray, setRecommendedInstruments] = useState<PaymentClass[]>([])
+    const [upiCollectVisible, setUpiCollectVisible] = useState(false)
 
     const handlePaymentIntent = async () => {
         setLoadingState(true)
@@ -132,16 +138,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
         }
     };
 
-    const handleUpiCollectPayment = async (upiId: string) => {
+    const handleUpiCollectPayment = async (upiId: string, instrumentRef: string) => {
+        const requestPayload = {
+            type: "upi/collect",
+            upi: instrumentRef ? { instrumentRef: instrumentRef } : { shopperVpa: upiId } // Replace "your_value_here" with actual reference
+        };
         setLoadingState(true)
-        const response = await upiPostRequest(
-            {
-                type: "upi/collect",
-                upi: {
-                    shopperVpa: upiId
-                }
-            }
-        )
+        const response = await upiPostRequest(requestPayload)
         try {
             setStatus(response.status.status)
             setTransactionId(response.transactionId)
@@ -207,6 +210,32 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
             setLoadingState(false)
         }
     };
+
+    const getRecommendedInstruments = async () => {
+        try {
+            const response = await fetchRecommendedInstruments();
+
+            // Ensure response is an array; default to an empty array if null/undefined
+            const instrumentsList = Array.isArray(response) ? response.slice(0, 2) : [];
+
+            const instruments = instrumentsList.map((instrument: any, index: number) => ({
+                id: instrument.instrumentRef,
+                title: instrument.displayValue,
+                image: "///", // Add appropriate image logic if needed
+                instrumentTypeValue: instrument.type,
+                isSelected: false,
+                isLastUsed: index === 0, // Only the first item should have isLastUsed = true
+            }));
+
+            setRecommendedInstruments(instruments);
+        } catch (error) {
+            setRecommendedInstruments([]); // Ensure the list is explicitly set to empty
+        } finally {
+            setIsFirstLoading(false);
+        }
+    };
+
+
 
     useEffect(() => {
         if (paymentUrl || paymentHtml) {
@@ -377,12 +406,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
 
     useEffect(() => {
         const fetchPaymentMethods = async () => {
-            const endpoint: string = testEnv
-                ? 'test-apis.boxpay.tech'
-                : env == 'sandbox'
-                    ? 'sandbox-apis.boxpay.tech'
-                    : 'apis.boxpay.in';
-            // const endpoint: string = "test-apis.boxpay.tech"
+            // const endpoint: string = testEnv
+            //     ? 'test-apis.boxpay.tech'
+            //     : env == 'sandbox'
+            //         ? 'sandbox-apis.boxpay.tech'
+            //         : 'apis.boxpay.in';
+            const endpoint: string = "test-apis.boxpay.tech"
             try {
                 setIsFirstLoading(true);
                 const response = await axios.get(`https://${endpoint}/v0/checkout/sessions/${tokenState.current}`);
@@ -480,7 +509,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                         brandColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
                         env: testEnv ? 'test' : env,
                         itemsLength: totalItemsRef.current,
-                        errorMessage: "You may have cancelled the payment or there was a delay in response. Please retry."
+                        errorMessage: "You may have cancelled the payment or there was a delay in response. Please retry.",
+                        shopperToken: shopperToken
                     }
                 })
                 setPaymentHandler({
@@ -489,12 +519,34 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
             } catch (error) {
                 ToastAndroid.show("Please check the token and the environment selected", ToastAndroid.SHORT);
             } finally {
-                setIsFirstLoading(false); // Set loading to false when API request is finished
+                if (shopperToken != null && shopperToken != "") {
+                    getRecommendedInstruments()
+                } else {
+                    setIsFirstLoading(false);
+                } // Set loading to false when API request is finished
             }
         };
 
         fetchPaymentMethods();
     }, [tokenState.current]);
+
+    const onClickRadio = (instrumentValue: string) => {
+        const updatedList = recommendedInstrumentsArray.map((item) => ({
+            ...item,
+            isSelected: item.id === instrumentValue
+        }));
+        setRecommendedInstruments(updatedList);
+        setSelectedIntent(null)
+        setUpiCollectVisible(false)
+    }
+
+    const setDefaultRecommendedList = () => {
+        const updatedList = recommendedInstrumentsArray.map((item) => ({
+            ...item,
+            isSelected: false
+        }));
+        setRecommendedInstruments(updatedList)
+    }
 
     function startCountdown(sessionExpiryTimestamp: string) {
         if (sessionExpiryTimestamp === "") {
@@ -602,6 +654,38 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                 </View>
                             )}
 
+                            {recommendedInstrumentsArray.length > 0 && (
+                                <>
+                                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={{
+                                            marginStart: 14,
+                                            marginTop: 20,
+                                            fontSize: 14,
+                                            color: '#020815B5',
+                                            fontFamily: 'Poppins-SemiBold'
+                                        }}>Recommended</Text>
+                                    </View>
+                                    <View style={{
+                                        borderColor: '#F1F1F1',
+                                        borderWidth: 1,
+                                        marginHorizontal: 16,
+                                        marginVertical: 8,
+                                        backgroundColor: "white",
+                                        flexDirection: 'column',
+                                        borderRadius: 12,
+                                    }}>
+                                        {recommendedInstrumentsArray.map((item, index) => (
+                                            <View key={index}>
+                                                <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={() => onClickRadio(item.id)} onProceedForward={() => handleUpiCollectPayment(item.title, item.id)} errorImage={require("../../assets/images/ic_upi.png")} isLastUsed={item.isLastUsed} />
+                                                {index !== recommendedInstrumentsArray.length - 1 && (
+                                                    <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
+                                                )}
+                                            </View>
+                                        ))}
+                                    </View>
+                                </>
+                            )}
+
                             <UpiScreen
                                 isUpiIntentVisible={isUpiIntentVisibile}
                                 isGpayVisible={isGpayInstalled}
@@ -611,9 +695,14 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                 selectedIntent={selectedIntent}
                                 setSelectedIntent={(it) => {
                                     setSelectedIntent(it)
+                                    setDefaultRecommendedList()
                                 }}
                                 handleUpiPayment={handlePaymentIntent}
-                                handleCollectPayment={(it) => handleUpiCollectPayment(it)}
+                                handleCollectPayment={(it) => handleUpiCollectPayment(it, "")}
+                                upiCollectVisible={upiCollectVisible}
+                                setUpiCollectVisible={(it) => {
+                                    setUpiCollectVisible(it)
+                                }}
                             />
                             <View>
                                 {(isCardVisible || isWalletVisible || isNetBankingVisible || isBNPLVisible || isEmiVisible) && (
