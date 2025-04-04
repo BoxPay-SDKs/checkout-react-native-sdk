@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, Pressable, Image, Animated, ImageBackground } f
 import React, { useState } from 'react'
 import { TextInput } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import PaymentClass from '@/interface/paymentClass';
+import PaymentSelector from '../components/paymentSelector';
 
 interface UpiScreenProps {
     isUpiIntentVisible: boolean,
@@ -12,12 +14,14 @@ interface UpiScreenProps {
     selectedIntent: string | null,
     setSelectedIntent: (intent: string | null) => void,
     handleUpiPayment: () => void,
-    handleCollectPayment: (upiId: string) => void,
+    handleCollectPayment: (item: string, id: string) => void,
     upiCollectVisible: boolean,
-    setUpiCollectVisible: (selected: boolean) => void
+    setUpiCollectVisible: (selected: boolean) => void,
+    savedUpiArray: PaymentClass[],
+    onClickRadio: (item: string) => void
 }
 
-const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible, isPaytmVisible, isPhonePeVisible, isUpiCollectVisible, selectedIntent, setSelectedIntent, handleUpiPayment, handleCollectPayment, upiCollectVisible, setUpiCollectVisible }) => {
+const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible, isPaytmVisible, isPhonePeVisible, isUpiCollectVisible, selectedIntent, setSelectedIntent, handleUpiPayment, handleCollectPayment, upiCollectVisible, setUpiCollectVisible, savedUpiArray, onClickRadio }) => {
     const [upiCollectError, setUpiCollectError] = useState(false)
     const [upiCollectValid, setUpiCollectValid] = useState(false)
     const [upiCollectTextInput, setUpiCollectTextInput] = useState("")
@@ -48,10 +52,16 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
         <View>
             {(isUpiIntentVisible || isUpiCollectVisible) && (
                 <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={styles.addressText}>Pay by any UPI App</Text>
+                    <Text style={styles.addressText}>Pay by any UPI</Text>
                 </View>
             )}
             <View style={styles.intentBackground}>
+                {savedUpiArray.map((item, index) => (
+                    <View key={index}>
+                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={() => onClickRadio(item.id)} onProceedForward={() => handleCollectPayment(item.title, item.id)} errorImage={require("../../../assets/images/ic_upi.png")} isLastUsed={item.isLastUsed} />
+                        <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
+                    </View>
+                ))}
                 {isUpiIntentVisible && (
                     <View>
                         <View style={styles.upiIntentRow}>
@@ -279,7 +289,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                         {upiCollectValid ? (
                             <Pressable style={[styles.buttonContainer, { backgroundColor: checkoutDetails.brandColor }]} onPress={() => {
                                 if (upiCollectValid) {
-                                    handleCollectPayment(upiCollectTextInput)
+                                    handleCollectPayment(upiCollectTextInput, "")
                                 } else {
                                     setUpiCollectError(true)
                                 }
@@ -289,7 +299,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
                         ) : (
                             <Pressable style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' }]} onPress={() => {
                                 if (upiCollectValid) {
-                                    handleCollectPayment(upiCollectTextInput)
+                                    handleCollectPayment(upiCollectTextInput, "")
                                 } else {
                                     setUpiCollectError(true)
                                 }
