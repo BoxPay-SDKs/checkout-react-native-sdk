@@ -1,7 +1,7 @@
 {
   "name": "@boxpay/boxpay-checkout-react-native-sdk",
   "main": "expo-router/entry",
-  "version": "1.0.1-beta8",
+  "version": "1.0.1-beta9",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
