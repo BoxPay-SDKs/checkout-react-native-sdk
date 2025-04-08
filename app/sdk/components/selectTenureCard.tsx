@@ -25,7 +25,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({ duration, monthlyEm
         <View>
             {isSelected ? (
                 <View style={{ backgroundColor: "#EFF3FA" }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingTop: 14 }}>
+                    <Pressable style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingTop: 14 }} onPress={() => onRadioClick(duration, monthlyEmiAmount)}>
                         <RadioButton
                             value={monthlyEmiAmount}
                             status={isSelected ? 'checked' : 'unchecked'}
@@ -37,7 +37,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({ duration, monthlyEm
                             fontFamily: "Poppins-SemiBold",
                             fontSize: 14,
                             color: "#2D2B32"
-                        }} onPress={() => onRadioClick(duration, monthlyEmiAmount)}>
+                        }}>
                             {duration} months x
                             <Text style={{
                                 fontFamily: 'Inter-SemiBold',
@@ -57,7 +57,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({ duration, monthlyEm
                                 <Text style={styles.tagText}>NO COST EMI</Text>
                             </View>
                         )}
-                    </View>
+                    </Pressable>
                     <View style={{ borderColor: '#F1F1F1', borderWidth: 1 }}>
                         <View style={{
                             flexDirection: 'row',
@@ -104,7 +104,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({ duration, monthlyEm
                             </Text>
                             {discount != "0" && (
                                 <Text style={{ fontFamily: "Poppins-Medium", fontSize: 12, color: "#1CA672", flex: 1, textAlign: 'center' }} numberOfLines={2}>
-                                    <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: "#1CA672" }}> {currencySymbol}</Text>{discount}
+                                    <Text style={{ fontFamily: 'Inter-Regular', fontSize: 12, color: "#1CA672" }}> -{currencySymbol}</Text>{discount}
                                 </Text>
                             )}
                             <Text style={{ fontFamily: "Poppins-Medium", fontSize: 12, color: "#2D2B32", flex: 1, textAlign: 'center' }} numberOfLines={2}>

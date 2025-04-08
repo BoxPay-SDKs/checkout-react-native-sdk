@@ -146,6 +146,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
         };
         setLoadingState(true)
         const response = await upiPostRequest(requestPayload)
+        console.log(response)
         try {
             setStatus(response.status.status)
             setTransactionId(response.transactionId)
@@ -222,7 +223,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
             const instruments = instrumentsList.slice(0, 2).map((instrument: any, index: number) => ({
                 id: instrument.instrumentRef,
                 title: instrument.displayValue,
-                image: "///", // Add appropriate image logic if needed
+                image: instrument.logoUrl ? instrument.logoUrl : "///", // Add appropriate image logic if needed
                 instrumentTypeValue: instrument.type,
                 isSelected: false,
                 isLastUsed: index === 0, // Only the first item should have isLastUsed = true
@@ -231,7 +232,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
             const savedUpi = instrumentsList.map((instrument: any, index: number) => ({
                 id: instrument.instrumentRef,
                 title: instrument.displayValue,
-                image: "///", // Add appropriate image logic if needed
+                image: instrument.logoUrl ? instrument.logoUrl : "///", // Add appropriate image logic if needed
                 instrumentTypeValue: instrument.type,
                 isSelected: false,
                 isLastUsed: null
@@ -707,7 +708,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                     }}>
                                         {recommendedInstrumentsArray.map((item, index) => (
                                             <View key={index}>
-                                                <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={() => onClickRadio(item.id)} onProceedForward={() => handleUpiCollectPayment(item.title, item.id)} errorImage={require("../../assets/images/ic_upi.png")} isLastUsed={item.isLastUsed} />
+                                                <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={() => onClickRadio(item.id)} onProceedForward={() => handleUpiCollectPayment(item.title, item.id)} errorImage={require("../../assets/images/ic_upi.png")} isLastUsed={item.isLastUsed} scale={0.2} />
                                                 {index !== recommendedInstrumentsArray.length - 1 && (
                                                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                                 )}

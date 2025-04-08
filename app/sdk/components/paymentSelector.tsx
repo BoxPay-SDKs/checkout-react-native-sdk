@@ -14,10 +14,11 @@ interface PaymentSelectorProps {
     instrumentTypeValue: string;
     onPress: (id: string) => void;
     onProceedForward: (instrumentType: string) => void;
-    isLastUsed?: boolean | null
+    isLastUsed?: boolean | null,
+    scale: number
 }
 
-const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, onPress, onProceedForward, errorImage, isLastUsed }: PaymentSelectorProps) => {
+const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, onPress, onProceedForward, errorImage, isLastUsed, scale }: PaymentSelectorProps) => {
     const { checkoutDetails } = checkoutDetailsHandler
     const [error, setImageError] = useState(false)
     const [load, setLoad] = useState(true)
@@ -41,7 +42,7 @@ const PaymentSelector = ({ id, title, image, isSelected, instrumentTypeValue, on
                             uri={image}
                             width={100} // Keep original size
                             height={100}
-                            style={{ transform: [{ scale: 0.4 }] }}
+                            style={{ transform: [{ scale: scale }] }}
                             onLoad={() => setLoad(false)}
                             onError={() => {
                                 setImageError(true);

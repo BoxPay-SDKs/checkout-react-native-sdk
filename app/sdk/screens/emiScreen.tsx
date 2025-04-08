@@ -19,6 +19,7 @@ import { PaymentResult } from '../../../interface'
 import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import WebViewScreen from './webViewScreen';
 import fetchStatus from '../postRequest/fetchStatus';
+import { brand } from 'expo-device';
 
 const EmiScreen = () => {
     const [emiBankList, setEmiBankList] = useState<ChooseEmiModel>({ cards: [] });
@@ -88,10 +89,11 @@ const EmiScreen = () => {
                             lowApplicableOffer = discount.type === "LowCostEmi";
                         }
 
+
                         const bank: Bank = {
                             iconUrl: emiBankImage,
                             name: bankName,
-                            percent: noApplicableOffer ? emiMethod.interestRate : bankInterestRate,
+                            percent: noApplicableOffer ? emiMethod.merchantBorneInterestRate : bankInterestRate,
                             noCostApplied: noApplicableOffer,
                             lowCostApplied: lowApplicableOffer,
                             emiList: [],
@@ -99,9 +101,10 @@ const EmiScreen = () => {
                             issuerBrand: emiCardName === "Others" ? "" : emiMethod.issuer,
                         };
 
+
                         const emi: Emi = {
                             duration: emiMethod.duration,
-                            percent: noApplicableOffer ? emiMethod.interestRate : bankInterestRate,
+                            percent: noApplicableOffer ? emiMethod.merchantBorneInterestRate : bankInterestRate,
                             amount: emiMethod.emiAmountLocaleFull,
                             totalAmount: emiMethod.totalAmountLocaleFull,
                             discount: emiMethod.merchantBorneInterestAmountLocaleFull,
@@ -115,22 +118,6 @@ const EmiScreen = () => {
 
                         addBankDetails(emiCardName, bank, emi);
                     }
-                });
-
-                // 🔹 **Sort and set the EMI Bank List here**
-                setDefaultEmiBankList((prev) => {
-                    const sortedBankList: ChooseEmiModel = {
-                        cards: prev.cards.map(card => ({
-                            ...card,
-                            banks: [...card.banks].sort((a, b) => {
-                                if (b.noCostApplied !== a.noCostApplied) return b.noCostApplied ? 1 : -1;
-                                if (b.lowCostApplied !== a.lowCostApplied) return b.lowCostApplied ? 1 : -1;
-                                return a.name.localeCompare(b.name);
-                            }),
-                        })),
-                    };
-
-                    return sortedBankList;
                 });
 
             } catch (error) {
@@ -305,38 +292,63 @@ const EmiScreen = () => {
 
                 let updatedCards;
                 if (existingCardType) {
-                    const existingBank = existingCardType.banks.find(
+                    let updatedBanks = [...existingCardType.banks];
+                    const existingBankIndex = updatedBanks.findIndex(
                         (b) => b.name === bank.name && b.iconUrl === bank.iconUrl
                     );
 
-                    if (existingBank) {
+                    if (existingBankIndex !== -1) {
+                        const existingBank = { ...updatedBanks[existingBankIndex] };
                         const emiExists = existingBank.emiList.some(
                             (e) => e.duration === emi.duration && e.amount === emi.amount
                         );
 
                         if (!emiExists) {
-                            existingBank.emiList.push(emi);
+                            existingBank.emiList = [...existingBank.emiList, emi];
                             existingBank.noCostApplied ||= emi.noCostApplied;
                             existingBank.lowCostApplied ||= emi.lowCostApplied;
                             existingBank.percent = Math.min(existingBank.percent, bank.percent);
+
+                            updatedBanks[existingBankIndex] = existingBank;
                         }
                     } else {
-                        existingCardType.banks.push(bank);
+                        updatedBanks = [...updatedBanks, { ...bank, emiList: [emi] }];
                     }
 
-                    updatedCards = [...prev.cards];
+                    // 🔽 Sort updated banks inside card
+                    updatedBanks.sort((a, b) => {
+                        if (b.noCostApplied !== a.noCostApplied) return b.noCostApplied ? 1 : -1;
+                        if (b.lowCostApplied !== a.lowCostApplied) return b.lowCostApplied ? 1 : -1;
+                        return a.name.localeCompare(b.name);
+                    });
+
+                    updatedCards = prev.cards.map((card) =>
+                        card.cardType.toLowerCase() === cardType.toLowerCase()
+                            ? { ...card, banks: updatedBanks }
+                            : card
+                    );
                 } else {
                     updatedCards = [
                         ...prev.cards,
-                        { cardType, banks: [bank] }
+                        {
+                            cardType,
+                            banks: [
+                                { ...bank, emiList: [emi] }
+                            ]
+                        }
                     ];
                 }
 
-                updatedCards.sort((a, b) => (order[a.cardType as keyof typeof order] ?? 3) - (order[b.cardType as keyof typeof order] ?? 3));
+                // 🔽 Sort cards based on predefined order
+                updatedCards.sort(
+                    (a, b) =>
+                        (order[a.cardType as keyof typeof order] ?? 3) -
+                        (order[b.cardType as keyof typeof order] ?? 3)
+                );
 
                 const newEmiBankList = { ...prev, cards: updatedCards };
 
-                // **🔹 Update selectedCard after updating emiBankList**
+                // 🔽 Set default selected card
                 if (newEmiBankList.cards.some((card) => card.cardType.toLowerCase() === "credit card")) {
                     setSelectedCard("Credit Card");
                 } else if (newEmiBankList.cards.some((card) => card.cardType.toLowerCase() === "debit card")) {
@@ -344,7 +356,7 @@ const EmiScreen = () => {
                 } else if (newEmiBankList.cards.some((card) => card.cardType.toLowerCase() === "others")) {
                     setSelectedCard("Others");
                 } else {
-                    setSelectedCard(cardType); // Select newly added card type
+                    setSelectedCard(cardType);
                 }
 
                 return newEmiBankList;
@@ -353,6 +365,7 @@ const EmiScreen = () => {
 
         }
     };
+
 
     const onProceedBack = () => {
         router.back();
@@ -389,7 +402,8 @@ const EmiScreen = () => {
                 offerCode: offerCode,
                 amount: amount,
                 percent: percent,
-                cardType: selectedCard
+                cardType: selectedCard,
+                issuerBrand: selectedBank?.issuerBrand
             }
         })
     }
@@ -544,7 +558,7 @@ const EmiScreen = () => {
                                         <TextInput
                                             mode='outlined'
                                             label={
-                                                <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular', color: searchTextFocused ? '#2D2B32' : (searchText != "" && searchText != null) ? '#2D2B32' : '#ADACB0' }}>Search for bank</Text>
+                                                <Text style={{ fontSize: 16, fontFamily: 'Poppins-Regular', color: searchTextFocused ? '#2D2B32' : (searchText != "" && searchText != null) ? '#2D2B32' : '#ADACB0' }}>{selectedCard === "Others" ? "Search for other EMI options" : "Search for bank"}</Text>
                                             }
                                             value={searchText}
                                             onChangeText={(it) => {
@@ -576,14 +590,14 @@ const EmiScreen = () => {
                                         />
                                     </View>
                                 )}
-                                {isFilterExisted && (
+                                {(isFilterExisted && selectedCard != "Others") && (
                                     filterList.map(([item, isSelected], index) => (
                                         <View key={index} style={{ flexDirection: 'row', marginHorizontal: 16, marginTop: 20 }}>
-                                            <View style={{ borderColor: isSelected ? "#1CA672" : "#E6E6E6", borderWidth: 1, flexDirection: 'row', paddingVertical: 4, paddingHorizontal: 8, alignItems: 'baseline', borderRadius: 20, backgroundColor: isSelected ? "#E8F6F1" : "white" }}>
+                                            <View style={{ borderColor: isSelected ? "#1CA672" : "#E6E6E6", borderWidth: 1, flexDirection: 'row', paddingTop: 6, paddingBottom: 4, paddingHorizontal: 12, alignItems: 'baseline', borderRadius: 20, backgroundColor: isSelected ? "#E8F6F1" : "white" }}>
                                                 <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 12, color: '#2D2B32' }} onPress={() => {
                                                     getBanksByFilter(selectedCard, item)
                                                 }}>{item}</Text>
-                                                <Image source={require("../../../assets/images/add_icon.png")} style={{ height: 10, width: 10, marginStart: 4, }} />
+                                                <Image source={isSelected ? require("../../../assets/images/ic_cross.png") : require("../../../assets/images/add_icon.png")} style={{ height: 10, width: 10, marginStart: 4, tintColor: isSelected ? "#2D2B32" : '#7F7D83' }} />
                                             </View>
                                         </View>
                                     ))
@@ -600,7 +614,7 @@ const EmiScreen = () => {
                                         setCheckedOnce(true);
                                     }
                                 }}>
-                                <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>All Banks</Text>
+                                <Text style={{ marginTop: 16, marginBottom: 8, marginHorizontal: 16, color: '#020815B5', fontFamily: 'Poppins-SemiBold', fontSize: 14 }}>{selectedCard === "Others" ? "Others" : "All Banks"}</Text>
                                 <View
                                     style={{
                                         backgroundColor: 'white',
@@ -632,6 +646,7 @@ const EmiScreen = () => {
                                                                     onProceedForward()
                                                                 }}
                                                                 errorImage={require("../../../assets/images/ic_bnpl_semi_bold.png")}
+                                                                scale={0.4}
                                                             />
                                                         ) : (
                                                             <BankCard

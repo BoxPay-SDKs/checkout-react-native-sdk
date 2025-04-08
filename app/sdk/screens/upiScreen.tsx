@@ -58,7 +58,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({ isUpiIntentVisible, isGpayVisible
             <View style={styles.intentBackground}>
                 {savedUpiArray.map((item, index) => (
                     <View key={index}>
-                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={() => onClickRadio(item.id)} onProceedForward={() => handleCollectPayment(item.title, item.id)} errorImage={require("../../../assets/images/ic_upi.png")} isLastUsed={item.isLastUsed} />
+                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={() => onClickRadio(item.id)} onProceedForward={() => handleCollectPayment(item.title, item.id)} errorImage={require("../../../assets/images/ic_upi.png")} isLastUsed={item.isLastUsed} scale={0.2} />
                         <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                     </View>
                 ))}

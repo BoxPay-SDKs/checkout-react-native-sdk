@@ -20,7 +20,7 @@ import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 import emiPostRequest from '../postRequest/emiPostRequest';
 
 const CardScreen = () => {
-    const { duration, bankName, bankUrl, offerCode, amount, percent, cardType } = useLocalSearchParams();
+    const { duration, bankName, bankUrl, offerCode, amount, percent, cardType, issuerBrand } = useLocalSearchParams();
     const durationNumber = Array.isArray(duration) ? duration[0] : duration;
     const bankNameStr = Array.isArray(bankName) ? bankName[0] : bankName;
     const bankUrlStr = Array.isArray(bankUrl) ? bankUrl[0] : bankUrl;
@@ -81,8 +81,9 @@ const CardScreen = () => {
     const [imageError, setImageError] = useState(false)
 
     const [emiIssuerExist, setEmiIssuerExist] = useState(true)
+    const [emiIssuer, setEmiIssuer] = useState("")
 
-    const handleCardNumberTextChange = (text: string) => {
+    const handleCardNumberTextChange = async (text: string) => {
         if (text == "") {
             setCardNumberText(text);
         } else {
@@ -96,14 +97,14 @@ const CardScreen = () => {
                 if ((formatted.length == 18 && maxCardNumberLength == 18) || formatted.length == 19) {
                     if (!isValidCardNumberByLuhn(formatted.replace(/ /g, ''))) {
                         setCardNumberValid(false);
+                    } else {
+                        setCardNumberValid(true)
                     }
                 }
-                fetchCardDetails(checkoutDetails.token, checkoutDetails.env, formatted.replace(/ /g, '')).then((data) => {
+                await fetchCardDetails(checkoutDetails.token, checkoutDetails.env, formatted.replace(/ /g, '')).then((data) => {
                     if (durationNumber != undefined && durationNumber != "") {
                         setEmiIssuerExist(data.issuerName != "" && data.issuerName != null)
-                    }
-                    if (durationNumber != undefined && durationNumber != "") {
-                        setEmiIssuerExist(data.issuerName != "" && data.issuerName != null)
+                        setEmiIssuer(data.issuerName)
                     }
                     setMethodEnabled(data.methodEnabled);
                     if (data.paymentMethod.brand == "VISA") {
@@ -171,10 +172,8 @@ const CardScreen = () => {
     const handleCardNumberBlur = () => {
         const cleaned = cardNumberText?.replace(/ /g, '') || '';
         const cleanedLength = maxCardNumberLength == 19 ? 16 : 15;
-        setCardNumberErrorText(cleaned.length < 1 ? "Required" : (cleaned.length < cleanedLength && methodEnabled) ? "This card number is invalid" : (!methodEnabled) ? "This card is not supported for the payment" : (!cardNumberValid) ? "This card number is invalid" : (!emiIssuerExist) ? "We couldn't find any EMI plans for this card. Please try using a different card number" : "");
-        setCardNumberError((cleaned.length < cleanedLength) || !methodEnabled || !cardNumberValid || !emiIssuerExist);
-        setCardNumberErrorText(cleaned.length < 1 ? "Required" : (cleaned.length < cleanedLength && methodEnabled) ? "This card number is invalid" : (!methodEnabled) ? "This card is not supported for the payment" : (!cardNumberValid) ? "This card number is invalid" : (!emiIssuerExist) ? "We couldn't find any EMI plans for this card. Please try using a different card number" : "");
-        setCardNumberError((cleaned.length < cleanedLength) || !methodEnabled || !cardNumberValid || !emiIssuerExist);
+        setCardNumberErrorText(cleaned.length < 1 ? "Required" : (cleaned.length < cleanedLength && methodEnabled) ? "This card number is invalid" : (!methodEnabled) ? "This card is not supported for the payment" : (!cardNumberValid) ? "This card number is invalid" : (!emiIssuerExist) ? "We couldn't find any EMI plans for this card. Please try using a different card number" : (emiIssuer != issuerBrand) ? `The card is ${emiIssuer} ${cardType}. Please enter a card number that belongs to ${issuerBrand} ${cardType}` : "");
+        setCardNumberError((cleaned.length < cleanedLength) || !methodEnabled || !cardNumberValid || !emiIssuerExist || ((emiIssuer != issuerBrand) && durationNumber != undefined && durationNumber != ""));
         setCardNumberFocused(false);
     };
 
@@ -388,7 +387,6 @@ const CardScreen = () => {
                     cardHolderNameText || ""
                 );
             }
-
             setStatus(response.status.status);
             setTransactionId(response.transactionId);
 
@@ -408,41 +406,13 @@ const CardScreen = () => {
                             }
                         }
                     }
-                } else if (['FAILED', 'REJECTED'].includes(status)) {
-                    const reason = response.status.reason || "";
-                    const reasonCode = response.status.reasonCode || "";
-
-                    if (!reasonCode.startsWith("UF")) {
-                        paymentFailedMessage.current = checkoutDetails.errorMessage;
-                    } else {
-                        paymentFailedMessage.current = reason.includes(":")
-                            ? reason.split(":")[1]?.trim()
-                            : reason || checkoutDetails.errorMessage;
-                    }
-
+                } else {
+                    paymentFailedMessage.current = checkoutDetails.errorMessage;
                     setFailedModalState(true);
                     setStatus('Failed');
                     setLoading(false);
-                } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-                    setSuccessfulTimeStamp(response.transactionTimestampLocale);
-                    setSuccessModalState(true);
-                    setStatus('Success');
-                    setLoading(false);
-                } else if (status === 'EXPIRED') {
-                    setSessionExppireModalState(true);
-                    setLoading(false);
-                } else if (status === 'EXPIRED') {
-                    setSessionExppireModalState(true);
-                    setStatus('Expired');
-                    setLoading(false);
                 }
-            }
-        } catch (error) {
-            const reason = response.status.reason || "";
-            const reasonCode = response.status.reasonCode || "";
-
-            if (!reasonCode.startsWith("UF")) {
-                paymentFailedMessage.current = checkoutDetails.errorMessage;
+            } else if (['FAILED', 'REJECTED'].includes(status)) {
                 const reason = response.status.reason || "";
                 const reasonCode = response.status.reasonCode || "";
 
@@ -453,10 +423,36 @@ const CardScreen = () => {
                         ? reason.split(":")[1]?.trim()
                         : reason || checkoutDetails.errorMessage;
                 }
+
                 setFailedModalState(true);
                 setStatus('Failed');
                 setLoading(false);
+            } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+                setSuccessfulTimeStamp(response.transactionTimestampLocale);
+                setSuccessModalState(true);
+                setStatus('Success');
+                setLoading(false);
+            } else if (status === 'EXPIRED') {
+                setSessionExppireModalState(true);
+                setLoading(false);
+            } else if (status === 'EXPIRED') {
+                setSessionExppireModalState(true);
+                setStatus('Expired');
+                setLoading(false);
             }
+        } catch (error) {
+            const reasonCode = response.status.reasonCode || "";
+            const reason = response.status.reason || "";
+            if (!reasonCode.startsWith("UF")) {
+                paymentFailedMessage.current = checkoutDetails.errorMessage;
+            } else {
+                paymentFailedMessage.current = reason.includes(":")
+                    ? reason.split(":")[1]?.trim()
+                    : reason || checkoutDetails.errorMessage;
+            }
+            setFailedModalState(true);
+            setStatus('Failed');
+            setLoading(false);
         };
     };
 
