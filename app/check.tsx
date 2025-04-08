@@ -98,14 +98,14 @@ const requestBody = {
     phoneNumber: '+918520852085',
     email: 'ishika.bansal@boxpay.tech',
     uniqueReference: 'x123y',
-    // deliveryAddress: {
-    //   address1: 'House No - 5',
-    //   address2: 'Moti Nagar',
-    //   city: 'New Delhi',
-    //   state: 'Delhi',
-    //   countryCode: 'IN',
-    //   postalCode: '110015',
-    // },
+    deliveryAddress: {
+      address1: 'House No - 5',
+      address2: 'Moti Nagar',
+      city: 'New Delhi',
+      state: 'Delhi',
+      countryCode: 'IN',
+      postalCode: '110015',
+    },
     panNumber: 'CTGPA0002G',
   },
   order: {
