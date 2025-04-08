@@ -4,6 +4,7 @@ import * as Device from "expo-device";
 import { Platform } from "react-native";
 import axios from 'axios';
 import { userDataHandler } from "../sharedContext/userdataHandler";
+import { version } from '../../../package.json'
 
 const methodsPostRequest = async (
     instrumentDetails: string,
@@ -78,6 +79,8 @@ const methodsPostRequest = async (
         const response = await axios.post(API_URL, requestBody, {
             headers: {
                 'X-Request-Id': generateRandomAlphanumericString(10),
+                'X-Client-Connector-Name': "React Native SDK",
+                'X-Client-Connector-Version': version,
                 ...(checkoutDetails.shopperToken ? { Authorization: `Session ${checkoutDetails.shopperToken}` } : {}),
             },
         });

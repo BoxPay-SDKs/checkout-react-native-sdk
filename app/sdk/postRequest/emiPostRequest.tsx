@@ -4,6 +4,7 @@ import Constants from "expo-constants";
 import axios from 'axios';
 import { userDataHandler } from "../sharedContext/userdataHandler";
 import { checkoutDetailsHandler } from "../sharedContext/checkoutDetailsHandler";
+import { version } from '../../../package.json'
 
 const emiPostRequest = async (
     cardNumber: string,
@@ -105,6 +106,8 @@ const emiPostRequest = async (
         const response = await axios.post(API_URL, requestBody, {
             headers: {
                 'X-Request-Id': generateRandomAlphanumericString(10),
+                'X-Client-Connector-Name': "React Native SDK",
+                'X-Client-Connector-Version': version,
                 ...(checkoutDetails.shopperToken ? { Authorization: `Session ${checkoutDetails.shopperToken}` } : {}),
             },
         });
