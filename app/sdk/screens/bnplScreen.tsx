@@ -242,7 +242,7 @@ const BNPLScreen = () => {
                             <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginVertical: 16 }}>
                                 {bnplList.map((item, index) => (
                                     <View key={index}>
-                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_bnpl_semi_bold.png")} />
+                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_bnpl_semi_bold.png")} scale={0.4} />
                                         {index !== bnplList.length - 1 && (
                                             <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                         )}

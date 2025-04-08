@@ -95,6 +95,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const subTotalAmountRef = useRef("")
     const orderItemsArrayRef = useRef<ItemsProp[]>([])
     const [recommendedInstrumentsArray, setRecommendedInstruments] = useState<PaymentClass[]>([])
+    const [savedUpiArray, setSavedUpiArray] = useState<PaymentClass[]>([])
     const [upiCollectVisible, setUpiCollectVisible] = useState(false)
 
     const handlePaymentIntent = async () => {
@@ -145,6 +146,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
         };
         setLoadingState(true)
         const response = await upiPostRequest(requestPayload)
+        console.log(response)
         try {
             setStatus(response.status.status)
             setTransactionId(response.transactionId)
@@ -216,18 +218,28 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
             const response = await fetchRecommendedInstruments();
 
             // Ensure response is an array; default to an empty array if null/undefined
-            const instrumentsList = Array.isArray(response) ? response.slice(0, 2) : [];
+            const instrumentsList = Array.isArray(response) ? response : [];
 
-            const instruments = instrumentsList.map((instrument: any, index: number) => ({
+            const instruments = instrumentsList.slice(0, 2).map((instrument: any, index: number) => ({
                 id: instrument.instrumentRef,
                 title: instrument.displayValue,
-                image: "///", // Add appropriate image logic if needed
+                image: instrument.logoUrl ? instrument.logoUrl : "///", // Add appropriate image logic if needed
                 instrumentTypeValue: instrument.type,
                 isSelected: false,
                 isLastUsed: index === 0, // Only the first item should have isLastUsed = true
             }));
 
+            const savedUpi = instrumentsList.map((instrument: any, index: number) => ({
+                id: instrument.instrumentRef,
+                title: instrument.displayValue,
+                image: instrument.logoUrl ? instrument.logoUrl : "///", // Add appropriate image logic if needed
+                instrumentTypeValue: instrument.type,
+                isSelected: false,
+                isLastUsed: null
+            }));
+
             setRecommendedInstruments(instruments);
+            setSavedUpiArray(savedUpi)
         } catch (error) {
             setRecommendedInstruments([]); // Ensure the list is explicitly set to empty
         } finally {
@@ -538,6 +550,18 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
         setRecommendedInstruments(updatedList);
         setSelectedIntent(null)
         setUpiCollectVisible(false)
+        setDefaultSavedUpiList()
+    }
+
+    const onClickSavedRadio = (instrumentValue: string) => {
+        const updatedList = savedUpiArray.map((item) => ({
+            ...item,
+            isSelected: item.id === instrumentValue
+        }));
+        setSavedUpiArray(updatedList);
+        setSelectedIntent(null)
+        setDefaultRecommendedList()
+        setUpiCollectVisible(false)
     }
 
     const setDefaultRecommendedList = () => {
@@ -546,6 +570,14 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
             isSelected: false
         }));
         setRecommendedInstruments(updatedList)
+    }
+
+    const setDefaultSavedUpiList = () => {
+        const updatedList = savedUpiArray.map((item) => ({
+            ...item,
+            isSelected: false
+        }));
+        setSavedUpiArray(updatedList)
     }
 
     function startCountdown(sessionExpiryTimestamp: string) {
@@ -676,7 +708,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                     }}>
                                         {recommendedInstrumentsArray.map((item, index) => (
                                             <View key={index}>
-                                                <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={() => onClickRadio(item.id)} onProceedForward={() => handleUpiCollectPayment(item.title, item.id)} errorImage={require("../../assets/images/ic_upi.png")} isLastUsed={item.isLastUsed} />
+                                                <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={() => onClickRadio(item.id)} onProceedForward={() => handleUpiCollectPayment(item.title, item.id)} errorImage={require("../../assets/images/ic_upi.png")} isLastUsed={item.isLastUsed} scale={0.2} />
                                                 {index !== recommendedInstrumentsArray.length - 1 && (
                                                     <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                                 )}
@@ -696,12 +728,17 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                 setSelectedIntent={(it) => {
                                     setSelectedIntent(it)
                                     setDefaultRecommendedList()
+                                    setDefaultSavedUpiList()
                                 }}
                                 handleUpiPayment={handlePaymentIntent}
-                                handleCollectPayment={(it) => handleUpiCollectPayment(it, "")}
+                                handleCollectPayment={(item: string, id: string) => handleUpiCollectPayment(item, id)}
                                 upiCollectVisible={upiCollectVisible}
                                 setUpiCollectVisible={(it) => {
                                     setUpiCollectVisible(it)
+                                }}
+                                savedUpiArray={savedUpiArray}
+                                onClickRadio={(it) => {
+                                    onClickSavedRadio(it)
                                 }}
                             />
                             <View>

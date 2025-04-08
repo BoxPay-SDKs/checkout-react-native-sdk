@@ -362,6 +362,7 @@ const NetBankingScreen = () => {
                                                 onPress={onClickPopularBank}
                                                 onProceedForward={onProceedForward}
                                                 errorImage={require("../../../assets/images/ic_netbanking_semi_bold.png")}
+                                                scale={0.4}
                                             />
                                             {index !== popularNetBankingList.length - 1 && (
                                                 <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
@@ -377,7 +378,7 @@ const NetBankingScreen = () => {
                             <View style={{ marginHorizontal: 16, backgroundColor: 'white', borderColor: "#F1F1F1", borderWidth: 1, borderRadius: 12, marginBottom: 32 }}>
                                 {netBankingList.map((item, index) => (
                                     <View key={index}>
-                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_netbanking_semi_bold.png")} />
+                                        <PaymentSelector id={item.id} title={item.title} image={item.image} isSelected={item.isSelected} instrumentTypeValue={item.instrumentTypeValue} onPress={onClickRadioButton} onProceedForward={onProceedForward} errorImage={require("../../../assets/images/ic_netbanking_semi_bold.png")} scale={0.4} />
                                         {index !== netBankingList.length - 1 && (
                                             <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
                                         )}

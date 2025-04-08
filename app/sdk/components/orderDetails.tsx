@@ -56,7 +56,6 @@ const OrderDetails = ({ totalAmount, itemsArray, subTotalAmount, shippingAmount,
                     marginHorizontal: 16,
                     marginVertical: 8,
                     paddingVertical: 16,
-                    paddingHorizontal: 12,
                     backgroundColor: "white",
                     borderRadius: 12,
                 }}>
@@ -64,7 +63,8 @@ const OrderDetails = ({ totalAmount, itemsArray, subTotalAmount, shippingAmount,
                         <View style={{
                             flexDirection: 'row',
                             justifyContent: 'space-between',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            paddingHorizontal: 12
                         }}>
                             <Text style={{
                                 fontSize: 14, color: "#363840",
@@ -82,7 +82,7 @@ const OrderDetails = ({ totalAmount, itemsArray, subTotalAmount, shippingAmount,
                         </View>
                     </Pressable>
                     <View style={{ height: scrollHeight, overflow: 'hidden', marginTop: 12 }}>
-                        <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={false}>
+                        <ScrollView nestedScrollEnabled={true} showsVerticalScrollIndicator={true} style={{ paddingHorizontal: 12, }}>
                             {itemsArray.map((item, index) => (
                                 <View key={index} style={{ flexDirection: 'row', marginBottom: 8, alignItems: 'flex-start' }}>
                                     {/* Image */}
@@ -126,18 +126,20 @@ const OrderDetails = ({ totalAmount, itemsArray, subTotalAmount, shippingAmount,
                         </ScrollView>
                     </View>
 
+                    {(subTotalAmount != "" || taxAmount != "" || shippingAmount != "") && (
+                        <View style={{
+                            borderBottomWidth: 1.5, // Thickness of the line
+                            borderBottomColor: '#E6E6E6', // Color of the line
+                            borderStyle: 'dashed', // Makes it dashed
+                            width: '100%', // Full width
+                            marginVertical: 10,
+                            marginTop: 4,
+                        }} />
+                    )}
 
 
-                    <View style={{
-                        borderBottomWidth: 1.5, // Thickness of the line
-                        borderBottomColor: '#E6E6E6', // Color of the line
-                        borderStyle: 'dashed', // Makes it dashed
-                        width: '100%', // Full width
-                        marginVertical: 10,
-                        marginTop: 4
-                    }} />
                     {subTotalAmount != "" && (
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, paddingHorizontal: 12, }}>
                             <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, color: "#2D2B32" }}>Subtotal</Text>
                             <Text style={{
                                 fontFamily: 'Poppins-SemiBold',
@@ -153,7 +155,7 @@ const OrderDetails = ({ totalAmount, itemsArray, subTotalAmount, shippingAmount,
                         </View>
                     )}
                     {taxAmount != "" && (
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, paddingHorizontal: 12, }}>
                             <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, color: "#2D2B32" }}>Tax</Text>
                             <Text style={{
                                 fontFamily: 'Poppins-SemiBold',
@@ -169,7 +171,7 @@ const OrderDetails = ({ totalAmount, itemsArray, subTotalAmount, shippingAmount,
                         </View>
                     )}
                     {shippingAmount != "" && (
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, paddingHorizontal: 12, }}>
                             <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 14, color: "#2D2B32" }}>Shipping Amount</Text>
                             <Text style={{
                                 fontFamily: 'Poppins-SemiBold',
@@ -184,7 +186,7 @@ const OrderDetails = ({ totalAmount, itemsArray, subTotalAmount, shippingAmount,
                             </Text>
                         </View>
                     )}
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F1F1F1', paddingHorizontal: 8, paddingVertical: 12, borderRadius: 8 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#F1F1F1', paddingHorizontal: 8, paddingVertical: 12, borderRadius: 8, marginHorizontal: 12, }}>
                         <Text style={{ fontFamily: 'Poppins-SemiBold', fontSize: 16, color: "#1D1C20" }}>Total</Text>
                         <Text style={{
                             fontFamily: 'Poppins-SemiBold',

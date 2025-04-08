@@ -14,7 +14,7 @@ const fetchCardDetails = async (
 
     const API_URL = `https://${endpoint}/v0/checkout/sessions/${token}/bank-identification-numbers/${cardNumber}`;
     try {
-        const response = await axios.get(API_URL, {});
+        const response = await axios.post(API_URL, {});
 
         const data = await response.data;
         return data;

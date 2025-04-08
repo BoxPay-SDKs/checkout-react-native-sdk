@@ -23,6 +23,22 @@ const cardPostRequest = async (
         const [month, year] = input.split('/');
         return `20${year}-${month}`;
     };
+    const isDeliveryAddressEmpty = (address: any): boolean => {
+        return Object.values(address).every(
+            (value) => value === null || value === undefined || value === ""
+        );
+    };
+
+    const deliveryAddress = {
+        address1: userData.address1,
+        address2: userData.address2,
+        city: userData.city,
+        state: userData.state,
+        countryCode: userData.country,
+        postalCode: userData.pincode,
+        labelType: userData.labelType,
+        labelName: userData.labelName,
+    };
     const requestBody = {
         browserData: {
             screenHeight: Constants.platform?.ios?.screenHeight || Constants.platform?.android?.screenHeight || 0,
@@ -54,16 +70,7 @@ const cardPostRequest = async (
             uniqueReference: userData.uniqueId,
             dateOfBirth: userData.dob,
             panNumber: userData.pan,
-            deliveryAddress: {
-                address1: userData.address1,
-                address2: userData.address2,
-                city: userData.city,
-                state: userData.state,
-                countryCode: userData.country,
-                postalCode: userData.pincode,
-                labelType: userData.labelType,
-                labelName: userData.labelName
-            }
+            deliveryAddress: isDeliveryAddressEmpty(deliveryAddress) ? null : deliveryAddress,
         },
         deviceDetails: {
             browser: Platform.OS,

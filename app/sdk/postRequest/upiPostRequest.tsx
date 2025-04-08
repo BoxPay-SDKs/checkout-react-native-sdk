@@ -15,6 +15,23 @@ const upiPostRequest = async (
     : checkoutDetails.env === 'sandbox'
       ? 'sandbox-apis.boxpay.tech'
       : 'apis.boxpay.in';
+
+  const isDeliveryAddressEmpty = (address: any): boolean => {
+    return Object.values(address).every(
+      (value) => value === null || value === undefined || value === ""
+    );
+  };
+
+  const deliveryAddress = {
+    address1: userData.address1,
+    address2: userData.address2,
+    city: userData.city,
+    state: userData.state,
+    countryCode: userData.country,
+    postalCode: userData.pincode,
+    labelType: userData.labelType,
+    labelName: userData.labelName,
+  };
   const requestBody = {
     browserData: {
       screenHeight: Constants.platform?.ios?.screenHeight || Constants.platform?.android?.screenHeight || 0,
@@ -38,16 +55,7 @@ const upiPostRequest = async (
       uniqueReference: userData.uniqueId,
       dateOfBirth: userData.dob,
       panNumber: userData.pan,
-      deliveryAddress: {
-        address1: userData.address1,
-        address2: userData.address2,
-        city: userData.city,
-        state: userData.state,
-        countryCode: userData.country,
-        postalCode: userData.pincode,
-        labelType: userData.labelType,
-        labelName: userData.labelName
-      }
+      deliveryAddress: isDeliveryAddressEmpty(deliveryAddress) ? null : deliveryAddress,
     },
     deviceDetails: {
       browser: Platform.OS,
@@ -57,7 +65,6 @@ const upiPostRequest = async (
       deviceBrandName: Device.brand || "Unknown",
     },
   };
-
   const API_URL = `https://${endpoint}/v0/checkout/sessions/${checkoutDetails.token}`;
   try {
     const response = await axios.post(API_URL, requestBody, {

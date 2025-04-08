@@ -41,6 +41,22 @@ const emiPostRequest = async (
             }
         };
 
+    const isDeliveryAddressEmpty = (address: any): boolean => {
+        return Object.values(address).every(
+            (value) => value === null || value === undefined || value === ""
+        );
+    };
+
+    const deliveryAddress = {
+        address1: userData.address1,
+        address2: userData.address2,
+        city: userData.city,
+        state: userData.state,
+        countryCode: userData.country,
+        postalCode: userData.pincode,
+        labelType: userData.labelType,
+        labelName: userData.labelName,
+    };
     const { checkoutDetails } = checkoutDetailsHandler
     const endpoint: string = checkoutDetails.env === 'test'
         ? 'test-apis.boxpay.tech'
@@ -73,16 +89,7 @@ const emiPostRequest = async (
             uniqueReference: userData.uniqueId,
             dateOfBirth: userData.dob,
             panNumber: userData.pan,
-            deliveryAddress: {
-                address1: userData.address1,
-                address2: userData.address2,
-                city: userData.city,
-                state: userData.state,
-                countryCode: userData.country,
-                postalCode: userData.pincode,
-                labelType: userData.labelType,
-                labelName: userData.labelName
-            }
+            deliveryAddress: isDeliveryAddressEmpty(deliveryAddress) ? null : deliveryAddress,
         },
         deviceDetails: {
             browser: Platform.OS,
