@@ -5,14 +5,16 @@ import { Modal } from 'react-native';
 import { FlatList } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { Button } from 'react-native';
-import BoxpayCheckout, { setTestEnv } from './(boxpayCheckout)';
-import { setPaymentHandler } from './(boxpayCheckout)/(sharedContext)/paymentStatusHandler';
+import BoxpayCheckout, { setTestEnv } from './sdk';
+import { PaymentResult, ConfigurationOptions } from '@/interface';
 
 const EnterTokenScreen = () => {
   const [tokenTextInput, setTokenTextInput] = useState("");
+  const [shopperTokenTextInput, setShopperTokenTextInput] = useState("");
   const [environment, setEnvironment] = useState("test");
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [token, setToken] = useState<string | null>(null);
+  const [shopperToken, setShopperToken] = useState<string | null>(null);
 
   const environments = [
     { label: "Test", value: "test" },
@@ -30,17 +32,15 @@ const EnterTokenScreen = () => {
   };
 
   const handleProceedPress = () => {
+    setShopperToken(shopperTokenTextInput)
     setToken(tokenTextInput)
   };
 
-  const handlePaymentResult = (result: { status: String; transactionId: string }) => {
+  const handlePaymentResult = (result: PaymentResult) => {
     alert(`Payment ${result.status} :  + ${result.transactionId}`);
   };
 
   useEffect(() => {
-    setPaymentHandler({
-      onPaymentResult: handlePaymentResult,
-    });
     setTestEnv({
       testEnv: environment == "test"
     })
@@ -51,7 +51,12 @@ const EnterTokenScreen = () => {
       {token ? (
         <BoxpayCheckout
           token={token}
-          sandboxEnv={environment == "sandbox"}
+          configurationOptions={{
+            [ConfigurationOptions.ShowBoxpaySuccessScreen]: true,
+            [ConfigurationOptions.EnableSandboxEnv]: environment == "sandbox"
+          }}
+          onPaymentResult={handlePaymentResult}
+          shopperToken={shopperToken}
         />
       ) : (
         <View style={styles.container}>
@@ -61,6 +66,15 @@ const EnterTokenScreen = () => {
             value={tokenTextInput}
             onChangeText={(it) => {
               setTokenTextInput(it);
+            }}
+            style={styles.textInput}
+          />
+          <TextInput
+            mode="outlined"
+            label="Enter Shopper Token"
+            value={shopperTokenTextInput}
+            onChangeText={(it) => {
+              setShopperTokenTextInput(it);
             }}
             style={styles.textInput}
           />
