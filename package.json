@@ -1,6 +1,6 @@
 {
-  "name": "@boxpay/boxpay-checkout-react-native-sdk",
-  "main": "expo-router/entry",
+  "name": "@boxpay/checkout-react-native-sdk",
+  "main": ".app/sdk/index.tsx",
   "version": "1.0.3",
   "scripts": {
     "start": "expo start",
