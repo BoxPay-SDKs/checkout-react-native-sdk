@@ -95,7 +95,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const [savedUpiArray, setSavedUpiArray] = useState<PaymentClass[]>([])
     const [upiCollectVisible, setUpiCollectVisible] = useState(false)
 
-    const isFirstTimeLoadRef = useRef(true)
+    let isFirstTimeLoadRef = true
 
     const handlePaymentIntent = async () => {
         setLoadingState(true)
@@ -202,8 +202,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
 
     useFocusEffect(
         useCallback(() => {
-            if (isFirstTimeLoadRef.current) {
-                isFirstTimeLoadRef.current = false;
+            if (isFirstTimeLoadRef) {
+                isFirstTimeLoadRef = false;
                 return;
             }
 
