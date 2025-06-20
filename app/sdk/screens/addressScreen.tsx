@@ -122,10 +122,10 @@ const AddressScreen = () => {
     };
 
     const onChangeMobileNumber = (updatedText: string) => {
-        setPhoneNumberTextField(updatedText)
+        setPhoneNumberTextField(updatedText);
         const trimmedText = updatedText.trim();
-        const mobileNumberRegex = new RegExp(mobileRegex); // numberRegex should be a string pattern
-
+        const mobileNumberRegex = new RegExp(mobileRegex);
+    
         if (trimmedText === "") {
             setMobileNumberErrorText("Required");
             setIsPhoneNumberValid(true);
@@ -134,13 +134,21 @@ const AddressScreen = () => {
             trimmedText.length > maxPhoneNumberLength ||
             !mobileNumberRegex.test(trimmedText)
         ) {
-            setMobileNumberErrorText(`Mobile number must be ${maxPhoneNumberLength} digits`);
+            let lengthMsg = "";
+    
+            if (minPhoneNumberLength !== maxPhoneNumberLength) {
+                lengthMsg = `Mobile number must be between ${minPhoneNumberLength} and ${maxPhoneNumberLength} digits`;
+            } else {
+                lengthMsg = `Mobile number must be ${maxPhoneNumberLength} digits`;
+            }
+    
+            setMobileNumberErrorText(lengthMsg);
             setIsPhoneNumberValid(true);
         } else {
             setMobileNumberErrorText("");
             setIsPhoneNumberValid(false);
         }
-    };
+    };    
 
     function extractNames(fullName: string): { firstName: string; lastName: string } {
         const components = fullName.trim().split(" ").filter(part => part !== "");
@@ -267,7 +275,6 @@ const AddressScreen = () => {
         // Full Name
         const fullNameTrimmed = safeTrim(fullNameTextField);
         const fullNameValid = fullNameTrimmed !== "" && isFullNameEnabled;
-        setIsFullNameValid(fullNameValid);
         if (!fullNameValid) {
             onChangeFullName(fullNameTextField);
             isAllValid = false;
@@ -281,7 +288,6 @@ const AddressScreen = () => {
             mobileTrimmed.length <= maxPhoneNumberLength &&
             mobileRegex.test(mobileTrimmed) &&
             isPhoneNumberEnabled;
-        setIsPhoneNumberValid(mobileValid);
         if (!mobileValid) {
             onChangeMobileNumber(phoneNumberTextField);
             isAllValid = false;
@@ -292,7 +298,6 @@ const AddressScreen = () => {
         ; // Replace with your emailRegex if defined
         const emailValid =
             emailTrimmed !== "" && emailRegex.test(emailTrimmed) && isEmailEnabled;
-        setIsEmailValid(emailValid);
         if (!emailValid) {
             onChangeEmailId(emailTextField);
             isAllValid = false;
@@ -308,7 +313,6 @@ const AddressScreen = () => {
             } else {
                 postalValid = postalTrimmed !== "";
             }
-            setIsPinValid(postalValid);
             if (!postalValid) {
                 onChangePostalCode(pinTextField);
                 isAllValid = false;
@@ -317,7 +321,6 @@ const AddressScreen = () => {
             // City
             const cityTrimmed = safeTrim(cityTextField);
             const cityValid = cityTrimmed !== "";
-            setIsCityValid(cityValid);
             if (!cityValid) {
                 onChangeCity(cityTextField);
                 isAllValid = false;
@@ -326,7 +329,6 @@ const AddressScreen = () => {
             // State
             const stateTrimmed = safeTrim(stateTextField);
             const stateValid = stateTrimmed !== "";
-            setIsStateValid(stateValid);
             if (!stateValid) {
                 onChangeState(stateTextField);
                 isAllValid = false;
@@ -335,7 +337,6 @@ const AddressScreen = () => {
             // Main Address
             const addressTrimmed = safeTrim(mainAddressTextField);
             const addressValid = addressTrimmed !== "";
-            setIsMainAddressValid(addressValid);
             if (!addressValid) {
                 onChangeMainAddress(mainAddressTextField);
                 isAllValid = false;
@@ -401,12 +402,13 @@ const AddressScreen = () => {
             <StatusBar barStyle="dark-content" />
             <Header onBackPress={onProceedBack} showDesc={false} showSecure={false} text={isShippingEnabled ? 'Add Address' : 'Add Personal Details'} />
             <View style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }} />
-            <ScrollView
-                keyboardShouldPersistTaps="handled">
+            <ScrollView>
                 <View>
-
                     {isShippingEnabled && (
                         <>
+                            <Pressable onPress={()=> {
+                                setCountryNameDropdownVisible(true);
+                            }}>
                             <TextInput
                                 mode="outlined"
                                 label={
@@ -423,9 +425,6 @@ const AddressScreen = () => {
                                 value={countryTextField || ''}
                                 onChangeText={(it) => onChangeCountryTextField(it)}
                                 editable={false} // disables keyboard input
-                                onPressIn={() => {
-                                    setCountryNameDropdownVisible(true);
-                                }}
                                 theme={{
                                     colors: {
                                         primary: '#2D2B32',
@@ -453,6 +452,7 @@ const AddressScreen = () => {
                                     />
                                 }
                             />
+                            </Pressable>
 
                             {countryNameDropdownDataVisible && (
                                 <View
@@ -576,10 +576,8 @@ const AddressScreen = () => {
                                     }}
                                     onBlur={() => {
                                         setPhoneTextFieldFocused(false)
-                                        setPhoneCodeDropdownDataVisible(false)
                                     }}
                                 />
-                                <View></View>
                                 <TextInput
                                     mode="outlined"
                                     label={
@@ -691,8 +689,8 @@ const AddressScreen = () => {
                     )}
                     {isShippingEnabled && (
                         <>
-                            <View style={{ flex: 1, flexDirection: "row", marginTop: 20, marginHorizontal: 16 }}>
-                                <View>
+                            <View style={{ flex: 1, flexDirection: "row", marginTop: 20, marginHorizontal: 16,alignItems: 'flex-start' }}>
+                                <View style = {{flex:1}}>
                                     <TextInput
                                         mode='outlined'
                                         label={
@@ -708,7 +706,7 @@ const AddressScreen = () => {
                                                 outline: '#E6E6E6',
                                             }
                                         }}
-                                        style={[styles.textInput, { flex: 1 }]}
+                                        style={[styles.textInput]}
                                         error={isPinValid}
                                         outlineStyle={{
                                             borderRadius: 8,  // Add this
@@ -723,10 +721,10 @@ const AddressScreen = () => {
                                         }}
                                     />
                                     {isPinValid && (
-                                        <Text style={{ fontSize: 12, fontFamily: 'Poppins-Regular', color: '#E12121' }}>{pinCodeErrorText}</Text>
+                                        <Text style={{ fontSize: 12, fontFamily: 'Poppins-Regular', color: '#E12121',alignSelf: 'flex-start' }}>{pinCodeErrorText}</Text>
                                     )}
                                 </View>
-                                <View>
+                                <View style = {{flex:1}}>
                                     <TextInput
                                         mode='outlined'
                                         label={
@@ -742,7 +740,7 @@ const AddressScreen = () => {
                                                 outline: '#E6E6E6',
                                             }
                                         }}
-                                        style={[styles.textInput, { flex: 1, marginStart: 8 }]}
+                                        style={[styles.textInput, { marginStart: 8 }]}
                                         error={isCityValid}
                                         outlineStyle={{
                                             borderRadius: 8,  // Add this
@@ -756,7 +754,7 @@ const AddressScreen = () => {
                                         }}
                                     />
                                     {isCityValid && (
-                                        <Text style={{ fontSize: 12, fontFamily: 'Poppins-Regular', color: '#E12121' }}>{cityErrorText}</Text>
+                                        <Text style={{ fontSize: 12, fontFamily: 'Poppins-Regular', color: '#E12121',alignSelf: 'flex-start' }}>{cityErrorText}</Text>
                                     )}
                                 </View>
                             </View>
