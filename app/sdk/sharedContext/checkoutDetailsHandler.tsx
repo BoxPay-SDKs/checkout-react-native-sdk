@@ -13,7 +13,21 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
         env: "",
         itemsLength: 0,
         errorMessage: "",
-        shopperToken: null
+        shopperToken: null,
+        isSuccessScreenVisible: false,
+        isShippingAddressEnabled: false,
+        isShippingAddressEditable: false,
+        isFullNameEnabled: false,
+        isFullNameEditable: false,
+        isEmailEnabled: false,
+        isEmailEditable: false,
+        isPhoneEnabled: false,
+        isPhoneEditable: false,
+        isPanEnabled: false,
+        isPanEditable: false,
+        isDOBEnabled: false,
+        isDOBEditable: false,
+        showSuccessScreen : false
     }
 };
 

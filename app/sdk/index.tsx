@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, BackHandler, ToastAndroid, AppState, Image, ScrollView, Pressable, StatusBar } from 'react-native'; // Added ScrollView
 import Header from './components/header';
 import axios from 'axios';
@@ -12,12 +12,12 @@ import PaymentFailed from './components/paymentFailed';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
 import fetchStatus from './postRequest/fetchStatus';
 import UpiScreen from './screens/upiScreen';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { paymentHandler, setPaymentHandler } from "./sharedContext/paymentStatusHandler";
 import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
 import { checkInstalledApps } from 'expo-check-installed-apps';
 import MorePaymentContainer from './components/morePaymentContainer';
-import { setUserDataHandler } from './sharedContext/userdataHandler';
+import { setUserDataHandler, userDataHandler } from './sharedContext/userdataHandler';
 import { ConfigurationOptions, PaymentResult } from '../../interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './sharedContext/checkoutDetailsHandler';
 import WebViewScreen from './screens/webViewScreen';
@@ -53,6 +53,13 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const [appState] = useState(AppState.currentState);
     const [isGpayInstalled, setIsGpayInstalled] = useState(false)
     const [isAddressVisible, setIsAddressVisible] = useState(false)
+    const [isAddressEditable, setisAddressEditable] = useState(false)
+    const [isNameVisible, setIsNameVisible] = useState(false)
+    const [isPhoneNumberVisible, setIsPhoneNumberVisible] = useState(false)
+    const [isEmailVisible, setIsEmailVisible] = useState(false)
+    const [isNameEditable, setIsNameEditable] = useState(false)
+    const [isPhoneEditable, setIsPhoneEditable] = useState(false)
+    const [isEmailEditable, setIsEmailEditable] = useState(false)
     const [isPhonePeInstalled, setIsPhonePeInstalled] = useState(false)
     const [isPaytmInstalled, setIsPaytmInstalled] = useState(false)
     const [loadingState, setLoadingState] = useState(false)
@@ -62,21 +69,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const totalItemsRef = useRef(0)
     const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
     const [primaryButtonColor, setPrimaryButtonColor] = useState("#1CA672")
-    const emailRef = useRef(null)
-    const firstNameRef = useRef(null)
-    const lastNameRef = useRef(null)
-    const labelTypeRef = useRef(null)
-    const labelNameRef = useRef(null)
-    const uniqueIdRef = useRef(null)
-    const phoneRef = useRef(null)
-    const dobRef = useRef(null)
-    const panRef = useRef(null)
-    const address1Ref = useRef(null)
-    const address2Ref = useRef(null)
-    const cityRef = useRef(null)
-    const stateRef = useRef(null)
-    const postalCodeRef = useRef(null)
-    const countryCodeRef = useRef(null)
+    const [email, setEmail] = useState<string | null>(null)
+    const [firstName, setFirstName] = useState<string | null>(null)
+    const [lastName, setLastName] = useState<string | null>(null)
+    const [labelType, setLabelType] = useState<string | null>(null)
+    const [labelName, setLabelName] = useState<string | null>(null)
+    const [phone, setPhone] = useState<string | null>(null)
     const [address, setAddress] = useState("")
     const [failedModalOpen, setFailedModalState] = useState(false)
     const [successModalOpen, setSuccessModalState] = useState(false)
@@ -85,7 +83,6 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false)
     const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("")
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-    let backgroundApiInterval: NodeJS.Timeout;
     const [showWebView, setShowWebView] = useState(false)
     const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
     const [paymentHtml, setPaymentHtml] = useState<string | null>(null)
@@ -97,6 +94,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
     const [recommendedInstrumentsArray, setRecommendedInstruments] = useState<PaymentClass[]>([])
     const [savedUpiArray, setSavedUpiArray] = useState<PaymentClass[]>([])
     const [upiCollectVisible, setUpiCollectVisible] = useState(false)
+
+    let isFirstTimeLoadRef = true
 
     const handlePaymentIntent = async () => {
         setLoadingState(true)
@@ -200,6 +199,35 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
             }
         })
     }
+
+    useFocusEffect(
+        useCallback(() => {
+            if (isFirstTimeLoadRef) {
+                isFirstTimeLoadRef = false;
+                return;
+            }
+
+            const refreshData = () => {
+                setFirstName(userDataHandler.userData.firstName)
+                setLastName(userDataHandler.userData.lastName)
+                setPhone(userDataHandler.userData.phone)
+                setEmail(userDataHandler.userData.email)
+                const address1Ref = userDataHandler.userData.address1
+                const address2Ref = userDataHandler.userData.address2
+                const cityRef = userDataHandler.userData.city
+                const stateRef = userDataHandler.userData.state
+                const postalCodeRef = userDataHandler.userData.pincode
+
+                if (address2Ref == null || address2Ref == "") {
+                    setAddress(`${address1Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`)
+                } else {
+                    setAddress(`${address1Ref}, ${address2Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`)
+                }
+            }
+
+            refreshData();
+        }, [])
+    )
 
 
     const urlToBase64 = (base64String: string) => {
@@ -416,6 +444,12 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
         })
     }
 
+    const navigateToAddressScreen = () => {
+        router.push({
+            pathname: "/sdk/screens/addressScreen"
+        })
+    }
+
     useEffect(() => {
         const fetchPaymentMethods = async () => {
             // const endpoint: string = testEnv
@@ -428,9 +462,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                 setIsFirstLoading(true);
                 const response = await axios.get(`https://${endpoint}/v0/checkout/sessions/${tokenState.current}`);
                 const paymentMethods = response.data.configs.paymentMethods;
-                const enabledFields = response.data.configs.additionalFieldSets
+                const enabledFields = response.data.configs.enabledFields
                 const paymentDetails = response.data.paymentDetails
-                setIsAddressVisible(enabledFields.includes('SHIPPING_ADDRESS'))
                 setIsUpiVisible(paymentMethods.find((method: any) => method.type === 'Upi' && method.brand === 'UpiIntent'))
                 setisUpiCollectVisible(paymentMethods.find((method: any) => method.type === 'Upi' && method.brand === 'UpiCollect'))
                 setIsCardVisible(paymentMethods.find((method: any) => method.type === 'Card'))
@@ -457,33 +490,48 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                     orderItemsArrayRef.current = formattedItemsArray
                 }
                 setPrimaryButtonColor(response.data.merchantDetails.checkoutTheme.primaryButtonColor)
-                emailRef.current = paymentDetails.shopper.email
-                firstNameRef.current = paymentDetails.shopper.firstName
-                lastNameRef.current = paymentDetails.shopper.lastName
-                phoneRef.current = paymentDetails.shopper.phoneNumber
-                uniqueIdRef.current = paymentDetails.shopper.uniqueReference
-                dobRef.current = paymentDetails.shopper.dateOfBirth
-                panRef.current = paymentDetails.shopper.panNumber
+                const emailRef = paymentDetails.shopper.email
+                const firstNameRef = paymentDetails.shopper.firstName
+                const lastNameRef = paymentDetails.shopper.lastName
+                const phoneRef = paymentDetails.shopper.phoneNumber
+                const uniqueIdRef = paymentDetails.shopper.uniqueReference
+                const dobRef = paymentDetails.shopper.dateOfBirth
+                const panRef = paymentDetails.shopper.panNumber
+                setEmail(emailRef)
+                setFirstName(firstNameRef)
+                setLastName(lastNameRef)
+                setPhone(phoneRef)
                 startCountdown(response.data.sessionExpiryTimestamp)
                 const installedApps = await checkAppInstalled(["com.phonepe.app", "com.google.android.apps.nbu.paisa.user", "net.one97.paytm"])
                 setIsPhonePeInstalled(installedApps[0])
                 setIsGpayInstalled(installedApps[1])
                 setIsPaytmInstalled(installedApps[2])
+                let labelTypeRef = null
+                let address1Ref = null
+                let labelNameRef = null
+                let address2Ref = null
+                let cityRef = null
+                let stateRef = null
+                let postalCodeRef = null
+                let countryCodeRef = null
                 if (paymentDetails.shopper.deliveryAddress != null) {
                     const deliveryObject = paymentDetails.shopper.deliveryAddress
-                    labelTypeRef.current = deliveryObject.labelType
-                    labelNameRef.current = deliveryObject.labelName
-                    address1Ref.current = deliveryObject.address1
-                    address2Ref.current = deliveryObject.address2
-                    cityRef.current = deliveryObject.city
-                    stateRef.current = deliveryObject.state
-                    postalCodeRef.current = deliveryObject.postalCode
-                    countryCodeRef.current = deliveryObject.countryCode
+                    labelTypeRef = deliveryObject.labelType
+                    labelNameRef = deliveryObject.labelName
+                    address1Ref = deliveryObject.address1
+                    address2Ref = deliveryObject.address2
+                    cityRef = deliveryObject.city
+                    stateRef = deliveryObject.state
+                    postalCodeRef = deliveryObject.postalCode
+                    countryCodeRef = deliveryObject.countryCode
 
-                    if (address2Ref.current == null || address2Ref.current == "") {
-                        setAddress(`${address1Ref.current}, ${cityRef.current}, ${stateRef.current}, ${postalCodeRef.current}`)
+                    setLabelName(labelNameRef)
+                    setLabelType(labelTypeRef)
+
+                    if (address2Ref == null || address2Ref == "") {
+                        setAddress(`${address1Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`)
                     } else {
-                        setAddress(`${address1Ref.current}, ${address2Ref.current}, ${cityRef.current}, ${stateRef.current}, ${postalCodeRef.current}`)
+                        setAddress(`${address1Ref}, ${address2Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`)
                     }
                 }
                 if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
@@ -496,23 +544,57 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                 }
                 setUserDataHandler({
                     userData: {
-                        email: emailRef.current,
-                        firstName: firstNameRef.current,
-                        lastName: lastNameRef.current,
-                        phone: phoneRef.current,
-                        uniqueId: uniqueIdRef.current,
-                        dob: dobRef.current,
-                        pan: panRef.current,
-                        address1: address1Ref.current,
-                        address2: address2Ref.current,
-                        city: cityRef.current,
-                        state: stateRef.current,
-                        pincode: postalCodeRef.current,
-                        country: countryCodeRef.current,
-                        labelType: labelTypeRef.current,
-                        labelName: labelNameRef.current
+                        email: emailRef,
+                        firstName: firstNameRef,
+                        lastName: lastNameRef,
+                        phone: phoneRef,
+                        uniqueId: uniqueIdRef,
+                        dob: dobRef,
+                        pan: panRef,
+                        address1: address1Ref,
+                        address2: address2Ref,
+                        city: cityRef,
+                        state: stateRef,
+                        pincode: postalCodeRef,
+                        country: countryCodeRef,
+                        labelType: labelTypeRef,
+                        labelName: labelNameRef
                     }
                 })
+                const isFieldEnabled = (fieldName: string) => {
+                    return enabledFields.some((field: { field: string }) => field.field === fieldName);
+                }
+
+                const isFieldEditable = (fieldName: string) => {
+                    const field = enabledFields.find((field: { field: string; editable?: boolean }) => field.field === fieldName);
+                    return field?.editable === true;
+                }
+                const showSuccessScreen = response.data.configs.showSuccessScreen
+                const showShippingAddress = isFieldEnabled('SHIPPING_ADDRESS');
+                setIsAddressVisible(showShippingAddress)
+                const showShippingAddressEditable = isFieldEditable('SHIPPING_ADDRESS');
+                setisAddressEditable(showShippingAddressEditable)
+
+                const showFullName = isFieldEnabled('SHOPPER_NAME');
+                const showFullNameEditable = isFieldEditable('SHOPPER_NAME');
+                setIsNameVisible(showFullName)
+                setIsNameEditable(showFullNameEditable)
+
+                const showEmail = isFieldEnabled('SHOPPER_EMAIL');
+                const showEmailEditable = isFieldEditable('SHOPPER_EMAIL');
+                setIsEmailVisible(showEmail)
+                setIsEmailEditable(showEmailEditable)
+
+                const showPhone = isFieldEnabled('SHOPPER_PHONE');
+                const showPhoneEditable = isFieldEditable('SHOPPER_PHONE');
+                setIsPhoneEditable(showPhoneEditable)
+                setIsPhoneNumberVisible(showPhone)
+
+                const showPan = isFieldEnabled('SHOPPER_PAN');
+                const showPanEditable = isFieldEditable('SHOPPER_PAN');
+
+                const showDOB = isFieldEnabled('SHOPPER_DOB');
+                const showDOBEditable = isFieldEditable('SHOPPER_DOB');
                 setCheckoutDetailsHandler({
                     checkoutDetails: {
                         currencySymbol: symbol,
@@ -522,7 +604,21 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                         env: testEnv ? 'test' : env,
                         itemsLength: totalItemsRef.current,
                         errorMessage: "You may have cancelled the payment or there was a delay in response. Please retry.",
-                        shopperToken: shopperToken
+                        shopperToken: shopperToken,
+                        isSuccessScreenVisible: showSuccessScreen,
+                        isShippingAddressEnabled: showShippingAddress,
+                        isShippingAddressEditable: showShippingAddressEditable,
+                        isFullNameEnabled: showFullName,
+                        isFullNameEditable: showFullNameEditable,
+                        isEmailEnabled: showEmail,
+                        isEmailEditable: showEmailEditable,
+                        isPhoneEnabled: showPhone,
+                        isPhoneEditable: showPhoneEditable,
+                        isPanEnabled: showPan,
+                        isPanEditable: showPanEditable,
+                        isDOBEnabled: showDOB,
+                        isDOBEditable: showDOBEditable,
+                        showSuccessScreen : showSuccessScreen
                     }
                 })
                 setPaymentHandler({
@@ -648,7 +744,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                         color: '#020815B5',
                                         fontFamily: 'Poppins-SemiBold'
                                     }}>Address</Text>
-                                    <View style={{
+                                    <Pressable style={{
                                         borderColor: '#F1F1F1',
                                         borderWidth: 1,
                                         marginHorizontal: 16,
@@ -657,6 +753,10 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                         backgroundColor: "white",
                                         flexDirection: 'row',
                                         borderRadius: 12,
+                                    }} onPress={() => {
+                                        if (isAddressEditable) {
+                                            navigateToAddressScreen()
+                                        }
                                     }}>
                                         <Image source={require("../../assets/images/ic_location.png")} style={{ height: 20, width: 20, marginStart: 12, marginTop: 20 }} />
                                         <View style={{ flexDirection: 'column', marginStart: 8, marginTop: 12, marginEnd: 8, flex: 1 }}>
@@ -666,7 +766,7 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                                 fontFamily: 'Poppins-Regular'
                                             }}>Deliver at <Text style={{
                                                 fontFamily: 'Poppins-SemiBold', fontSize: 12, color: '#4F4D55'
-                                            }}>{labelTypeRef.current === "Other" ? labelNameRef.current : labelTypeRef.current}</Text>
+                                            }}>{labelType === "Other" ? labelName : labelType}</Text>
                                             </Text>
                                             <Text
                                                 numberOfLines={1}
@@ -682,7 +782,120 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                                                 {address}
                                             </Text>
                                         </View>
-                                    </View>
+                                    </Pressable>
+                                </View>
+                            )}
+
+                            {(address == "" && isAddressVisible) && (
+                                <View>
+                                    <Text style={{
+                                        marginStart: 16,
+                                        marginTop: 20,
+                                        fontSize: 14,
+                                        color: '#020815B5',
+                                        fontFamily: 'Poppins-SemiBold'
+                                    }}>Address</Text>
+                                    <Pressable style={{
+                                        borderColor: '#F1F1F1',
+                                        borderWidth: 1,
+                                        marginHorizontal: 16,
+                                        marginTop: 8,
+                                        paddingBottom: 16,
+                                        backgroundColor: "white",
+                                        flexDirection: 'row',
+                                        borderRadius: 12,
+                                    }} onPress={() => {
+                                        if (isAddressEditable) {
+                                            navigateToAddressScreen()
+                                        }
+                                    }}>
+                                        <Image source={require("../../assets/images/add_icon.png")} style={{ height: 20, width: 20, marginStart: 12, marginTop: 20 }} />
+                                        <Text
+                                            numberOfLines={1}
+                                            ellipsizeMode="tail"
+                                            style={{
+                                                fontSize: 14,
+                                                color: primaryButtonColor,
+                                                fontFamily: 'Poppins-SemiBold',
+                                                flexShrink: 1,
+                                                marginTop: -4
+                                            }}
+                                        >
+                                            Add new address
+                                        </Text>
+                                    </Pressable>
+                                </View>
+                            )}
+
+                            {((isNameVisible || isPhoneNumberVisible || isEmailVisible) && !isAddressVisible) && (
+                                <View>
+                                    <Text style={{
+                                        marginStart: 16,
+                                        marginTop: 20,
+                                        fontSize: 14,
+                                        color: '#020815B5',
+                                        fontFamily: 'Poppins-SemiBold'
+                                    }}>Personal Details</Text>
+                                    <Pressable style={{
+                                        borderColor: '#F1F1F1',
+                                        borderWidth: 1,
+                                        marginHorizontal: 16,
+                                        marginTop: 8,
+                                        paddingBottom: 16,
+                                        backgroundColor: "white",
+                                        flexDirection: 'row',
+                                        borderRadius: 12,
+                                    }} onPress={() => {
+                                        if (isNameEditable || isPhoneEditable || isEmailEditable) {
+                                            navigateToAddressScreen()
+                                        }
+                                    }}>
+                                        {(firstName != "" || phone != "" || email != "") && (
+                                            <>
+                                                <Image source={require("../../assets/images/ic_user.png")} style={{ height: 20, width: 20, marginStart: 12, marginTop: 20 }} />
+                                                <View style={{ flexDirection: 'column', marginStart: 8, marginTop: 12, marginEnd: 8, flex: 1 }}>
+                                                    <Text style={{
+                                                        fontSize: 14,
+                                                        color: '#4F4D55',
+                                                        fontFamily: 'Poppins-SemiBold'
+                                                    }}>{firstName} {lastName} | <Text style={{
+                                                        fontFamily: 'Poppins-SemiBold', fontSize: 14, color: '#4F4D55'
+                                                    }}>{phone}</Text>
+                                                    </Text>
+                                                    <Text
+                                                        numberOfLines={1}
+                                                        ellipsizeMode="tail"
+                                                        style={{
+                                                            fontSize: 12,
+                                                            color: '#4F4D55',
+                                                            fontFamily: 'Poppins-Regular',
+                                                            flexShrink: 1,
+                                                            marginTop: -4
+                                                        }}
+                                                    >
+                                                        {email}
+                                                    </Text>
+                                                </View>
+                                            </>
+                                        )}
+                                        {(firstName == "" || phone == "" || email == "") && (
+                                            <>
+                                                <Image source={require("../../assets/images/add_icon.png")} style={{ height: 20, width: 20, marginStart: 12, marginTop: 20 }} />
+                                                <Text
+                                                    numberOfLines={1}
+                                                    ellipsizeMode="tail"
+                                                    style={{
+                                                        fontSize: 14,
+                                                        color: primaryButtonColor,
+                                                        fontFamily: 'Poppins-SemiBold',
+                                                        flexShrink: 1,
+                                                        marginTop: -4
+                                                    }}
+                                                >
+                                                    Add personal details
+                                                </Text></>
+                                        )}
+                                    </Pressable>
                                 </View>
                             )}
 

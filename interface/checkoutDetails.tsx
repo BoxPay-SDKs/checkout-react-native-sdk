@@ -6,5 +6,19 @@ export default interface CheckoutDetails {
     env: string;
     itemsLength: number;
     errorMessage: string,
-    shopperToken: string | null
+    shopperToken: string | null,
+    isSuccessScreenVisible: boolean,
+    isShippingAddressEnabled: boolean,
+    isShippingAddressEditable: boolean,
+    isFullNameEnabled: boolean,
+    isFullNameEditable: boolean,
+    isEmailEnabled: boolean,
+    isEmailEditable: boolean,
+    isPhoneEnabled: boolean,
+    isPhoneEditable: boolean,
+    isPanEnabled: boolean,
+    isPanEditable: boolean,
+    isDOBEnabled: boolean,
+    isDOBEditable: boolean,
+    showSuccessScreen: boolean
 }
