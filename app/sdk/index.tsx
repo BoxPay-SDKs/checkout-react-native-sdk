@@ -212,6 +212,17 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                 setLastName(userDataHandler.userData.lastName)
                 setPhone(userDataHandler.userData.phone)
                 setEmail(userDataHandler.userData.email)
+                const address1Ref = userDataHandler.userData.address1
+                const address2Ref = userDataHandler.userData.address2
+                const cityRef = userDataHandler.userData.city
+                const stateRef = userDataHandler.userData.state
+                const postalCodeRef = userDataHandler.userData.pincode
+
+                if (address2Ref == null || address2Ref == "") {
+                    setAddress(`${address1Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`)
+                } else {
+                    setAddress(`${address1Ref}, ${address2Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`)
+                }
             }
 
             refreshData();
@@ -606,7 +617,8 @@ const BoxpayCheckout: React.FC<BoxpayCheckoutProps> = ({ token, configurationOpt
                         isPanEnabled: showPan,
                         isPanEditable: showPanEditable,
                         isDOBEnabled: showDOB,
-                        isDOBEditable: showDOBEditable
+                        isDOBEditable: showDOBEditable,
+                        showSuccessScreen : showSuccessScreen
                     }
                 })
                 setPaymentHandler({

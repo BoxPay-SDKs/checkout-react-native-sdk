@@ -26,7 +26,8 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
         isPanEnabled: false,
         isPanEditable: false,
         isDOBEnabled: false,
-        isDOBEditable: false
+        isDOBEditable: false,
+        showSuccessScreen : false
     }
 };
 

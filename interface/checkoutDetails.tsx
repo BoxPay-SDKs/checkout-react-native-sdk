@@ -19,5 +19,6 @@ export default interface CheckoutDetails {
     isPanEnabled: boolean,
     isPanEditable: boolean,
     isDOBEnabled: boolean,
-    isDOBEditable: boolean
+    isDOBEditable: boolean,
+    showSuccessScreen: boolean
 }
