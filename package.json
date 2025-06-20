@@ -1,7 +1,7 @@
 {
   "name": "@boxpay/checkout-react-native-sdk",
   "main": ".app/sdk/index.tsx",
-  "version": "1.0.4-beta1",
+  "version": "1.0.4-beta2",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
