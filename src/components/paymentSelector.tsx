@@ -1,4 +1,5 @@
 import { View, Text, Pressable, StyleSheet, Image } from 'react-native'
+import type { ImageSourcePropType } from 'react-native'
 import { useState } from 'react'
 import { RadioButton } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
@@ -10,7 +11,7 @@ interface PaymentSelectorViewProps {
     providerList : PaymentClass[], 
     onProceedForward: (instrumentType: string, instrumentValue : string, type:string) => void;
     isLastUsed?: boolean | null,
-    errorImage: any,
+    errorImage: ImageSourcePropType,
     onClickRadio : (selctedInstrumentValue : string) => void
 }
 
@@ -57,7 +58,7 @@ interface PaymentSelectorProps{
     id: string,
     title: string,
     image: string,
-    errorImage: any,
+    errorImage: ImageSourcePropType,
     isSelected: boolean | null,
     instrumentTypeValue: string,
     isLastUsed?: boolean | null,

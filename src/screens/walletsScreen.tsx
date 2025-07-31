@@ -7,7 +7,7 @@ import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import type {PaymentClass, PaymentResult} from '../interface';
+import type {PaymentClass, PaymentResult, PaymentMethod} from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
@@ -81,9 +81,9 @@ const WalletScreen = () => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
 
             const walletList = data
-                .filter((item: any) => item.type === "Wallet")
-                .sort((a: any, b: any) => a.title.localeCompare(b.title))
-                .map((item: any) => ({
+                .filter((item: PaymentMethod) => item.type === "Wallet")
+                .sort((a: PaymentMethod, b: PaymentMethod) => a.title?.trim().localeCompare(b.title?.trim() ?? ""))
+                .map((item: PaymentMethod) => ({
                     type:"Wallet",
                     id: item.id,
                     displayName:"",

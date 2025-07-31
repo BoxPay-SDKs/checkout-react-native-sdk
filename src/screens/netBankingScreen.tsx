@@ -7,7 +7,7 @@ import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import type {PaymentClass, PaymentResult} from '../interface'
+import type {PaymentClass, PaymentResult, PaymentMethod} from '../interface'
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
 import PaymentFailed from '../components/paymentFailed';
@@ -91,9 +91,9 @@ const NetBankingScreen = () => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
 
             const netBankingList = data
-                .filter((item: any) => item.type === "NetBanking")
-                .sort((a: any, b: any) => a.title.trim().localeCompare(b.title.trim())) // Trim spaces before sorting
-                .map((item: any) => ({
+                .filter((item: PaymentMethod) => item.type === "NetBanking")
+                .sort((a: PaymentMethod, b: PaymentMethod) => a.title?.trim().localeCompare(b.title?.trim() ?? "")) // Trim spaces before sorting
+                .map((item: PaymentMethod) => ({
                     type:"NetBanking",
                     id: item.id,
                     displayName:"",
@@ -104,7 +104,7 @@ const NetBankingScreen = () => {
                 }));
 
 
-            const popularList = netBankingList.filter((item: any) => defaultpopularNetBankingList.includes(item.title))
+            const popularList = netBankingList.filter((item: PaymentMethod) => defaultpopularNetBankingList.includes(item.title ?? ""))
             setPopularNetBankingList(popularList)
             setNetBankingList(netBankingList)
             setDefaultNetBankingList(netBankingList)

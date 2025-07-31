@@ -5,6 +5,7 @@ import axios from 'axios';
 import { userDataHandler } from "../sharedContext/userdataHandler";
 import { checkoutDetailsHandler } from "../sharedContext/checkoutDetailsHandler";
 import { version } from '../../package.json'
+import type { DeliveryAddress } from "../interface";
 
 const emiPostRequest = async (
     cardNumber: string,
@@ -42,7 +43,7 @@ const emiPostRequest = async (
             }
         };
 
-    const isDeliveryAddressEmpty = (address: any): boolean => {
+    const isDeliveryAddressEmpty = (address: DeliveryAddress): boolean => {
         return Object.values(address).every(
             (value) => value === null || value === undefined || value === ""
         );

@@ -1,4 +1,5 @@
 import { View, Text, Pressable, StyleSheet, Image } from 'react-native'
+import type { ImageSourcePropType } from 'react-native'
 import { useState } from 'react'
 import { RadioButton } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
@@ -9,7 +10,7 @@ import type {PaymentClass} from '../interface';
 interface SavedCardComponentViewProps{
     savedCards : PaymentClass[],
     onProceedForward: (instrumentValue : string) => void,
-    errorImage: any,
+    errorImage: ImageSourcePropType,
     onClickAddCard:()=> void,
     onClickRadio : (selectedInstrumentValue: string) => void
 }
@@ -85,7 +86,7 @@ interface SavedCardRowProps{
     nickName: string,
     cardNumber:string,
     image: string,
-    errorImage: any,
+    errorImage: ImageSourcePropType,
     isSelected: boolean | null,
     instrumentTypeValue: string,
     onPress: (id: string) => void,

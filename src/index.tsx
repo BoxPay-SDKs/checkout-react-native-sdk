@@ -17,7 +17,7 @@ import { paymentHandler, setPaymentHandler } from "./sharedContext/paymentStatus
 import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
 import MorePaymentContainer from './components/morePaymentContainer';
 import { setUserDataHandler, userDataHandler } from './sharedContext/userdataHandler';
-import type { ConfigurationOptions, PaymentResult, PaymentClass } from './interface';
+import type { ConfigurationOptions, PaymentResult, PaymentClass , InstrumentDetails} from './interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './sharedContext/checkoutDetailsHandler';
 import WebViewScreen from './screens/webViewScreen';
 import getSymbolFromCurrency from 'currency-symbol-map'
@@ -134,19 +134,18 @@ const BoxpayCheckout = ({ token, configurationOptions = {}, onPaymentResult, sho
     };
 
     const handleUpiCollectPayment = async (upiId: string, instrumentRef: string, type:string) => {
-        const requestPayload = {
-            type: type === "Card" ? "card/token" : "upi/collect",
-        
-            ...(type === "Card"
-                ? { savedCard: { instrumentRef : instrumentRef } }
-                : {
-                    upi: instrumentRef
-                        ? { instrumentRef : instrumentRef }
-                        : { shopperVpa: upiId }
-                }),
-        
-            ...(shopperToken && shopperToken.trim() !== "" && { saveInstrument: true })
-        };
+        const requestPayload: InstrumentDetails =
+        type === "Card"
+            ? {
+                  type: "card/token",
+                  savedCard: { instrumentRef: instrumentRef },
+              }
+            : {
+                  type: "upi/collect",
+                  upi: instrumentRef
+                      ? { instrumentRef: instrumentRef }
+                      : { shopperVpa: upiId },
+              };
         setLoadingState(true)
         const response = await upiPostRequest(requestPayload)
         try {

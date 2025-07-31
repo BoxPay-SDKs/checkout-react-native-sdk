@@ -5,9 +5,10 @@ import axios from 'axios';
 import { userDataHandler } from "../sharedContext/userdataHandler";
 import { checkoutDetailsHandler } from "../sharedContext/checkoutDetailsHandler";
 import { version } from '../../package.json'
+import type { DeliveryAddress, InstrumentDetails } from "../interface";
 
 const upiPostRequest = async (
-  instrumentDetails: Record<string, any>
+  instrumentDetails: InstrumentDetails
 ) => {
   const { userData } = userDataHandler
   const { checkoutDetails } = checkoutDetailsHandler
@@ -15,7 +16,7 @@ const upiPostRequest = async (
     ? 'test-apis.boxpay.tech'
       : 'apis.boxpay.in';
 
-  const isDeliveryAddressEmpty = (address: any): boolean => {
+  const isDeliveryAddressEmpty = (address: DeliveryAddress): boolean => {
     return Object.values(address).every(
       (value) => value === null || value === undefined || value === ""
     );

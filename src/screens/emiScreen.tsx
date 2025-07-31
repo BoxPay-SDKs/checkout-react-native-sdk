@@ -1,7 +1,7 @@
 import { View, Text, BackHandler, Dimensions, ScrollView, Image, StatusBar, SafeAreaView } from 'react-native'
 import { useEffect, useRef, useState } from 'react'
 import { router } from 'expo-router';
-import type { Bank, ChooseEmiModel, Emi, PaymentResult } from '../interface'
+import type { Bank, ChooseEmiModel, Emi, PaymentResult, EMIPaymentMethod } from '../interface'
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
@@ -60,17 +60,17 @@ const EmiScreen = () => {
     useEffect(() => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
             try {
-                data.forEach((paymentMethod: any) => {
+                data.forEach((paymentMethod: EMIPaymentMethod) => {
                     if (paymentMethod.type === "Emi") {
                         const title = paymentMethod.title;
-                        const emiCardName = title.includes("Credit")
+                        const emiCardName = title?.includes("Credit")
                             ? "Credit Card"
-                            : title.includes("Debit")
+                            : title?.includes("Debit")
                                 ? "Debit Card"
                                 : "Others";
 
                         let emiBankImage = paymentMethod.logoUrl;
-                        if (emiBankImage.startsWith("/assets")) {
+                        if (emiBankImage?.startsWith("/assets")) {
                             emiBankImage = `https://checkout.boxpay.in${emiBankImage}`;
                         }
 
@@ -89,29 +89,29 @@ const EmiScreen = () => {
 
 
                         const bank: Bank = {
-                            iconUrl: emiBankImage,
-                            name: bankName,
-                            percent: noApplicableOffer ? emiMethod.merchantBorneInterestRate : bankInterestRate,
+                            iconUrl: emiBankImage ?? "",
+                            name: bankName ?? "",
+                            percent: noApplicableOffer ? emiMethod.merchantBorneInterestRate ?? 0 : bankInterestRate,
                             noCostApplied: noApplicableOffer,
                             lowCostApplied: lowApplicableOffer,
                             emiList: [],
-                            cardLessEmiValue: emiMethod.cardlessEmiProviderValue,
-                            issuerBrand: emiCardName === "Others" ? "" : emiMethod.issuer,
+                            cardLessEmiValue: emiMethod.cardlessEmiProviderValue ?? "",
+                            issuerBrand: emiCardName === "Others" ? "" : emiMethod.issuer ?? "",
                         };
 
 
                         const emi: Emi = {
-                            duration: emiMethod.duration,
-                            percent: noApplicableOffer ? emiMethod.merchantBorneInterestRate : bankInterestRate,
-                            amount: emiMethod.emiAmountLocaleFull,
-                            totalAmount: emiMethod.totalAmountLocaleFull,
-                            discount: emiMethod.merchantBorneInterestAmountLocaleFull,
-                            interestCharged: lowApplicableOffer ? emiMethod.interestChargedAmountLocaleFull : emiMethod.bankChargedInterestAmountLocaleFull,
+                            duration: emiMethod.duration ?? 0,
+                            percent: noApplicableOffer ? emiMethod.merchantBorneInterestRate ?? 0 : bankInterestRate,
+                            amount: emiMethod.emiAmountLocaleFull ?? "",
+                            totalAmount: emiMethod.totalAmountLocaleFull ?? "",
+                            discount: emiMethod.merchantBorneInterestAmountLocaleFull ?? "",
+                            interestCharged: lowApplicableOffer ? emiMethod.interestChargedAmountLocaleFull ?? "" : emiMethod.bankChargedInterestAmountLocaleFull ?? "",
                             noCostApplied: noApplicableOffer,
                             processingFee: emiMethod.processingFee?.amountLocaleFull || "0",
                             lowCostApplied: lowApplicableOffer,
                             code: emiMethod.applicableOffer?.code || "",
-                            netAmount: emiMethod.netAmountLocaleFull,
+                            netAmount: emiMethod.netAmountLocaleFull ?? "",
                         };
 
                         addBankDetails(emiCardName, bank, emi);

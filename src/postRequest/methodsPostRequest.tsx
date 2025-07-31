@@ -5,6 +5,7 @@ import { Platform } from "react-native";
 import axios from 'axios';
 import { userDataHandler } from "../sharedContext/userdataHandler";
 import { version } from '../../package.json'
+import type { DeliveryAddress } from "../interface";
 
 const methodsPostRequest = async (
     instrumentDetails: string,
@@ -15,7 +16,7 @@ const methodsPostRequest = async (
     const endpoint: string = checkoutDetails.env === 'test'
         ? 'test-apis.boxpay.tech'
             : 'apis.boxpay.in';
-    const isDeliveryAddressEmpty = (address: any): boolean => {
+    const isDeliveryAddressEmpty = (address: DeliveryAddress): boolean => {
         return Object.values(address).every(
             (value) => value === null || value === undefined || value === ""
         );

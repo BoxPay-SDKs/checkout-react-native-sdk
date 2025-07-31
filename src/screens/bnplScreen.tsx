@@ -6,7 +6,7 @@ import LottieView from 'lottie-react-native';
 import Header from '../components/header';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from "react-native-shimmer-placeholder";
-import type {PaymentClass, PaymentResult} from "../interface";
+import type {PaymentClass, PaymentResult, PaymentMethod} from "../interface";
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
 import PaymentFailed from '../components/paymentFailed';
@@ -67,9 +67,9 @@ const BNPLScreen = () => {
     useEffect(() => {
         fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then((data) => {
             const bnplList = data
-                .filter((item: any) => item.type === "BuyNowPayLater")
-                .sort((a: any, b: any) => a.title.trim().localeCompare(b.title.trim())) // Trim spaces before sorting
-                .map((item: any) => ({
+                .filter((item: PaymentMethod) => item.type === "BuyNowPayLater")
+                .sort((a: PaymentMethod, b: PaymentMethod) => a.title?.trim().localeCompare(b.title?.trim() ?? "")) // Trim spaces before sorting
+                .map((item: PaymentMethod) => ({
                     type:"BNPL",
                     id: item.id,
                     displayValue: item.title,
