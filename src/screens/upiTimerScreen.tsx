@@ -1,4 +1,11 @@
-import { View, Text, Image, BackHandler, StyleSheet, StatusBar } from 'react-native'; // Import Modal
+import {
+  View,
+  Text,
+  Image,
+  BackHandler,
+  StyleSheet,
+  StatusBar,
+} from 'react-native'; // Import Modal
 import { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import Header from '../components/header';
@@ -9,12 +16,12 @@ import SessionExpire from '../components/sessionExpire';
 import CancelPaymentModal from '../components/cancelPaymentModal';
 import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CircularProgressBar from '../components/circularProgress';
-import type { PaymentResult } from '../interface'
+import type { PaymentResult } from '../interface';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
-const UpiTimerScreen = () => { 
+const UpiTimerScreen = () => {
   const { upiId } = useLocalSearchParams();
-  const { checkoutDetails } = checkoutDetailsHandler
+  const { checkoutDetails } = checkoutDetailsHandler;
 
   const upiIdStr = Array.isArray(upiId) ? upiId[0] : upiId;
 
@@ -22,11 +29,13 @@ const UpiTimerScreen = () => {
   const [cancelClicked, setCancelClicked] = useState(false);
   const [failedModalOpen, setFailedModalState] = useState(false);
   const [successModalOpen, setSuccessModalState] = useState(false);
-  const paymentFailedMessage = useRef<string>("You may have cancelled the payment or there was a delay in response. Please retry.");
+  const paymentFailedMessage = useRef<string>(
+    'You may have cancelled the payment or there was a delay in response. Please retry.'
+  );
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
-  const [successfulTimeStamp, setSuccessfulTimeStamp] = useState("");
-  const [status, setStatus] = useState("")
-  const [transactionId, setTransactionId] = useState("")
+  const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
+  const [status, setStatus] = useState('');
+  const [transactionId, setTransactionId] = useState('');
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
   const timerInterval = useRef<NodeJS.Timeout | null>(null);
@@ -66,7 +75,7 @@ const UpiTimerScreen = () => {
       transactionId: transactionId,
     };
     paymentHandler.onPaymentResult(mockPaymentResult);
-    router.dismissAll()
+    router.dismissAll();
   };
 
   const onProceedBack = () => {
@@ -77,7 +86,7 @@ const UpiTimerScreen = () => {
       stopBackgroundApiTask();
       router.back();
     } else {
-      setCancelClicked(true)
+      setCancelClicked(true);
     }
     return true;
   };
@@ -89,10 +98,13 @@ const UpiTimerScreen = () => {
       clearInterval(timerInterval.current);
     }
     router.back();
-  }
+  };
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', onProceedBack);
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      onProceedBack
+    );
     return () => {
       backHandler.remove();
     };
@@ -120,77 +132,194 @@ const UpiTimerScreen = () => {
   };
 
   const callFetchStatusApi = async () => {
-    const response = await fetchStatus(checkoutDetails.token, checkoutDetails.env);
+    const response = await fetchStatus(
+      checkoutDetails.token,
+      checkoutDetails.env
+    );
     try {
       setStatus(response.status);
       setTransactionId(response.transactionId);
       const reasonCode = response.reasonCode;
       const status = response.status.toUpperCase();
       if (['FAILED', 'REJECTED'].includes(status)) {
-        const reason = response.reason
-        if (!reasonCode?.startsWith("UF")) {
-          paymentFailedMessage.current = checkoutDetails.errorMessage
+        const reason = response.reason;
+        if (!reasonCode?.startsWith('UF')) {
+          paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
-          paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
+          paymentFailedMessage.current = reason?.includes(':')
+            ? reason.split(':')[1]?.trim()
+            : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
         setFailedModalState(true);
-        stopBackgroundApiTask()
+        stopBackgroundApiTask();
       } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
         setSuccessfulTimeStamp(response.transactionTimestampLocale);
         setSuccessModalState(true);
         setStatus('Success');
-        stopBackgroundApiTask()
+        stopBackgroundApiTask();
       } else if (['EXPIRED'].includes(status)) {
         setSessionExppireModalState(true);
         setStatus('Expired');
-        stopBackgroundApiTask()
+        stopBackgroundApiTask();
       }
     } catch (error) {
-      const reason = response.status.reason
-      const reasonCode = response.status.reasonCode
-      if (!reasonCode?.startsWith("UF")) {
-        paymentFailedMessage.current = checkoutDetails.errorMessage
+      const reason = response.status.reason;
+      const reasonCode = response.status.reasonCode;
+      if (!reasonCode?.startsWith('UF')) {
+        paymentFailedMessage.current = checkoutDetails.errorMessage;
       } else {
-        paymentFailedMessage.current = reason?.includes(":") ? reason.split(":")[1]?.trim() : reason || checkoutDetails.errorMessage
+        paymentFailedMessage.current = reason?.includes(':')
+          ? reason.split(':')[1]?.trim()
+          : reason || checkoutDetails.errorMessage;
       }
-      setFailedModalState(true)
+      setFailedModalState(true);
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
       <StatusBar barStyle="dark-content" />
-      <Header onBackPress={onProceedBack} showDesc={true} showSecure={true} text='Payment Details' />
+      <Header
+        onBackPress={onProceedBack}
+        showDesc={true}
+        showSecure={true}
+        text="Payment Details"
+      />
 
-      <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
-        <Text style={{ color: '#2D2B32', fontSize: 18, textAlign: 'center', fontFamily: 'Poppins-SemiBold' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          paddingHorizontal: 16,
+          marginTop: 32,
+        }}
+      >
+        <Text
+          style={{
+            color: '#2D2B32',
+            fontSize: 18,
+            textAlign: 'center',
+            fontFamily: 'Poppins-SemiBold',
+          }}
+        >
           Complete your payment
         </Text>
-        <Text style={{ color: '#2D2B32', fontSize: 14, paddingTop: 12, textAlign: 'center', lineHeight: 24, fontFamily: 'Poppins-Regular' }}>
-          Open your UPI application and confirm the payment before the time expires
+        <Text
+          style={{
+            color: '#2D2B32',
+            fontSize: 14,
+            paddingTop: 12,
+            textAlign: 'center',
+            lineHeight: 24,
+            fontFamily: 'Poppins-Regular',
+          }}
+        >
+          Open your UPI application and confirm the payment before the time
+          expires
         </Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', borderColor: '#BABABA', borderWidth: 2, borderRadius: 8, paddingVertical: 6, paddingHorizontal: 8, marginTop: 12 }}>
-          <Image source={require("../../../assets/images/upi-timer-sheet-upi-icon.png")} style={{ height: 16, width: 16, marginRight: 4 }} />
-          <Text style={{ color: '#1D1C20', fontSize: 12, fontFamily: 'Poppins-Regular' }}>UPI Id : {upiIdStr}</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderColor: '#BABABA',
+            borderWidth: 2,
+            borderRadius: 8,
+            paddingVertical: 6,
+            paddingHorizontal: 8,
+            marginTop: 12,
+          }}
+        >
+          <Image
+            source={require('../../../assets/images/upi-timer-sheet-upi-icon.png')}
+            style={{ height: 16, width: 16, marginRight: 4 }}
+          />
+          <Text
+            style={{
+              color: '#1D1C20',
+              fontSize: 12,
+              fontFamily: 'Poppins-Regular',
+            }}
+          >
+            UPI Id : {upiIdStr}
+          </Text>
         </View>
-        <Text style={{ color: '#1D1C20', fontSize: 16, textAlign: 'center', marginTop: 32, fontFamily: 'Poppins-Medium' }}>
+        <Text
+          style={{
+            color: '#1D1C20',
+            fontSize: 16,
+            textAlign: 'center',
+            marginTop: 32,
+            fontFamily: 'Poppins-Medium',
+          }}
+        >
           Expires in
         </Text>
         <View style={{ marginTop: 14, alignItems: 'center' }}>
-          <CircularProgressBar size={150} strokeWidth={10} progressColor={timerValue <= 30 ? '#FAA4A4' : checkoutDetails.brandColor} progress={timerValue} formatTime={formatTime()} textColor={timerValue <= 30 ? '#F53535' : checkoutDetails.brandColor} />
+          <CircularProgressBar
+            size={150}
+            strokeWidth={10}
+            progressColor={
+              timerValue <= 30 ? '#FAA4A4' : checkoutDetails.brandColor
+            }
+            progress={timerValue}
+            formatTime={formatTime()}
+            textColor={
+              timerValue <= 30 ? '#F53535' : checkoutDetails.brandColor
+            }
+          />
         </View>
-        <View style={{ flexDirection: 'row', borderColor: '#ECECED', borderWidth: 2, borderRadius: 8, paddingVertical: 16, paddingHorizontal: 16, marginTop: 32 }}>
-          <Image source={require("../../../assets/images/ic_info.png")} style={{ height: 26, width: 26 }} />
-          <Text style={{ color: '#1D1C20', fontSize: 12, paddingStart: 16, lineHeight: 18, fontFamily: 'Poppins-Regular' }}>
-            Kindly avoid using the back button until the transaction process is complete
+        <View
+          style={{
+            flexDirection: 'row',
+            borderColor: '#ECECED',
+            borderWidth: 2,
+            borderRadius: 8,
+            paddingVertical: 16,
+            paddingHorizontal: 16,
+            marginTop: 32,
+          }}
+        >
+          <Image
+            source={require('../../../assets/images/ic_info.png')}
+            style={{ height: 26, width: 26 }}
+          />
+          <Text
+            style={{
+              color: '#1D1C20',
+              fontSize: 12,
+              paddingStart: 16,
+              lineHeight: 18,
+              fontFamily: 'Poppins-Regular',
+            }}
+          >
+            Kindly avoid using the back button until the transaction process is
+            complete
           </Text>
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', height: 2, backgroundColor: '#ECECED', marginBottom: 48 }} />
+      <View
+        style={{
+          flexDirection: 'row',
+          height: 2,
+          backgroundColor: '#ECECED',
+          marginBottom: 48,
+        }}
+      />
       <View style={styles.cancelPaymentContainer}>
-        <Text style={{ fontSize: 16, color: checkoutDetails.brandColor, fontFamily: 'Poppins-SemiBold' }} onPress={() => { setCancelClicked(true) }}>
+        <Text
+          style={{
+            fontSize: 16,
+            color: checkoutDetails.brandColor,
+            fontFamily: 'Poppins-SemiBold',
+          }}
+          onPress={() => {
+            setCancelClicked(true);
+          }}
+        >
           Cancel Payment
         </Text>
       </View>
@@ -212,11 +341,7 @@ const UpiTimerScreen = () => {
         />
       )}
 
-      {sessionExpireModalOpen && (
-        <SessionExpire
-          onClick={onExitCheckout}
-        />
-      )}
+      {sessionExpireModalOpen && <SessionExpire onClick={onExitCheckout} />}
 
       {cancelClicked && (
         <CancelPaymentModal

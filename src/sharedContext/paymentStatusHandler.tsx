@@ -1,12 +1,12 @@
-import type { PaymentResult } from '../interface'
+import type { PaymentResult } from '../interface';
 export type PaymentHandler = {
-    onPaymentResult: (result: PaymentResult) => void;
+  onPaymentResult: (result: PaymentResult) => void;
 };
 
 export let paymentHandler: PaymentHandler = {
-    onPaymentResult: () => {},
+  onPaymentResult: () => {},
 };
 
 export const setPaymentHandler = (handler: PaymentHandler) => {
-    paymentHandler = handler;
+  paymentHandler = handler;
 };

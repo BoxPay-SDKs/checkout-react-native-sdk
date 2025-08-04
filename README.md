@@ -4,14 +4,11 @@ Welcome to your Boxpay Checkout React Native SDK 👋
 
 ## Installation
 
-
 ```sh
 npm install checkout-react-native-sdk
 ```
 
-
 ## Usage
-
 
 ```js
 import BoxpayCheckout from 'checkout-react-native-sdk';
