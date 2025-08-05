@@ -1,12 +1,10 @@
 import Constants from 'expo-constants';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
-import * as Device from 'expo-device';
-import { Platform } from 'react-native';
 import axios from 'axios';
 import { userDataHandler } from '../sharedContext/userdataHandler';
 import type { DeliveryAddress } from '../interface';
 import { getEndpoint } from '../utils/stringUtils';
-import {version} from '../../package.json'
+import { getDeviceDetails } from '../utils/listAndObjectUtils';
 
 const methodsPostRequest = async (
   instrumentDetails: string,
@@ -14,6 +12,7 @@ const methodsPostRequest = async (
 ) => {
   const { userData } = userDataHandler;
   const { checkoutDetails } = checkoutDetailsHandler;
+  const deviceDetails = getDeviceDetails()
   const endpoint: string = getEndpoint(checkoutDetails.env);
   const isDeliveryAddressEmpty = (address: DeliveryAddress): boolean => {
     return Object.values(address).every(
@@ -70,47 +69,17 @@ const methodsPostRequest = async (
         ? null
         : deliveryAddress,
     },
-    deviceDetails: {
-      browser: Platform.OS,
-      platformVersion: Device.osVersion || 'Unknown',
-      deviceType: Device.deviceType || 'Unknown',
-      deviceName: Device.modelName || 'Unknown',
-      deviceBrandName: Device.brand || 'Unknown',
-    },
+    deviceDetails: deviceDetails
   };
 
   const API_URL = `${endpoint}${checkoutDetails.token}`;
   try {
-    const response = await axios.post(API_URL, requestBody, {
-      headers: {
-        'X-Request-Id': generateRandomAlphanumericString(10),
-        'X-Client-Connector-Name': 'React Native SDK',
-        'X-Client-Connector-Version': version,
-        ...(checkoutDetails.shopperToken
-          ? { Authorization: `Session ${checkoutDetails.shopperToken}` }
-          : {}),
-      },
-    });
+    const response = await axios.post(API_URL, requestBody);
 
     const data = await response.data;
     return data;
   } catch (error) {
     return { status: { reasonCode: 'API_FAILED', reason: '' } };
-  }
-
-  function generateRandomAlphanumericString(length: number): string {
-    const charPool: string[] =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.split(
-        ''
-      );
-    let result = '';
-
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charPool.length);
-      result += charPool[randomIndex];
-    }
-
-    return result;
   }
 };
 

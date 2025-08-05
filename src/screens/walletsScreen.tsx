@@ -25,7 +25,7 @@ import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import methodsPostRequest from '../postRequest/methodsPostRequest';
 import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
-import { transformAndFilterList } from '../utils/paymentListUtils';
+import { transformAndFilterList } from '../utils/listAndObjectUtils';
 
 const WalletScreen = () => {
   const [walletList, setWalletList] = useState<PaymentClass[]>([]);
@@ -105,10 +105,7 @@ const WalletScreen = () => {
   }, []);
 
   const callFetchStatusApi = async () => {
-    const response = await fetchStatus(
-      checkoutDetails.token,
-      checkoutDetails.env
-    );
+    const response = await fetchStatus();
     try {
       setStatus(response.status);
       setTransactionId(response.transactionId);

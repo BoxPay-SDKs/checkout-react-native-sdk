@@ -10,11 +10,7 @@ const fetchRecommendedInstruments = async () => {
 
   const API_URL = `${endpoint}${checkoutDetails.token}/shoppers/${userData.uniqueId}/recommended-instruments`;
   try {
-    const response = await axios.get(API_URL, {
-      headers: {
-        Authorization: `Session ${checkoutDetails.shopperToken}`,
-      },
-    });
+    const response = await axios.get(API_URL);
 
     const data = await response.data;
     return data;

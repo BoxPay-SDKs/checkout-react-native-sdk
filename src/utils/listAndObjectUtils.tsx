@@ -1,4 +1,5 @@
 import type { PaymentMethod, PaymentClass } from '../interface';
+import { Platform } from 'react-native';
 
 export function transformAndFilterList(
   data: PaymentMethod[],
@@ -18,4 +19,15 @@ export function transformAndFilterList(
     }));
 
   return filteredList;
+}
+
+
+export function getDeviceDetails() {
+  return {
+    browser: Platform.OS,
+    platformVersion: Platform.Version.toString(),
+    deviceType: Platform.OS === 'ios' || Platform.OS === 'android' ? 'Phone' : 'Web',
+    deviceName: Platform.OS === 'ios' ? 'iOS Device' : 'Android Device',
+    deviceBrandName: Platform.OS === 'ios' ? 'Apple' : 'Android'
+  };
 }

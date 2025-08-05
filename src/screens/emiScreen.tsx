@@ -175,10 +175,7 @@ const EmiScreen = () => {
   };
 
   const callFetchStatusApi = async () => {
-    const response = await fetchStatus(
-      checkoutDetails.token,
-      checkoutDetails.env
-    );
+    const response = await fetchStatus();
     try {
       setStatus(response.status);
       setTransactionId(response.transactionId);

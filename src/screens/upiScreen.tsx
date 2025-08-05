@@ -12,11 +12,9 @@ import { TextInput } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import type { PaymentClass } from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
-import { getInstalledUpiApps } from '../../cross_platform_sdk_react_native_plugin/src';
+import { getInstalledUpiApps } from 'cross_platform_sdk';
 
 interface UpiScreenProps {
-  isUpiIntentVisible: boolean;
-  isUpiCollectVisible: boolean;
   handleUpiPayment: (selectedIntent: string) => void;
   handleCollectPayment: (item: string, id: string, type: string) => void;
   savedUpiArray: PaymentClass[];
@@ -24,8 +22,6 @@ interface UpiScreenProps {
 }
 
 const UpiScreen: React.FC<UpiScreenProps> = ({
-  isUpiIntentVisible,
-  isUpiCollectVisible,
   handleUpiPayment,
   handleCollectPayment,
   savedUpiArray,
@@ -41,6 +37,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
   const { checkoutDetails } = checkoutDetailsHandler;
   const [upiCollectVisible, setUpiCollectVisible] = useState(false);
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
+  const isUpiCollectVisible = checkoutDetails.isUpiCollectMethodEnabled
+  const isUpiIntentVisible = checkoutDetails.isUpiIntentMethodEnabled
 
   useEffect(() => {
     const checkUpiApps = async () => {

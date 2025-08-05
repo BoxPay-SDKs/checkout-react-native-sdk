@@ -23,7 +23,7 @@ import methodsPostRequest from '../postRequest/methodsPostRequest';
 import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
 import PaymentSelectorView from '../components/paymentSelector';
-import { transformAndFilterList } from '../utils/paymentListUtils';
+import { transformAndFilterList } from '../utils/listAndObjectUtils';
 
 const BNPLScreen = () => {
   const [bnplList, setBnplList] = useState<PaymentClass[]>([]);
@@ -88,10 +88,7 @@ const BNPLScreen = () => {
   }, []);
 
   const callFetchStatusApi = async () => {
-    const response = await fetchStatus(
-      checkoutDetails.token,
-      checkoutDetails.env
-    );
+    const response = await fetchStatus();
     try {
       setStatus(response.status);
       setTransactionId(response.transactionId);

@@ -10,19 +10,11 @@ module.exports = {
           'transform-define',
           {
             'process.env.SDK_VERSION': JSON.stringify(version),
+            'process.env.TEST_API_URL': JSON.stringify(process.env.TEST_API_URL),
+            'process.env.PROD_API_URL': JSON.stringify(process.env.PROD_API_URL),
+            'process.env.ROUTE': JSON.stringify(process.env.ROUTE),
           },
-        ],
-        [
-          'module:react-native-dotenv',
-          {
-            moduleName: '@env',
-            path: '.env',
-            blacklist: null,
-            whitelist: null,
-            safe: false,
-            allowUndefined: true,
-          },
-        ],
+        ]
       ],
     },
     {

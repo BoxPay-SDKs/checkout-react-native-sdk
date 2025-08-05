@@ -27,7 +27,13 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
     isPanEditable: false,
     isDOBEnabled: false,
     isDOBEditable: false,
-    showSuccessScreen: false,
+    isUpiIntentMethodEnabled : false,
+    isUpiCollectMethodEnabled : false,
+    isCardMethodEnabled : false,
+    isWalletMethodEnabled : false,
+    isNetBankingMethodEnabled : false,
+    isEmiMethodEnabled : false,
+    isBnplMethodEnabled : false
   },
 };
 

@@ -8,6 +8,13 @@ export enum ConfigurationOptions {
   EnableSandboxEnv = 'ENABLE_SANDBOX_ENV',
 }
 
+export interface BoxpayCheckoutProps {
+  token: string;
+  configurationOptions?: Partial<Record<ConfigurationOptions, boolean>>;
+  onPaymentResult: (result: PaymentResult) => void;
+  shopperToken?: string | null;
+}
+
 export interface CheckoutDetails {
   currencySymbol: string;
   amount: string;
@@ -30,7 +37,6 @@ export interface CheckoutDetails {
   isPanEditable: boolean;
   isDOBEnabled: boolean;
   isDOBEditable: boolean;
-  showSuccessScreen: boolean;
 }
 
 export interface CardType {
