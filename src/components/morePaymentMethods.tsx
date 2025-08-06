@@ -10,13 +10,15 @@ interface MorePaymentMethodsArgs{
 
 const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
     const {checkoutDetails} = checkoutDetailsHandler
-    const isCardVisible = checkoutDetails.isCardMethodEnabled
-    const isWalletVisible = checkoutDetails.isWalletMethodEnabled
-    const isNetBankingVisible = checkoutDetails.isNetBankingMethodEnabled
-    const isBNPLVisible = checkoutDetails.isBnplMethodEnabled
-    const isEmiVisible = checkoutDetails.isEmiMethodEnabled
-    const isUpiCollectVisible = checkoutDetails.isUpiCollectMethodEnabled
-    const isUpiIntentVisibile = checkoutDetails.isUpiIntentMethodEnabled
+    const {
+        isCardMethodEnabled: isCardVisible,
+        isWalletMethodEnabled: isWalletVisible,
+        isNetBankingMethodEnabled: isNetBankingVisible,
+        isBnplMethodEnabled: isBNPLVisible,
+        isEmiMethodEnabled: isEmiVisible,
+        isUpiCollectMethodEnabled: isUpiCollectVisible,
+        isUpiIntentMethodEnabled: isUpiIntentVisibile
+      } = checkoutDetails;
     return (
         <View>
                 {(isCardVisible ||

@@ -24,6 +24,7 @@ import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
 import PaymentSelectorView from '../components/paymentSelector';
 import { transformAndFilterList } from '../utils/listAndObjectUtils';
+import Toast from 'react-native-toast-message'
 
 const BNPLScreen = () => {
   const [bnplList, setBnplList] = useState<PaymentClass[]>([]);
@@ -79,17 +80,23 @@ const BNPLScreen = () => {
   });
 
   useEffect(() => {
-    fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then(
-      (data) => {
+    fetchPaymentMethods().then((data) => {
+      if (Array.isArray(data)) {
         const bnplList = transformAndFilterList(data, 'BuyNowPayLater');
         setBnplList(bnplList);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: 'Something went wrong. Please try again.'
+        });      
       }
-    );
+    });
   }, []);
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status);
       setTransactionId(response.transactionId);
       const reasonCode = response.reasonCode;
@@ -100,7 +107,7 @@ const BNPLScreen = () => {
           paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
             : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -119,14 +126,14 @@ const BNPLScreen = () => {
         stopBackgroundApiTask();
         setLoading(false);
       }
-    } catch (error) {
+    } else {
       const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       if (!reasonCode?.startsWith('UF')) {
         paymentFailedMessage.current = checkoutDetails.errorMessage;
       } else {
         paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim()
+          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
           : reason || checkoutDetails.errorMessage;
       }
       setFailedModalState(true);
@@ -155,10 +162,10 @@ const BNPLScreen = () => {
   const onProceedForward = async (_: string, instrumentType: string) => {
     setLoading(true);
     const response = await methodsPostRequest(instrumentType, 'buynowpaylater');
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status.status);
       setTransactionId(response.transactionId);
-      const reason = response.status.statusReason;
+      const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       const status = response.status.status.toUpperCase();
       if (status === 'REQUIRESACTION') {
@@ -176,7 +183,7 @@ const BNPLScreen = () => {
           paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
             : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -192,7 +199,7 @@ const BNPLScreen = () => {
         setStatus('Expired');
         setLoading(false);
       }
-    } catch (error) {
+    } else {
       setFailedModalState(true);
       setLoading(false);
     }

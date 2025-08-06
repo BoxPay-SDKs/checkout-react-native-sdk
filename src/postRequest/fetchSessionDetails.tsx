@@ -1,11 +1,8 @@
 import axios from 'axios';
-import { getEndpoint } from '../utils/stringUtils';
 
-const fetchSessionDetails = async (env: string, token:string) => {
-    const endpoint: string = getEndpoint(env);
-  const API_URL = `${endpoint}${token}`;
+const fetchSessionDetails = async () => {
   try {
-    const response = await axios.get(API_URL, {});
+    const response = await axios.get("/", {});
 
     const data = await response.data;
     return data;

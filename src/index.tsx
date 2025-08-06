@@ -75,10 +75,10 @@ const BoxpayCheckout = ({
       type: 'upi/intent',
       ...(selectedIntent && { upiAppDetails: { upiApp: selectedIntent } }), // Conditionally add upiAppDetails only if upiIntent is present
     });
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status.status);
       setTransactionId(response.transactionId);
-      const reason = response.status.statusReason;
+      const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       const status = response.status.status.toUpperCase();
       if (status === 'REQUIRESACTION' && response.actions?.length > 0) {
@@ -89,7 +89,7 @@ const BoxpayCheckout = ({
             checkoutDetailsHandler.checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetailsHandler.checkoutDetails.errorMessage
             : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -105,7 +105,7 @@ const BoxpayCheckout = ({
         setStatus('Expired');
         setLoadingState(false);
       }
-    } catch (error) {
+    } else {
       setFailedModalState(true);
       setLoadingState(false);
     }
@@ -130,49 +130,49 @@ const BoxpayCheckout = ({
           };
     setLoadingState(true);
     const response = await upiPostRequest(requestPayload);
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status.status);
-      setTransactionId(response.transactionId);
-      const reason = response.status.statusReason;
-      const reasonCode = response.status.reasonCode;
-      const actionsArray = response.actions;
-      const status = response.status.status.toUpperCase();
-      if (status === 'REQUIRESACTION' && actionsArray.length > 0) {
-        if (Array.isArray(actionsArray)) {
-          if (actionsArray.length > 0) {
-            if (actionsArray[0].type == 'html') {
-              setPaymentHtml(actionsArray[0].htmlPageString);
-            } else {
-              setPaymentUrl(actionsArray[0].url);
-            }
+    setTransactionId(response.transactionId);
+    const reason = response.status.reason;
+    const reasonCode = response.status.reasonCode;
+    const actionsArray = response.actions;
+    const status = response.status.status.toUpperCase();
+    if (status === 'REQUIRESACTION' && actionsArray.length >= 0) {
+      if (Array.isArray(actionsArray)) {
+        if (actionsArray.length > 0) {
+          if (actionsArray[0].type == 'html') {
+            setPaymentHtml(actionsArray[0].htmlPageString);
+          } else {
+            setPaymentUrl(actionsArray[0].url);
           }
-        }
-      } else if (status === 'REQUIRESACTION' && actionsArray.length == 0) {
-        setLoadingState(false);
-        navigateToUpiTimerModal(upiId)
-      } else if (['FAILED', 'REJECTED'].includes(status)) {
-        if (!reasonCode?.startsWith('UF')) {
-          paymentFailedMessage.current =
-            checkoutDetailsHandler.checkoutDetails.errorMessage;
         } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
-            : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
+          setLoadingState(false);
+          navigateToUpiTimerModal(upiId)
         }
-        setStatus('Failed');
-        setFailedModalState(true);
-        setLoadingState(false);
-      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-        setSuccessfulTimeStamp(response.transactionTimestampLocale);
-        setStatus('Success');
-        setSuccessModalState(true);
-        setLoadingState(false);
-      } else if (['EXPIRED'].includes(status)) {
-        setSessionExppireModalState(true);
-        setStatus('Expired');
-        setLoadingState(false);
       }
-    } catch (error) {
+    } else if (['FAILED', 'REJECTED'].includes(status)) {
+      if (!reasonCode?.startsWith('UF')) {
+        paymentFailedMessage.current =
+          checkoutDetailsHandler.checkoutDetails.errorMessage;
+      } else {
+        paymentFailedMessage.current = reason?.includes(':')
+          ? reason.split(':')[1]?.trim() ?? checkoutDetailsHandler.checkoutDetails.errorMessage
+          : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
+      }
+      setStatus('Failed');
+      setFailedModalState(true);
+      setLoadingState(false);
+    } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+      setSuccessfulTimeStamp(response.transactionTimestampLocale);
+      setStatus('Success');
+      setSuccessModalState(true);
+      setLoadingState(false);
+    } else if (['EXPIRED'].includes(status)) {
+      setSessionExppireModalState(true);
+      setStatus('Expired');
+      setLoadingState(false);
+    }
+    } else {
       setFailedModalState(true);
       setLoadingState(false);
     }
@@ -313,77 +313,79 @@ const BoxpayCheckout = ({
     const response = await fetchStatus();
     if (appState == 'active') {
       try {
-        setStatus(response.status);
-        setTransactionId(response.transactionId);
-        const reason = response.statusReason;
-        const reasonCode = response.reasonCode;
-        const status = response.status.toUpperCase();
-        if (
-          ['PENDING'].includes(status) &&
-          lastOpenendUrl.current.startsWith('tez:')
-        ) {
-          paymentFailedMessage.current =
-            'Payment failed with GPay. Please retry payment with a different UPI app';
-          setFailedModalState(true);
-        } else if (
-          ['PENDING'].includes(status) &&
-          lastOpenendUrl.current.startsWith('phonepe:')
-        ) {
-          paymentFailedMessage.current =
-            'Payment failed with PhonePe. Please retry payment with a different UPI app';
-          setFailedModalState(true);
-        } else if (
-          ['PENDING'].includes(status) &&
-          lastOpenendUrl.current.startsWith('paytmmp:')
-        ) {
-          paymentFailedMessage.current =
-            'Payment failed with PayTm. Please retry payment with a different UPI app';
-          setFailedModalState(true);
-        } else if (
-          ['PENDING'].includes(status) &&
-          lastOpenendUrl.current.startsWith('upi:')
-        ) {
-          paymentFailedMessage.current =
-            checkoutDetailsHandler.checkoutDetails.errorMessage;
-          setFailedModalState(true);
-        } else if (
-          ['PENDING'].includes(status) &&
-          lastOpenendUrl.current != ''
-        ) {
-          paymentFailedMessage.current =
-            checkoutDetailsHandler.checkoutDetails.errorMessage;
-          setFailedModalState(true);
-        } else if (['FAILED', 'REJECTED'].includes(status)) {
-          if (!reasonCode?.startsWith('UF')) {
+        if ('status' in response && 'transactionId' in response) {
+          setStatus(response.status);
+          setTransactionId(response.transactionId);
+          const reason = response.reason;
+          const reasonCode = response.reasonCode;
+          const status = response.status.toUpperCase();
+          if (
+            ['PENDING'].includes(status) &&
+            lastOpenendUrl.current.startsWith('tez:')
+          ) {
+            paymentFailedMessage.current =
+              'Payment failed with GPay. Please retry payment with a different UPI app';
+            setFailedModalState(true);
+          } else if (
+            ['PENDING'].includes(status) &&
+            lastOpenendUrl.current.startsWith('phonepe:')
+          ) {
+            paymentFailedMessage.current =
+              'Payment failed with PhonePe. Please retry payment with a different UPI app';
+            setFailedModalState(true);
+          } else if (
+            ['PENDING'].includes(status) &&
+            lastOpenendUrl.current.startsWith('paytmmp:')
+          ) {
+            paymentFailedMessage.current =
+              'Payment failed with PayTm. Please retry payment with a different UPI app';
+            setFailedModalState(true);
+          } else if (
+            ['PENDING'].includes(status) &&
+            lastOpenendUrl.current.startsWith('upi:')
+          ) {
             paymentFailedMessage.current =
               checkoutDetailsHandler.checkoutDetails.errorMessage;
-          } else {
-            paymentFailedMessage.current = reason?.includes(':')
-              ? reason.split(':')[1]?.trim()
-              : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
+            setFailedModalState(true);
+          } else if (
+            ['PENDING'].includes(status) &&
+            lastOpenendUrl.current != ''
+          ) {
+            paymentFailedMessage.current =
+              checkoutDetailsHandler.checkoutDetails.errorMessage;
+            setFailedModalState(true);
+          } else if (['FAILED', 'REJECTED'].includes(status)) {
+            if (!reasonCode?.startsWith('UF')) {
+              paymentFailedMessage.current =
+                checkoutDetailsHandler.checkoutDetails.errorMessage;
+            } else {
+              paymentFailedMessage.current = reason?.includes(':')
+                ? reason.split(':')[1]?.trim() ?? checkoutDetailsHandler.checkoutDetails.errorMessage
+                : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
+            }
+            setStatus('Failed');
+            setFailedModalState(true);
+          } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+            setSuccessfulTimeStamp(response.transactionTimestampLocale);
+            setStatus('Success');
+            setSuccessModalState(true);
+          } else if (['EXPIRED'].includes(status)) {
+            setSessionExppireModalState(true);
+            setStatus('Expired');
           }
-          setStatus('Failed');
-          setFailedModalState(true);
-        } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-          setSuccessfulTimeStamp(response.transactionTimestampLocale);
-          setStatus('Success');
-          setSuccessModalState(true);
-        } else if (['EXPIRED'].includes(status)) {
-          setSessionExppireModalState(true);
-          setStatus('Expired');
-        }
-      } catch (error) {
-        const reason = response.status.reason;
+        } else {
+          const reason = response.status.reason;
         const reasonCode = response.status.reasonCode;
         if (!reasonCode?.startsWith('UF')) {
           paymentFailedMessage.current =
             checkoutDetailsHandler.checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetailsHandler.checkoutDetails.errorMessage
             : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
         }
-      } finally {
+        }
+      } catch (error) {} finally {
         setLoadingState(false);
         appStateListenerRef.current?.remove();
         isUpiOpeningRef.current = false;
@@ -433,7 +435,9 @@ const BoxpayCheckout = ({
       await loadInterCustomFonts();
     }
     loadFonts()
-    fetchSessionDetails(env, token).then(
+    checkoutDetailsHandler.checkoutDetails.env = env
+    checkoutDetailsHandler.checkoutDetails.token = token
+    fetchSessionDetails().then(
       (response) => {
         try {
           setIsFirstLoading(true);

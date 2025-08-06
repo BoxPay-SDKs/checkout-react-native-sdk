@@ -26,6 +26,7 @@ import methodsPostRequest from '../postRequest/methodsPostRequest';
 import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
 import { transformAndFilterList } from '../utils/listAndObjectUtils';
+import Toast from 'react-native-toast-message'
 
 const WalletScreen = () => {
   const [walletList, setWalletList] = useState<PaymentClass[]>([]);
@@ -95,18 +96,24 @@ const WalletScreen = () => {
   });
 
   useEffect(() => {
-    fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then(
-      (data) => {
+    fetchPaymentMethods().then((data) => {
+      if (Array.isArray(data)) {
         const walletList = transformAndFilterList(data, 'Wallet');
         setWalletList(walletList);
         setDefaultWalletList(walletList);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: 'Something went wrong. Please try again.'
+        });      
       }
-    );
+    });
   }, []);
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status);
       setTransactionId(response.transactionId);
       const reasonCode = response.reasonCode;
@@ -117,7 +124,7 @@ const WalletScreen = () => {
           paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
             : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -136,16 +143,16 @@ const WalletScreen = () => {
         stopBackgroundApiTask();
         setLoading(false);
       }
-    } catch (error) {
+    } else {
       const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       if (!reasonCode?.startsWith('UF')) {
         paymentFailedMessage.current = checkoutDetails.errorMessage;
       } else {
-        paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim()
-          : reason || checkoutDetails.errorMessage;
-      }
+          paymentFailedMessage.current = reason?.includes(':')
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
+            : reason || checkoutDetails.errorMessage;
+        }
       setFailedModalState(true);
       setLoading(false);
     }
@@ -172,10 +179,10 @@ const WalletScreen = () => {
   const onProceedForward = async (_: string, instrumentType: string) => {
     setLoading(true);
     const response = await methodsPostRequest(instrumentType, 'wallet');
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status.status);
       setTransactionId(response.transactionId);
-      const reason = response.status.statusReason;
+      const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       const status = response.status.status.toUpperCase();
       if (status === 'REQUIRESACTION') {
@@ -193,7 +200,7 @@ const WalletScreen = () => {
           paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
             : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -209,7 +216,7 @@ const WalletScreen = () => {
         setStatus('Expired');
         setLoading(false);
       }
-    } catch (error) {
+    } else {
       setFailedModalState(true);
       setLoading(false);
     }

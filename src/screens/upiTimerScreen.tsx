@@ -133,7 +133,7 @@ const UpiTimerScreen = () => {
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status);
       setTransactionId(response.transactionId);
       const reasonCode = response.reasonCode;
@@ -144,7 +144,7 @@ const UpiTimerScreen = () => {
           paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
             : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -160,14 +160,14 @@ const UpiTimerScreen = () => {
         setStatus('Expired');
         stopBackgroundApiTask();
       }
-    } catch (error) {
+    } else {
       const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       if (!reasonCode?.startsWith('UF')) {
         paymentFailedMessage.current = checkoutDetails.errorMessage;
       } else {
         paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim()
+          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
           : reason || checkoutDetails.errorMessage;
       }
       setFailedModalState(true);

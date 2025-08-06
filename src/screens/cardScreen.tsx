@@ -141,41 +141,41 @@ const CardScreen = () => {
           }
         }
         await fetchCardDetails(
-          checkoutDetails.token,
-          checkoutDetails.env,
           formatted.replace(/ /g, '')
         ).then((data) => {
-          if (durationNumber != undefined && durationNumber != '') {
-            setEmiIssuerExist(data.issuerName != '' && data.issuerName != null);
-            setEmiIssuer(data.issuerName);
-          }
-          setMethodEnabled(data.methodEnabled);
-          if (data.paymentMethod.brand == 'VISA') {
-            setCardSelectedIcon(require('../assets/images/ic_visa.png'));
-            setMaxCvvLength(3);
-            setMaxCardNumberLength(19);
-          } else if (data.paymentMethod.brand == 'Mastercard') {
-            setCardSelectedIcon(require('../assets/images/ic_masterCard.png'));
-            setMaxCvvLength(3);
-            setMaxCardNumberLength(19);
-          } else if (data.paymentMethod.brand == 'RUPAY') {
-            setCardSelectedIcon(require('../assets/images/ic_rupay.png'));
-            setMaxCvvLength(3);
-            setMaxCardNumberLength(19);
-          } else if (data.paymentMethod.brand == 'AmericanExpress') {
-            setCardSelectedIcon(require('../assets/images/ic_amex.png'));
-            setMaxCvvLength(4);
-            setMaxCardNumberLength(18);
-          } else if (data.paymentMethod.brand == 'Maestro') {
-            setCardSelectedIcon(require('../assets/images/ic_maestro.png'));
-            setMaxCvvLength(3);
-            setMaxCardNumberLength(19);
-          } else {
-            setCardSelectedIcon(
-              require('../assets/images/ic_default_card.png')
-            );
-            setMaxCvvLength(3);
-            setMaxCardNumberLength(19);
+          if('paymentMethod' in data) {
+            if (durationNumber != undefined && durationNumber != '') {
+              setEmiIssuerExist(data.issuerName != '' && data.issuerName != null);
+              setEmiIssuer(data.issuerName ?? "");
+            }
+            setMethodEnabled(data.methodEnabled);
+            if (data.paymentMethod.brand == 'VISA') {
+              setCardSelectedIcon(require('../assets/images/ic_visa.png'));
+              setMaxCvvLength(3);
+              setMaxCardNumberLength(19);
+            } else if (data.paymentMethod.brand == 'Mastercard') {
+              setCardSelectedIcon(require('../assets/images/ic_masterCard.png'));
+              setMaxCvvLength(3);
+              setMaxCardNumberLength(19);
+            } else if (data.paymentMethod.brand == 'RUPAY') {
+              setCardSelectedIcon(require('../assets/images/ic_rupay.png'));
+              setMaxCvvLength(3);
+              setMaxCardNumberLength(19);
+            } else if (data.paymentMethod.brand == 'AmericanExpress') {
+              setCardSelectedIcon(require('../assets/images/ic_amex.png'));
+              setMaxCvvLength(4);
+              setMaxCardNumberLength(18);
+            } else if (data.paymentMethod.brand == 'Maestro') {
+              setCardSelectedIcon(require('../assets/images/ic_maestro.png'));
+              setMaxCvvLength(3);
+              setMaxCardNumberLength(19);
+            } else {
+              setCardSelectedIcon(
+                require('../assets/images/ic_default_card.png')
+              );
+              setMaxCvvLength(3);
+              setMaxCardNumberLength(19);
+            }
           }
         });
       } else {
@@ -427,7 +427,7 @@ const CardScreen = () => {
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status);
       setTransactionId(response.transactionId);
       const reasonCode = response.reasonCode;
@@ -438,7 +438,7 @@ const CardScreen = () => {
           paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
             : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -457,14 +457,14 @@ const CardScreen = () => {
         stopBackgroundApiTask();
         setLoading(false);
       }
-    } catch (error) {
+    } else {
       const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       if (!reasonCode?.startsWith('UF')) {
         paymentFailedMessage.current = checkoutDetails.errorMessage;
       } else {
         paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim()
+          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
           : reason || checkoutDetails.errorMessage;
       }
       setFailedModalState(true);
@@ -474,98 +474,97 @@ const CardScreen = () => {
 
   const onProceedForward = async () => {
     let response;
-    try {
-      setLoading(true);
-
-      if (durationNumber !== undefined && durationNumber !== '') {
-        response = await emiPostRequest(
-          cardNumberText || '',
-          cardExpiryText || '',
-          cardCvvText || '',
-          cardHolderNameText || '',
-          cardTypeStr || '',
-          offerCodeStr || '',
-          durationNumber
-        );
-      } else {
-        response = await cardPostRequest(
-          cardNumberText || '',
-          cardExpiryText || '',
-          cardCvvText || '',
-          cardHolderNameText || '',
-          cardNickNameText || '',
-          isSavedCardCheckBoxClicked
-        );
-      }
+    setLoading(true);
+    if (durationNumber !== undefined && durationNumber !== '') {
+      response = await emiPostRequest(
+        cardNumberText || '',
+        cardExpiryText || '',
+        cardCvvText || '',
+        cardHolderNameText || '',
+        cardTypeStr || '',
+        offerCodeStr || '',
+        durationNumber
+      );
+    } else {
+      response = await cardPostRequest(
+        cardNumberText || '',
+        cardExpiryText || '',
+        cardCvvText || '',
+        cardHolderNameText || '',
+        cardNickNameText || '',
+        isSavedCardCheckBoxClicked
+      );
+    }
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status.status);
-      setTransactionId(response.transactionId);
+    setTransactionId(response.transactionId);
 
-      const status = response.status.status.toUpperCase();
+    const status = response.status.status.toUpperCase();
 
-      if (status === 'REQUIRESACTION') {
-        if (Array.isArray(response.actions) && response.actions.length > 0) {
-          if (response.actions[0].type === 'html') {
-            setPaymentHtml(response.actions[0].htmlPageString);
-          } else {
-            setPaymentUrl(response.actions[0].url);
-            if (
-              Array.isArray(response.actions) &&
-              response.actions.length > 0
-            ) {
-              if (response.actions[0].type === 'html') {
-                setPaymentHtml(response.actions[0].htmlPageString);
-              } else {
-                setPaymentUrl(response.actions[0].url);
-              }
+    if (status === 'REQUIRESACTION') {
+      if (Array.isArray(response.actions) && response.actions.length > 0) {
+        if (response.actions[0].type === 'html') {
+          setPaymentHtml(response.actions[0].htmlPageString);
+        } else {
+          setPaymentUrl(response.actions[0].url);
+          if (
+            Array.isArray(response.actions) &&
+            response.actions.length > 0
+          ) {
+            if (response.actions[0].type === 'html') {
+              setPaymentHtml(response.actions[0].htmlPageString);
+            } else {
+              setPaymentUrl(response.actions[0].url);
             }
           }
-        } else {
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-          setFailedModalState(true);
-          setStatus('Failed');
-          setLoading(false);
         }
-      } else if (['FAILED', 'REJECTED'].includes(status)) {
-        const reason = response.status.reason || '';
-        const reasonCode = response.status.reasonCode || '';
-
-        if (!reasonCode.startsWith('UF')) {
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-        } else {
-          paymentFailedMessage.current = reason.includes(':')
-            ? reason.split(':')[1]?.trim()
-            : reason || checkoutDetails.errorMessage;
-        }
-
+      } else {
+        paymentFailedMessage.current = checkoutDetails.errorMessage;
         setFailedModalState(true);
         setStatus('Failed');
         setLoading(false);
-      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-        setSuccessfulTimeStamp(response.transactionTimestampLocale);
-        setSuccessModalState(true);
-        setStatus('Success');
-        setLoading(false);
-      } else if (status === 'EXPIRED') {
-        setSessionExppireModalState(true);
-        setLoading(false);
-      } else if (status === 'EXPIRED') {
-        setSessionExppireModalState(true);
-        setStatus('Expired');
-        setLoading(false);
       }
-    } catch (error) {
-      const reasonCode = response.status.reasonCode || '';
+    } else if (['FAILED', 'REJECTED'].includes(status)) {
       const reason = response.status.reason || '';
+      const reasonCode = response.status.reasonCode || '';
+
       if (!reasonCode.startsWith('UF')) {
         paymentFailedMessage.current = checkoutDetails.errorMessage;
       } else {
         paymentFailedMessage.current = reason.includes(':')
-          ? reason.split(':')[1]?.trim()
+          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
           : reason || checkoutDetails.errorMessage;
       }
+
       setFailedModalState(true);
       setStatus('Failed');
       setLoading(false);
+    } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
+      setSuccessfulTimeStamp(response.transactionTimestampLocale);
+      setSuccessModalState(true);
+      setStatus('Success');
+      setLoading(false);
+    } else if (status === 'EXPIRED') {
+      setSessionExppireModalState(true);
+      setLoading(false);
+    } else if (status === 'EXPIRED') {
+      setSessionExppireModalState(true);
+      setStatus('Expired');
+      setLoading(false);
+    }
+    } else {
+      const reasonCode = response.status.reasonCode || '';
+    const reason = response.status.reason || '';
+    if (!reasonCode.startsWith('UF')) {
+      paymentFailedMessage.current = checkoutDetails.errorMessage;
+    } else {
+      paymentFailedMessage.current = reason.includes(':')
+        ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
+        : reason || checkoutDetails.errorMessage;
+    }
+    setFailedModalState(true);
+    setStatus('Failed');
+    setLoading(false);
     }
   };
 

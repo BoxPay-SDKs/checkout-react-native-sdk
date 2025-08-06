@@ -2,18 +2,16 @@ import Constants from 'expo-constants';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import axios from 'axios';
 import { userDataHandler } from '../sharedContext/userdataHandler';
-import type { DeliveryAddress } from '../interface';
-import { getEndpoint } from '../utils/stringUtils';
+import type { DeliveryAddress, ErrorResponse, PaymentMethodPostResponse } from '../interface';
 import { getDeviceDetails } from '../utils/listAndObjectUtils';
 
 const methodsPostRequest = async (
   instrumentDetails: string,
   paymentMethod: string
-) => {
+) : Promise<PaymentMethodPostResponse | ErrorResponse> => {
   const { userData } = userDataHandler;
   const { checkoutDetails } = checkoutDetailsHandler;
   const deviceDetails = getDeviceDetails()
-  const endpoint: string = getEndpoint(checkoutDetails.env);
   const isDeliveryAddressEmpty = (address: DeliveryAddress): boolean => {
     return Object.values(address).every(
       (value) => value === null || value === undefined || value === ''
@@ -72,12 +70,9 @@ const methodsPostRequest = async (
     deviceDetails: deviceDetails
   };
 
-  const API_URL = `${endpoint}${checkoutDetails.token}`;
   try {
-    const response = await axios.post(API_URL, requestBody);
-
-    const data = await response.data;
-    return data;
+    const response = await axios.post("/", requestBody);
+    return response.data;
   } catch (error) {
     return { status: { reasonCode: 'API_FAILED', reason: '' } };
   }

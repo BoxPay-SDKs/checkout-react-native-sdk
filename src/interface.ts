@@ -37,6 +37,13 @@ export interface CheckoutDetails {
   isPanEditable: boolean;
   isDOBEnabled: boolean;
   isDOBEditable: boolean;
+  isUpiIntentMethodEnabled : boolean,
+  isUpiCollectMethodEnabled : boolean,
+  isCardMethodEnabled : boolean,
+  isWalletMethodEnabled : boolean,
+  isNetBankingMethodEnabled : boolean,
+  isEmiMethodEnabled : boolean,
+  isBnplMethodEnabled : boolean
 }
 
 export interface CardType {
@@ -181,6 +188,11 @@ export interface EMIPaymentMethod {
   };
 }
 
+export interface CombinedPaymentMethod extends PaymentMethod {
+  emiMethod?: EMIPaymentMethod['emiMethod']; // Making emiMethod optional
+  applicableOffers: any[]
+}
+
 export interface RecommendedInstruments {
   type: string;
   brand: string;
@@ -196,4 +208,50 @@ export interface OrderItem {
   quantity: number;
   imageUrl: string;
   amountWithoutTaxLocaleFull: string;
+}
+
+export interface ErrorResponse {
+  status: {
+    reasonCode: string;
+    reason: string;
+  };
+}
+
+export interface FetchStatusResponse {
+  status : string,
+  transactionId : string,
+  reasonCode : string,
+  reason : string,
+  transactionTimestampLocale : string
+}
+
+export interface PaymentMethodPostResponse {
+  transactionId : string,
+  transactionTimestampLocale : string,
+  status : {
+    status : string,
+    reason : string,
+    reasonCode : string
+  },
+  actions : [PaymentActions]
+}
+
+interface PaymentActions {
+  method : string,
+  url : string,
+  type : string,
+  htmlPageString : string
+}
+
+export interface FetchCardDetailsResponse {
+  paymentMethod : {
+    id : string,
+    type : string,
+    brand : string,
+    issuer : string,
+    classification : string
+  }
+  methodEnabled : boolean,
+  issuerName : string | null,
+  issuerTitle : string | null
 }

@@ -26,6 +26,7 @@ import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
 import PaymentSelectorView from '../components/paymentSelector';
 import { transformAndFilterList } from '../utils/listAndObjectUtils';
+import Toast from 'react-native-toast-message'
 
 const NetBankingScreen = () => {
   const [netBankingList, setNetBankingList] = useState<PaymentClass[]>([]);
@@ -107,8 +108,8 @@ const NetBankingScreen = () => {
   });
 
   useEffect(() => {
-    fetchPaymentMethods(checkoutDetails.token, checkoutDetails.env).then(
-      (data) => {
+    fetchPaymentMethods().then((data) => {
+      if (Array.isArray(data)) {
         const netBankingList = transformAndFilterList(data, 'NetBanking');
         const popularList = netBankingList.filter((item: PaymentClass) =>
           defaultpopularNetBankingList.includes(item.displayValue ?? '')
@@ -116,13 +117,19 @@ const NetBankingScreen = () => {
         setPopularNetBankingList(popularList);
         setNetBankingList(netBankingList);
         setDefaultNetBankingList(netBankingList);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: 'Something went wrong. Please try again.'
+        });      
       }
-    );
+    });
   }, []);
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status);
       setTransactionId(response.transactionId);
       const reasonCode = response.reasonCode;
@@ -133,7 +140,7 @@ const NetBankingScreen = () => {
           paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
             : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -152,14 +159,14 @@ const NetBankingScreen = () => {
         stopBackgroundApiTask();
         setLoading(false);
       }
-    } catch (error) {
+    } else {
       const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       if (!reasonCode?.startsWith('UF')) {
         paymentFailedMessage.current = checkoutDetails.errorMessage;
       } else {
         paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim()
+          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
           : reason || checkoutDetails.errorMessage;
       }
       setFailedModalState(true);
@@ -188,10 +195,10 @@ const NetBankingScreen = () => {
   const onProceedForward = async (_: string, instrumentType: string) => {
     setLoading(true);
     const response = await methodsPostRequest(instrumentType, 'netBanking');
-    try {
+    if ('status' in response && 'transactionId' in response) {
       setStatus(response.status.status);
       setTransactionId(response.transactionId);
-      const reason = response.status.statusReason;
+      const reason = response.status.reason;
       const reasonCode = response.status.reasonCode;
       const status = response.status.status.toUpperCase();
       if (status === 'REQUIRESACTION') {
@@ -209,7 +216,7 @@ const NetBankingScreen = () => {
           paymentFailedMessage.current = checkoutDetails.errorMessage;
         } else {
           paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim()
+            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
             : reason || checkoutDetails.errorMessage;
         }
         setStatus('Failed');
@@ -225,7 +232,7 @@ const NetBankingScreen = () => {
         setStatus('Expired');
         setLoading(false);
       }
-    } catch (error) {
+    } else {
       setFailedModalState(true);
       setLoading(false);
     }

@@ -1,17 +1,10 @@
 import axios from 'axios';
-import { getEndpoint } from '../utils/stringUtils';
-import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import type { ErrorResponse, FetchStatusResponse } from '../interface';
 
-const fetchStatus = async () => {
-  const {checkoutDetails} = checkoutDetailsHandler
-  const endpoint: string = getEndpoint(checkoutDetails.env);
-
-  const API_URL = `${endpoint}${checkoutDetails.token}/status`;
+const fetchStatus = async () : Promise<FetchStatusResponse | ErrorResponse> => {
   try {
-    const response = await axios.get(API_URL);
-
-    const data = await response.data;
-    return data;
+    const response = await axios.get("/status");
+    return response.data;
   } catch (error) {
     console.error('API Error:', error);
     return { status: { reasonCode: 'API_FAILED', reason: '' } };
