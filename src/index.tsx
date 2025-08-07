@@ -29,6 +29,7 @@ import AddressComponent from './components/addressCard';
 import { navigateToAddressScreen, navigateToCardScreen, navigateToUpiTimerModal } from './navigation';
 import fetchSessionDetails from './postRequest/fetchSessionDetails';
 import MorePaymentMethods from './components/morePaymentMethods';
+import { handleFetchStatusResponseHandler, handlePaymentResponse } from './sharedContext/handlePaymentResponseHandler';
 
 const BoxpayCheckout = ({
   token,
@@ -75,40 +76,26 @@ const BoxpayCheckout = ({
       type: 'upi/intent',
       ...(selectedIntent && { upiAppDetails: { upiApp: selectedIntent } }), // Conditionally add upiAppDetails only if upiIntent is present
     });
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status.status);
-      setTransactionId(response.transactionId);
-      const reason = response.status.reason;
-      const reasonCode = response.status.reasonCode;
-      const status = response.status.status.toUpperCase();
-      if (status === 'REQUIRESACTION' && response.actions?.length > 0) {
-        urlToBase64(response.actions[0].url);
-      } else if (['FAILED', 'REJECTED'].includes(status)) {
-        if (!reasonCode?.startsWith('UF')) {
-          paymentFailedMessage.current =
-            checkoutDetailsHandler.checkoutDetails.errorMessage;
-        } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim() ?? checkoutDetailsHandler.checkoutDetails.errorMessage
-            : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
-        }
-        setStatus('Failed');
-        setFailedModalState(true);
-        setLoadingState(false);
-      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-        setSuccessfulTimeStamp(response.transactionTimestampLocale);
-        setStatus('Success');
+    handlePaymentResponse({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetPaymentHtml: setPaymentHtml,
+      onSetPaymentUrl: setPaymentUrl,
+      onSetFailedMessage: (msg) => (paymentFailedMessage.current = msg),
+      onShowFailedModal: () => setFailedModalState(true),
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
         setSuccessModalState(true);
-        setLoadingState(false);
-      } else if (['EXPIRED'].includes(status)) {
-        setSessionExppireModalState(true);
-        setStatus('Expired');
-        setLoadingState(false);
-      }
-    } else {
-      setFailedModalState(true);
-      setLoadingState(false);
-    }
+      },
+      onShowSessionExpiredModal: () => setSessionExppireModalState(true),
+      onNavigateToTimer: navigateToUpiTimerModal,
+      onOpenUpiIntent : (url) => {
+        urlToBase64(url);
+      },
+      setLoading: setLoadingState
+    });
   };
 
   const handleUpiCollectPayment = async (
@@ -130,52 +117,27 @@ const BoxpayCheckout = ({
           };
     setLoadingState(true);
     const response = await upiPostRequest(requestPayload);
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status.status);
-    setTransactionId(response.transactionId);
-    const reason = response.status.reason;
-    const reasonCode = response.status.reasonCode;
-    const actionsArray = response.actions;
-    const status = response.status.status.toUpperCase();
-    if (status === 'REQUIRESACTION' && actionsArray.length >= 0) {
-      if (Array.isArray(actionsArray)) {
-        if (actionsArray.length > 0) {
-          if (actionsArray[0].type == 'html') {
-            setPaymentHtml(actionsArray[0].htmlPageString);
-          } else {
-            setPaymentUrl(actionsArray[0].url);
-          }
-        } else {
-          setLoadingState(false);
-          navigateToUpiTimerModal(upiId)
-        }
-      }
-    } else if (['FAILED', 'REJECTED'].includes(status)) {
-      if (!reasonCode?.startsWith('UF')) {
-        paymentFailedMessage.current =
-          checkoutDetailsHandler.checkoutDetails.errorMessage;
-      } else {
-        paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim() ?? checkoutDetailsHandler.checkoutDetails.errorMessage
-          : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
-      }
-      setStatus('Failed');
-      setFailedModalState(true);
-      setLoadingState(false);
-    } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-      setSuccessfulTimeStamp(response.transactionTimestampLocale);
-      setStatus('Success');
-      setSuccessModalState(true);
-      setLoadingState(false);
-    } else if (['EXPIRED'].includes(status)) {
-      setSessionExppireModalState(true);
-      setStatus('Expired');
-      setLoadingState(false);
-    }
-    } else {
-      setFailedModalState(true);
-      setLoadingState(false);
-    }
+    handlePaymentResponse({
+      response: response,
+      upiId: upiId,
+      checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetPaymentHtml: setPaymentHtml,
+      onSetPaymentUrl: setPaymentUrl,
+      onSetFailedMessage: (msg) => (paymentFailedMessage.current = msg),
+      onShowFailedModal: () => setFailedModalState(true),
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
+        setSuccessModalState(true);
+      },
+      onShowSessionExpiredModal: () => setSessionExppireModalState(true),
+      onNavigateToTimer: navigateToUpiTimerModal,
+      onOpenUpiIntent : (url) => {
+        urlToBase64(url);
+      },
+      setLoading: setLoadingState
+    });
   };
 
   useFocusEffect(
@@ -312,84 +274,22 @@ const BoxpayCheckout = ({
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
     if (appState == 'active') {
-      try {
-        if ('status' in response && 'transactionId' in response) {
-          setStatus(response.status);
-          setTransactionId(response.transactionId);
-          const reason = response.reason;
-          const reasonCode = response.reasonCode;
-          const status = response.status.toUpperCase();
-          if (
-            ['PENDING'].includes(status) &&
-            lastOpenendUrl.current.startsWith('tez:')
-          ) {
-            paymentFailedMessage.current =
-              'Payment failed with GPay. Please retry payment with a different UPI app';
-            setFailedModalState(true);
-          } else if (
-            ['PENDING'].includes(status) &&
-            lastOpenendUrl.current.startsWith('phonepe:')
-          ) {
-            paymentFailedMessage.current =
-              'Payment failed with PhonePe. Please retry payment with a different UPI app';
-            setFailedModalState(true);
-          } else if (
-            ['PENDING'].includes(status) &&
-            lastOpenendUrl.current.startsWith('paytmmp:')
-          ) {
-            paymentFailedMessage.current =
-              'Payment failed with PayTm. Please retry payment with a different UPI app';
-            setFailedModalState(true);
-          } else if (
-            ['PENDING'].includes(status) &&
-            lastOpenendUrl.current.startsWith('upi:')
-          ) {
-            paymentFailedMessage.current =
-              checkoutDetailsHandler.checkoutDetails.errorMessage;
-            setFailedModalState(true);
-          } else if (
-            ['PENDING'].includes(status) &&
-            lastOpenendUrl.current != ''
-          ) {
-            paymentFailedMessage.current =
-              checkoutDetailsHandler.checkoutDetails.errorMessage;
-            setFailedModalState(true);
-          } else if (['FAILED', 'REJECTED'].includes(status)) {
-            if (!reasonCode?.startsWith('UF')) {
-              paymentFailedMessage.current =
-                checkoutDetailsHandler.checkoutDetails.errorMessage;
-            } else {
-              paymentFailedMessage.current = reason?.includes(':')
-                ? reason.split(':')[1]?.trim() ?? checkoutDetailsHandler.checkoutDetails.errorMessage
-                : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
-            }
-            setStatus('Failed');
-            setFailedModalState(true);
-          } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-            setSuccessfulTimeStamp(response.transactionTimestampLocale);
-            setStatus('Success');
-            setSuccessModalState(true);
-          } else if (['EXPIRED'].includes(status)) {
-            setSessionExppireModalState(true);
-            setStatus('Expired');
-          }
-        } else {
-          const reason = response.status.reason;
-        const reasonCode = response.status.reasonCode;
-        if (!reasonCode?.startsWith('UF')) {
-          paymentFailedMessage.current =
-            checkoutDetailsHandler.checkoutDetails.errorMessage;
-        } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim() ?? checkoutDetailsHandler.checkoutDetails.errorMessage
-            : reason || checkoutDetailsHandler.checkoutDetails.errorMessage;
-        }
-        }
-      } catch (error) {} finally {
-        setLoadingState(false);
-        appStateListenerRef.current?.remove();
-        isUpiOpeningRef.current = false;
-      }
+      handleFetchStatusResponseHandler({
+        response: response,
+        checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
+        onSetStatus: setStatus,
+        onSetTransactionId: setTransactionId,
+        onSetFailedMessage: (msg) => (paymentFailedMessage.current = msg),
+        onShowFailedModal: () => setFailedModalState(true),
+        onShowSuccessModal: (ts) => {
+          setSuccessfulTimeStamp(ts);
+          setSuccessModalState(true);
+        },
+        onShowSessionExpiredModal: () => setSessionExppireModalState(true),
+        setLoading: setLoadingState
+      });
+      appStateListenerRef.current?.remove();
+      isUpiOpeningRef.current = false;
     }
   };
 

@@ -1,12 +1,12 @@
 import axios from 'axios';
-import type { CombinedPaymentMethod, ErrorResponse } from '../interface';
+import { APIStatus, type PaymentMethodFetchResponse } from '../interface';
 
-const fetchPaymentMethods = async () : Promise<CombinedPaymentMethod[] | ErrorResponse> => {
+const fetchPaymentMethods = async () : Promise<PaymentMethodFetchResponse> => {
   try {
     const response = await axios.get("/payment-methods");
-    return response.data;
+    return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
-    return { status: { reasonCode: 'API_FAILED', reason: '' } };
+    return { apiStatus : APIStatus.Failed,data : {status: { reasonCode: 'API_FAILED', reason: '' } }};
   }
 };
 

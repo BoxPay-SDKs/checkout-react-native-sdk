@@ -10,12 +10,13 @@ import {
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { router } from 'expo-router';
-import type {
-  Bank,
-  ChooseEmiModel,
-  Emi,
-  PaymentResult,
-  CombinedPaymentMethod,
+import {
+  type Bank,
+  type ChooseEmiModel,
+  type Emi,
+  type PaymentResult,
+  type PaymentMethod,
+  APIStatus
 } from '../interface';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
@@ -34,6 +35,7 @@ import WebViewScreen from './webViewScreen';
 import fetchStatus from '../postRequest/fetchStatus';
 import PaymentSelectorView from '../components/paymentSelector';
 import Toast from 'react-native-toast-message'
+import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 
 const EmiScreen = () => {
   const [emiBankList, setEmiBankList] = useState<ChooseEmiModel>({ cards: [] });
@@ -82,10 +84,12 @@ const EmiScreen = () => {
   );
 
   useEffect(() => {
-    fetchPaymentMethods().then(
-      (data) => {
-        if (Array.isArray(data)) {
-          data.forEach((paymentMethod: CombinedPaymentMethod) => {
+    const fetchData = async () => {
+      const response = await fetchPaymentMethods()
+      switch(response.apiStatus) {
+        case APIStatus.Success : {
+          const data = response.data
+          data.forEach((paymentMethod: PaymentMethod) => {
             if (paymentMethod.type === 'Emi') {
               const title = paymentMethod.title;
               const emiCardName = title?.includes('Credit')
@@ -154,15 +158,20 @@ const EmiScreen = () => {
               }
             }
           });
-        } else {
+          break
+        }
+        case APIStatus.Failed : {
           Toast.show({
             type: 'error',
             text1: 'Oops!',
             text2: 'Something went wrong. Please try again.'
           });
+          break
         }
       }
-    );
+    }
+
+    fetchData()
   }, []);
 
   useEffect(() => {
@@ -185,49 +194,27 @@ const EmiScreen = () => {
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status);
-      setTransactionId(response.transactionId);
-      const reasonCode = response.reasonCode;
-      const status = response.status.toUpperCase();
-      if (['FAILED', 'REJECTED'].includes(status)) {
-        const reason = response.reason;
-        if (!reasonCode?.startsWith('UF')) {
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-        } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-            : reason || checkoutDetails.errorMessage;
-        }
-        setStatus('Failed');
-        setFailedModalOpen(true);
-        setLoading(false);
-        stopBackgroundApiTask();
-      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-        setSuccessfulTimeStamp(response.transactionTimestampLocale);
+    handleFetchStatusResponseHandler({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetFailedMessage: (msg) => {
+        paymentFailedMessage.current = msg
+      },
+      onShowFailedModal: () => {
+        setFailedModalOpen(true)
+      },
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
         setSuccessModalOpen(true);
-        setStatus('Success');
-        stopBackgroundApiTask();
-        setLoading(false);
-      } else if (['EXPIRED'].includes(status)) {
-        setSessionExppireModalOpen(true);
-        setStatus('Expired');
-        stopBackgroundApiTask();
-        setLoading(false);
-      }
-    } else {
-      const reason = response.status.reason;
-      const reasonCode = response.status.reasonCode;
-      if (!reasonCode?.startsWith('UF')) {
-        paymentFailedMessage.current = checkoutDetails.errorMessage;
-      } else {
-        paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-          : reason || checkoutDetails.errorMessage;
-      }
-      setFailedModalOpen(true);
-      setLoading(false);
-    }
+      },
+      onShowSessionExpiredModal: () => {
+        setSessionExppireModalOpen(true)
+      },
+      setLoading: setLoading,
+      stopBackgroundApiTask: stopBackgroundApiTask
+    });
   };
 
   useEffect(() => {
@@ -252,61 +239,22 @@ const EmiScreen = () => {
     let response;
     setLoading(true);
     response = await emiPostRequest('', '', '', '', '', '', instrumentValue);
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status.status);
-    setTransactionId(response.transactionId);
-
-    const status = response.status.status.toUpperCase();
-
-    if (status === 'REQUIRESACTION') {
-      if (Array.isArray(response.actions) && response.actions.length > 0) {
-        if (response.actions[0].type === 'html') {
-          setPaymentHtml(response.actions[0].htmlPageString);
-        } else {
-          setPaymentUrl(response.actions[0].url);
-        }
-      }
-    } else if (['FAILED', 'REJECTED'].includes(status)) {
-      const reason = response.status.reason || '';
-      const reasonCode = response.status.reasonCode || '';
-
-      if (!reasonCode.startsWith('UF')) {
-        paymentFailedMessage.current = checkoutDetails.errorMessage;
-      } else {
-        paymentFailedMessage.current = reason.includes(':')
-          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-          : reason || checkoutDetails.errorMessage;
-      }
-
-      setFailedModalOpen(true);
-      setStatus('Failed');
-      setLoading(false);
-    } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-      setSuccessfulTimeStamp(response.transactionTimestampLocale);
-      setSuccessModalOpen(true);
-      setStatus('Success');
-      setLoading(false);
-    } else if (status === 'EXPIRED') {
-      setSessionExppireModalOpen(true);
-      setStatus('Expired');
-      setLoading(false);
-    }
-    } else {
-      const reason = response.status.reason || '';
-    const reasonCode = response.status.reasonCode || '';
-
-    if (!reasonCode.startsWith('UF')) {
-      paymentFailedMessage.current = checkoutDetails.errorMessage;
-    } else {
-      paymentFailedMessage.current = reason.includes(':')
-        ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-        : reason || checkoutDetails.errorMessage;
-    }
-
-    setFailedModalOpen(true);
-    setStatus('Failed');
-    setLoading(false);
-    }
+    handlePaymentResponse({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetPaymentHtml: setPaymentHtml,
+      onSetPaymentUrl: setPaymentUrl,
+      onSetFailedMessage: (msg) => (paymentFailedMessage.current = msg),
+      onShowFailedModal: () => setFailedModalOpen(true),
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
+        setSuccessModalOpen(true);
+      },
+      onShowSessionExpiredModal: () => setSessionExppireModalOpen(true),
+      setLoading: setLoading
+    });
   };
 
   const addBankDetails = (cardType: string, bank: Bank, emi: Emi) => {

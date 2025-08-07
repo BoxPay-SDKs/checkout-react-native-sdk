@@ -1,13 +1,14 @@
 import axios from 'axios';
-import type { ErrorResponse, FetchStatusResponse } from '../interface';
+import type { FetchStatusApiResponse } from '../interface';
+import { APIStatus } from '../interface';
 
-const fetchStatus = async () : Promise<FetchStatusResponse | ErrorResponse> => {
+const fetchStatus = async () : Promise<FetchStatusApiResponse> => {
   try {
     const response = await axios.get("/status");
-    return response.data;
+    return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
     console.error('API Error:', error);
-    return { status: { reasonCode: 'API_FAILED', reason: '' } };
+    return { apiStatus: APIStatus.Failed, data : {status: { reasonCode: 'API_FAILED', reason: '' }} };
   }
 };
 

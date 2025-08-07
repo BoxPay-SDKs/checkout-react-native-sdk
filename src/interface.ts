@@ -154,13 +154,7 @@ export interface PaymentMethod {
   title: string;
   logoUrl: string;
   instrumentTypeValue: string;
-}
-
-export interface EMIPaymentMethod {
-  type: string;
-  title: string;
-  logoUrl: string;
-  emiMethod: {
+  emiMethod?: {
     brand: string;
     issuer: string;
     duration: number;
@@ -186,11 +180,6 @@ export interface EMIPaymentMethod {
       amountLocaleFull: string;
     };
   };
-}
-
-export interface CombinedPaymentMethod extends PaymentMethod {
-  emiMethod?: EMIPaymentMethod['emiMethod']; // Making emiMethod optional
-  applicableOffers: any[]
 }
 
 export interface RecommendedInstruments {
@@ -254,4 +243,79 @@ export interface FetchCardDetailsResponse {
   methodEnabled : boolean,
   issuerName : string | null,
   issuerTitle : string | null
+}
+
+export interface HandlePaymentOptions {
+  response: PaymentExecutedPostResponse;
+  upiId?: string;
+  checkoutDetailsErrorMessage: string;
+  onSetStatus: (status: string) => void;
+  onSetTransactionId: (txnId: string) => void;
+  onSetPaymentUrl: (url: string) => void;
+  onSetPaymentHtml: (html: string) => void;
+  onSetFailedMessage: (message: string) => void;
+  onShowFailedModal: () => void;
+  onShowSuccessModal: (timestamp: string) => void;
+  onShowSessionExpiredModal: () => void;
+  onNavigateToTimer?: (upiId: string) => void;
+  onOpenUpiIntent?: (url: string) => void; 
+  setLoading: (loading: boolean) => void;
+}
+
+export type PaymentExecutedPostResponse =
+| {
+    apiStatus: APIStatus.Success;
+    data: PaymentMethodPostResponse;
+  }
+| {
+    apiStatus: APIStatus.Failed;
+    data: ErrorResponse;
+  };
+
+export type FetchStatusApiResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: FetchStatusResponse;
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+export type PaymentMethodFetchResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: PaymentMethod[];
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+export interface HandleFetchStatusOptions {
+  response: FetchStatusApiResponse;
+  checkoutDetailsErrorMessage: string;
+  onSetStatus: (status: string) => void;
+  onSetTransactionId: (txnId: string) => void;
+  onSetFailedMessage: (message: string) => void;
+  onShowFailedModal: () => void;
+  onShowSuccessModal: (timestamp: string) => void;
+  onShowSessionExpiredModal: () => void;
+  setLoading?: (loading: boolean) => void;
+  stopBackgroundApiTask? : () => void
+}
+
+export enum TransactionStatus {
+  RequiresAction = 'REQUIRESACTION',
+  Failed = 'FAILED',
+  Rejected = 'REJECTED',
+  Approved = 'APPROVED',
+  Success = 'SUCCESS',
+  Paid = 'PAID',
+  Expired = 'EXPIRED',
+}
+
+export enum APIStatus {
+  Success = 'SUCCESS',
+  Failed = 'FAILED',
 }

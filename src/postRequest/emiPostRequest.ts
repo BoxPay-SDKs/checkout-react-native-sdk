@@ -1,8 +1,9 @@
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { userDataHandler } from '../sharedContext/userdataHandler';
-import type { DeliveryAddress, ErrorResponse, PaymentMethodPostResponse } from '../interface';
+import type { PaymentExecutedPostResponse, DeliveryAddress } from '../interface';
 import { getDeviceDetails } from '../utils/listAndObjectUtils';
+import { APIStatus } from '../interface';
 
 const emiPostRequest = async (
   cardNumber: string,
@@ -12,7 +13,7 @@ const emiPostRequest = async (
   cardType: string,
   offerCode: string,
   duration: string
-) : Promise<PaymentMethodPostResponse | ErrorResponse> => {
+) : Promise<PaymentExecutedPostResponse> => {
   const { userData } = userDataHandler;
   const deviceDetails = getDeviceDetails()
   const formatExpiry = (input: string) => {
@@ -99,9 +100,9 @@ const emiPostRequest = async (
   };
   try {
     const response = await axios.post("/", requestBody);
-    return response.data;
+    return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
-    return { status: { reasonCode: 'API_FAILED', reason: '' } };
+    return { apiStatus : APIStatus.Failed, data : {status: { reasonCode: 'API_FAILED', reason: '' }} };
   }
 };
 

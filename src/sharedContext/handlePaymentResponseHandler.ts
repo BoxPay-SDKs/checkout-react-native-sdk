@@ -1,0 +1,217 @@
+import { type HandleFetchStatusOptions, type HandlePaymentOptions, type PaymentClass, APIStatus, TransactionStatus } from "../interface";
+import { transformAndFilterList } from '../utils/listAndObjectUtils';
+import Toast from 'react-native-toast-message'
+import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
+
+export function handlePaymentResponse({
+    response,
+    upiId,
+    checkoutDetailsErrorMessage,
+    onSetStatus,
+    onSetTransactionId,
+    onSetPaymentUrl,
+    onSetPaymentHtml,
+    onSetFailedMessage,
+    onShowFailedModal,
+    onShowSuccessModal,
+    onShowSessionExpiredModal,
+    onNavigateToTimer,
+    onOpenUpiIntent, // 👈 new
+    setLoading
+  }: HandlePaymentOptions) {
+    switch(response.apiStatus) {
+        case APIStatus.Success: {
+            const apidata = response.data
+            const { status, reason, reasonCode } = apidata.status;
+            const actionsArray = apidata.actions || [];
+            const txnStatus = status.toUpperCase() as TransactionStatus;
+  
+            onSetStatus(status);
+            onSetTransactionId(apidata.transactionId);
+        
+            switch (txnStatus) {
+                case TransactionStatus.RequiresAction:
+                    if (actionsArray.length > 0) {
+                        const action = actionsArray[0];
+            
+                        switch (action.type) {
+                        case 'html':
+                            if (action.htmlPageString) {
+                            onSetPaymentHtml(action.htmlPageString);
+                            }
+                            break;
+            
+                        case 'redirect':
+                            if (action.url) {
+                                onSetPaymentUrl(action.url);
+                            }
+                            break;
+            
+                        case 'appRedirect':
+                            if (action.url && onOpenUpiIntent) {
+                                onOpenUpiIntent(action.url); // 👈 launch UPI intent
+                            }
+                            break;
+            
+                        default:
+                            break;
+                        }
+                    } else {
+                        setLoading(false);
+                        if (upiId && onNavigateToTimer) {
+                            onNavigateToTimer(upiId);
+                        }
+                    }
+                    break;
+        
+                case TransactionStatus.Failed:
+                case TransactionStatus.Rejected:
+                    const fallback = checkoutDetailsErrorMessage;
+                    const errorMessage =
+                        reasonCode?.startsWith('UF')
+                        ? reason?.includes(':')
+                            ? reason.split(':')[1]?.trim() ?? fallback
+                            : reason ?? fallback
+                        : fallback;
+            
+                    onSetFailedMessage(errorMessage);
+                    onSetStatus(TransactionStatus.Failed);
+                    onShowFailedModal();
+                    setLoading(false);
+                    break;
+        
+                case TransactionStatus.Approved:
+                case TransactionStatus.Success:
+                case TransactionStatus.Paid:
+                    onSetStatus(TransactionStatus.Success);
+                    onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
+                    setLoading(false);
+                    break;
+        
+                case TransactionStatus.Expired:
+                    onSetStatus(TransactionStatus.Expired);
+                    onShowSessionExpiredModal();
+                    setLoading(false);
+                    break;
+        
+                default:
+                    onShowFailedModal();
+                    setLoading(false);
+                    break;
+            }
+        }
+        break;
+        case APIStatus.Failed : {
+            onSetFailedMessage(response.data.status.reason);
+            onSetStatus(TransactionStatus.Failed);
+            onShowFailedModal();
+            setLoading(false);
+        }
+    }
+}
+
+export function handleFetchStatusResponseHandler({
+    response,
+    checkoutDetailsErrorMessage,
+    onSetStatus,
+    onSetTransactionId,
+    onSetFailedMessage,
+    onShowFailedModal,
+    onShowSuccessModal,
+    onShowSessionExpiredModal,
+    setLoading,
+    stopBackgroundApiTask
+} : HandleFetchStatusOptions) {
+    switch(response.apiStatus) {
+        case APIStatus.Success: {
+            const apidata = response.data
+            const status = apidata.status;
+            const reasonCode = apidata.reasonCode
+            const reason = apidata.reason
+            const txnStatus = status.toUpperCase() as TransactionStatus;
+  
+            onSetStatus(status);
+            onSetTransactionId(apidata.transactionId);
+        
+            switch (txnStatus) {
+                case TransactionStatus.Failed:
+                case TransactionStatus.Rejected:
+                    const fallback = checkoutDetailsErrorMessage;
+                    const errorMessage =
+                        reasonCode?.startsWith('UF')
+                        ? reason?.includes(':')
+                            ? reason.split(':')[1]?.trim() ?? fallback
+                            : reason ?? fallback
+                        : fallback;
+            
+                    onSetFailedMessage(errorMessage);
+                    onSetStatus(TransactionStatus.Failed);
+                    onShowFailedModal();
+                    stopBackgroundApiTask?.();
+                    setLoading?.(false);
+                    break;
+        
+                case TransactionStatus.Approved:
+                case TransactionStatus.Success:
+                case TransactionStatus.Paid:
+                    onSetStatus(TransactionStatus.Success);
+                    onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
+                    stopBackgroundApiTask?.();
+                    setLoading?.(false);
+                    break;
+        
+                case TransactionStatus.Expired:
+                    onSetStatus(TransactionStatus.Expired);
+                    onShowSessionExpiredModal();
+                    stopBackgroundApiTask?.();
+                    setLoading?.(false);
+                    break;
+        
+                default:
+                    onShowFailedModal();
+                    setLoading?.(false);
+                    stopBackgroundApiTask?.();
+                    break;
+            }
+        }
+        break;
+        case APIStatus.Failed : {
+            onSetFailedMessage(response.data.status.reason);
+            onSetStatus(TransactionStatus.Failed);
+            onShowFailedModal();
+            setLoading?.(false);
+        }
+    }
+}
+
+interface fetchPaymentMethodHandlerArgs {
+    paymentType : string,
+    setList : (list:PaymentClass[]) => void
+}
+
+export async function fetchPaymentMethodHandler({
+    paymentType,
+    setList
+}:fetchPaymentMethodHandlerArgs) {
+    const response = await fetchPaymentMethods();
+      
+      switch (response.apiStatus) {
+        case APIStatus.Success: {
+          const paymentMethodList = transformAndFilterList(response.data, paymentType);
+          setList(paymentMethodList);
+          break;
+        }
+  
+        case APIStatus.Failed: {
+          Toast.show({
+            type: 'error',
+            text1: 'Oops!',
+            text2: 'Something went wrong. Please try again.',
+          });
+          break;
+        }
+  
+        default:
+          break;
+      }
+}

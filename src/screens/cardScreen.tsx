@@ -28,6 +28,7 @@ import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import emiPostRequest from '../postRequest/emiPostRequest';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import KnowMoreBottomSheet from '../components/knowMoreBottomSheet';
+import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 
 const CardScreen = () => {
   const {
@@ -427,49 +428,27 @@ const CardScreen = () => {
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status);
-      setTransactionId(response.transactionId);
-      const reasonCode = response.reasonCode;
-      const status = response.status.toUpperCase();
-      if (['FAILED', 'REJECTED'].includes(status)) {
-        const reason = response.reason;
-        if (!reasonCode?.startsWith('UF')) {
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-        } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-            : reason || checkoutDetails.errorMessage;
-        }
-        setStatus('Failed');
-        setFailedModalState(true);
-        setLoading(false);
-        stopBackgroundApiTask();
-      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-        setSuccessfulTimeStamp(response.transactionTimestampLocale);
+    handleFetchStatusResponseHandler({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetFailedMessage: (msg) => {
+        paymentFailedMessage.current = msg
+      },
+      onShowFailedModal: () => {
+        setFailedModalState(true)
+      },
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
         setSuccessModalState(true);
-        setStatus('Success');
-        stopBackgroundApiTask();
-        setLoading(false);
-      } else if (['EXPIRED'].includes(status)) {
-        setSessionExppireModalState(true);
-        setStatus('Expired');
-        stopBackgroundApiTask();
-        setLoading(false);
-      }
-    } else {
-      const reason = response.status.reason;
-      const reasonCode = response.status.reasonCode;
-      if (!reasonCode?.startsWith('UF')) {
-        paymentFailedMessage.current = checkoutDetails.errorMessage;
-      } else {
-        paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-          : reason || checkoutDetails.errorMessage;
-      }
-      setFailedModalState(true);
-      setLoading(false);
-    }
+      },
+      onShowSessionExpiredModal: () => {
+        setSessionExppireModalState(true)
+      },
+      setLoading: setLoading,
+      stopBackgroundApiTask: stopBackgroundApiTask
+    });
   };
 
   const onProceedForward = async () => {
@@ -495,77 +474,22 @@ const CardScreen = () => {
         isSavedCardCheckBoxClicked
       );
     }
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status.status);
-    setTransactionId(response.transactionId);
-
-    const status = response.status.status.toUpperCase();
-
-    if (status === 'REQUIRESACTION') {
-      if (Array.isArray(response.actions) && response.actions.length > 0) {
-        if (response.actions[0].type === 'html') {
-          setPaymentHtml(response.actions[0].htmlPageString);
-        } else {
-          setPaymentUrl(response.actions[0].url);
-          if (
-            Array.isArray(response.actions) &&
-            response.actions.length > 0
-          ) {
-            if (response.actions[0].type === 'html') {
-              setPaymentHtml(response.actions[0].htmlPageString);
-            } else {
-              setPaymentUrl(response.actions[0].url);
-            }
-          }
-        }
-      } else {
-        paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setFailedModalState(true);
-        setStatus('Failed');
-        setLoading(false);
-      }
-    } else if (['FAILED', 'REJECTED'].includes(status)) {
-      const reason = response.status.reason || '';
-      const reasonCode = response.status.reasonCode || '';
-
-      if (!reasonCode.startsWith('UF')) {
-        paymentFailedMessage.current = checkoutDetails.errorMessage;
-      } else {
-        paymentFailedMessage.current = reason.includes(':')
-          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-          : reason || checkoutDetails.errorMessage;
-      }
-
-      setFailedModalState(true);
-      setStatus('Failed');
-      setLoading(false);
-    } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-      setSuccessfulTimeStamp(response.transactionTimestampLocale);
-      setSuccessModalState(true);
-      setStatus('Success');
-      setLoading(false);
-    } else if (status === 'EXPIRED') {
-      setSessionExppireModalState(true);
-      setLoading(false);
-    } else if (status === 'EXPIRED') {
-      setSessionExppireModalState(true);
-      setStatus('Expired');
-      setLoading(false);
-    }
-    } else {
-      const reasonCode = response.status.reasonCode || '';
-    const reason = response.status.reason || '';
-    if (!reasonCode.startsWith('UF')) {
-      paymentFailedMessage.current = checkoutDetails.errorMessage;
-    } else {
-      paymentFailedMessage.current = reason.includes(':')
-        ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-        : reason || checkoutDetails.errorMessage;
-    }
-    setFailedModalState(true);
-    setStatus('Failed');
-    setLoading(false);
-    }
+    handlePaymentResponse({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetPaymentHtml: setPaymentHtml,
+      onSetPaymentUrl: setPaymentUrl,
+      onSetFailedMessage: (msg) => (paymentFailedMessage.current = msg),
+      onShowFailedModal: () => setFailedModalState(true),
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
+        setSuccessModalState(true);
+      },
+      onShowSessionExpiredModal: () => setSessionExppireModalState(true),
+      setLoading: setLoading
+    });
   };
 
   useEffect(() => {

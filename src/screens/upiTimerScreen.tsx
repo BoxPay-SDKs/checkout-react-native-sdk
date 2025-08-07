@@ -18,6 +18,7 @@ import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CircularProgressBar from '../components/circularProgress';
 import type { PaymentResult } from '../interface';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import { handleFetchStatusResponseHandler } from '../sharedContext/handlePaymentResponseHandler';
 
 const UpiTimerScreen = () => {
   const { upiId } = useLocalSearchParams();
@@ -133,45 +134,26 @@ const UpiTimerScreen = () => {
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status);
-      setTransactionId(response.transactionId);
-      const reasonCode = response.reasonCode;
-      const status = response.status.toUpperCase();
-      if (['FAILED', 'REJECTED'].includes(status)) {
-        const reason = response.reason;
-        if (!reasonCode?.startsWith('UF')) {
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-        } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-            : reason || checkoutDetails.errorMessage;
-        }
-        setStatus('Failed');
-        setFailedModalState(true);
-        stopBackgroundApiTask();
-      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-        setSuccessfulTimeStamp(response.transactionTimestampLocale);
+    handleFetchStatusResponseHandler({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetFailedMessage: (msg) => {
+        paymentFailedMessage.current = msg
+      },
+      onShowFailedModal: () => {
+        setFailedModalState(true)
+      },
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
         setSuccessModalState(true);
-        setStatus('Success');
-        stopBackgroundApiTask();
-      } else if (['EXPIRED'].includes(status)) {
-        setSessionExppireModalState(true);
-        setStatus('Expired');
-        stopBackgroundApiTask();
-      }
-    } else {
-      const reason = response.status.reason;
-      const reasonCode = response.status.reasonCode;
-      if (!reasonCode?.startsWith('UF')) {
-        paymentFailedMessage.current = checkoutDetails.errorMessage;
-      } else {
-        paymentFailedMessage.current = reason?.includes(':')
-          ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-          : reason || checkoutDetails.errorMessage;
-      }
-      setFailedModalState(true);
-    }
+      },
+      onShowSessionExpiredModal: () => {
+        setSessionExppireModalState(true)
+      },
+      stopBackgroundApiTask: stopBackgroundApiTask
+    });
   };
 
   return (

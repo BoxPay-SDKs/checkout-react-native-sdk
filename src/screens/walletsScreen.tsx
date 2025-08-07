@@ -14,7 +14,6 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
-import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import type { PaymentClass, PaymentResult } from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
@@ -25,8 +24,7 @@ import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import methodsPostRequest from '../postRequest/methodsPostRequest';
 import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
-import { transformAndFilterList } from '../utils/listAndObjectUtils';
-import Toast from 'react-native-toast-message'
+import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 
 const WalletScreen = () => {
   const [walletList, setWalletList] = useState<PaymentClass[]>([]);
@@ -96,66 +94,42 @@ const WalletScreen = () => {
   });
 
   useEffect(() => {
-    fetchPaymentMethods().then((data) => {
-      if (Array.isArray(data)) {
-        const walletList = transformAndFilterList(data, 'Wallet');
-        setWalletList(walletList);
-        setDefaultWalletList(walletList);
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Oops!',
-          text2: 'Something went wrong. Please try again.'
-        });      
-      }
-    });
+    const fetchData = async () => {
+      fetchPaymentMethodHandler({
+        paymentType: "Wallet",
+        setList: (list) => {
+          setWalletList(list)
+          setDefaultWalletList(list);
+        }
+      });
+    };
+  
+    fetchData();
   }, []);
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status);
-      setTransactionId(response.transactionId);
-      const reasonCode = response.reasonCode;
-      const status = response.status.toUpperCase();
-      if (['FAILED', 'REJECTED'].includes(status)) {
-        const reason = response.reason;
-        if (!reasonCode?.startsWith('UF')) {
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-        } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-            : reason || checkoutDetails.errorMessage;
-        }
-        setStatus('Failed');
-        setFailedModalState(true);
-        setLoading(false);
-        stopBackgroundApiTask();
-      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-        setSuccessfulTimeStamp(response.transactionTimestampLocale);
+    handleFetchStatusResponseHandler({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetFailedMessage: (msg) => {
+        paymentFailedMessage.current = msg
+      },
+      onShowFailedModal: () => {
+        setFailedModalState(true)
+      },
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
         setSuccessModalState(true);
-        setStatus('Success');
-        stopBackgroundApiTask();
-        setLoading(false);
-      } else if (['EXPIRED'].includes(status)) {
-        setSessionExppireModalState(true);
-        setStatus('Expired');
-        stopBackgroundApiTask();
-        setLoading(false);
-      }
-    } else {
-      const reason = response.status.reason;
-      const reasonCode = response.status.reasonCode;
-      if (!reasonCode?.startsWith('UF')) {
-        paymentFailedMessage.current = checkoutDetails.errorMessage;
-      } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-            : reason || checkoutDetails.errorMessage;
-        }
-      setFailedModalState(true);
-      setLoading(false);
-    }
+      },
+      onShowSessionExpiredModal: () => {
+        setSessionExppireModalState(true)
+      },
+      setLoading: setLoading,
+      stopBackgroundApiTask: stopBackgroundApiTask
+    });
   };
 
   const startBackgroundApiTask = () => {
@@ -179,47 +153,22 @@ const WalletScreen = () => {
   const onProceedForward = async (_: string, instrumentType: string) => {
     setLoading(true);
     const response = await methodsPostRequest(instrumentType, 'wallet');
-    if ('status' in response && 'transactionId' in response) {
-      setStatus(response.status.status);
-      setTransactionId(response.transactionId);
-      const reason = response.status.reason;
-      const reasonCode = response.status.reasonCode;
-      const status = response.status.status.toUpperCase();
-      if (status === 'REQUIRESACTION') {
-        if (Array.isArray(response.actions)) {
-          if (response.actions.length > 0) {
-            if (response.actions[0].type == 'html') {
-              setPaymentHtml(response.actions[0].htmlPageString);
-            } else {
-              setPaymentUrl(response.actions[0].url);
-            }
-          }
-        }
-      } else if (['FAILED', 'REJECTED'].includes(status)) {
-        if (!reasonCode?.startsWith('UF')) {
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-        } else {
-          paymentFailedMessage.current = reason?.includes(':')
-            ? reason.split(':')[1]?.trim() ?? checkoutDetails.errorMessage
-            : reason || checkoutDetails.errorMessage;
-        }
-        setStatus('Failed');
-        setFailedModalState(true);
-        setLoading(false);
-      } else if (['APPROVED', 'SUCCESS', 'PAID'].includes(status)) {
-        setSuccessfulTimeStamp(response.transactionTimestampLocale);
+    handlePaymentResponse({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetails.errorMessage,
+      onSetStatus: setStatus,
+      onSetTransactionId: setTransactionId,
+      onSetPaymentHtml: setPaymentHtml,
+      onSetPaymentUrl: setPaymentUrl,
+      onSetFailedMessage: (msg) => (paymentFailedMessage.current = msg),
+      onShowFailedModal: () => setFailedModalState(true),
+      onShowSuccessModal: (ts) => {
+        setSuccessfulTimeStamp(ts);
         setSuccessModalState(true);
-        setStatus('Success');
-        setLoading(false);
-      } else if (['EXPIRED'].includes(status)) {
-        setSessionExppireModalState(true);
-        setStatus('Expired');
-        setLoading(false);
-      }
-    } else {
-      setFailedModalState(true);
-      setLoading(false);
-    }
+      },
+      onShowSessionExpiredModal: () => setSessionExppireModalState(true),
+      setLoading: setLoading
+    });
   };
 
   const onClickRadioButton = (id: string) => {
