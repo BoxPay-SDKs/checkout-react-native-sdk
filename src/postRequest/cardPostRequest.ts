@@ -1,18 +1,27 @@
 import Constants from 'expo-constants';
-import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import axios from 'axios';
 import { userDataHandler } from '../sharedContext/userdataHandler';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import type { PaymentExecutedPostResponse, DeliveryAddress } from '../interface';
 import { getDeviceDetails } from '../utils/listAndObjectUtils';
 import { APIStatus } from '../interface';
 
-const methodsPostRequest = async (
-  instrumentDetails: string,
-  paymentMethod: string
+const cardPostRequest = async (
+  cardNumber: string,
+  expiryDate: string,
+  cvv: string,
+  holderName: string,
+  cardNickName: string,
+  isCheckboxClicked: boolean
 ) : Promise<PaymentExecutedPostResponse> => {
   const { userData } = userDataHandler;
   const { checkoutDetails } = checkoutDetailsHandler;
   const deviceDetails = getDeviceDetails()
+
+  const formatExpiry = (input: string) => {
+    const [month, year] = input.split('/');
+    return `20${year}-${month}`;
+  };
   const isDeliveryAddressEmpty = (address: DeliveryAddress): boolean => {
     return Object.values(address).every(
       (value) => value === null || value === undefined || value === ''
@@ -29,7 +38,6 @@ const methodsPostRequest = async (
     labelType: userData.labelType,
     labelName: userData.labelName,
   };
-
   const requestBody = {
     browserData: {
       screenHeight:
@@ -50,10 +58,19 @@ const methodsPostRequest = async (
       packageId: Constants.manifest?.id || 'com.boxpay.checkout.sdk',
     },
     instrumentDetails: {
-      type: instrumentDetails,
-      [paymentMethod]: {
-        token: checkoutDetails.token,
+      type: 'card/plain',
+      card: {
+        number: cardNumber.replace(/ /g, ''),
+        expiry: formatExpiry(expiryDate),
+        cvc: cvv,
+        holderName: holderName,
+        ...(checkoutDetails.shopperToken && isCheckboxClicked
+          ? { nickName: cardNickName }
+          : {}),
       },
+      ...(checkoutDetails.shopperToken && isCheckboxClicked
+        ? { saveInstrument: true }
+        : {}),
     },
     shopper: {
       email: userData.email,
@@ -68,15 +85,15 @@ const methodsPostRequest = async (
         ? null
         : deliveryAddress,
     },
-    deviceDetails: deviceDetails
+    deviceDetails: deviceDetails,
   };
 
   try {
     const response = await axios.post("/", requestBody);
     return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
-    return { apiStatus : APIStatus.Failed, data: {status: { reasonCode: 'API_FAILED', reason: '' } }};
+    return { apiStatus : APIStatus.Failed , data : {status: { reasonCode: 'API_FAILED', reason: '' }} };
   }
 };
 
-export default methodsPostRequest;
+export default cardPostRequest;

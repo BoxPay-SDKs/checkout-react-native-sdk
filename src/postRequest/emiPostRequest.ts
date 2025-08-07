@@ -1,18 +1,63 @@
 import Constants from 'expo-constants';
-import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import axios from 'axios';
 import { userDataHandler } from '../sharedContext/userdataHandler';
 import type { PaymentExecutedPostResponse, DeliveryAddress } from '../interface';
 import { getDeviceDetails } from '../utils/listAndObjectUtils';
 import { APIStatus } from '../interface';
 
-const methodsPostRequest = async (
-  instrumentDetails: string,
-  paymentMethod: string
+interface EmiPostPayload {
+  cardNumber?: string;
+  expiryDate?: string;
+  cvv?: string;
+  holderName?: string;
+  cardType?: string;
+  offerCode?: string;
+  duration?: string;
+}
+
+const emiPostRequest = async (
+  {
+    cardNumber,
+    expiryDate,
+    cvv,
+    holderName,
+    cardType,
+    offerCode,
+    duration
+  } : EmiPostPayload
 ) : Promise<PaymentExecutedPostResponse> => {
   const { userData } = userDataHandler;
-  const { checkoutDetails } = checkoutDetailsHandler;
   const deviceDetails = getDeviceDetails()
+  const formatExpiry = (input: string) => {
+    const [month, year] = input.split('/');
+    return `20${year}-${month}`;
+  };
+  const instrumentType = cardType
+    ? cardType.includes('Credit')
+      ? 'emi/cc'
+      : 'emi/dc'
+    : 'emi/cardless';
+
+  const instrumentDetails = cardType
+    ? {
+        type: instrumentType,
+        card: {
+          number: cardNumber?.replace(/ /g, ''),
+          expiry: formatExpiry(expiryDate ?? ""),
+          cvc: cvv,
+          holderName: holderName,
+        },
+        emi: {
+          duration: duration,
+        },
+      }
+    : {
+        type: 'emi/cardless',
+        emi: {
+          provider: duration,
+        },
+      };
+
   const isDeliveryAddressEmpty = (address: DeliveryAddress): boolean => {
     return Object.values(address).every(
       (value) => value === null || value === undefined || value === ''
@@ -29,7 +74,6 @@ const methodsPostRequest = async (
     labelType: userData.labelType,
     labelName: userData.labelName,
   };
-
   const requestBody = {
     browserData: {
       screenHeight:
@@ -49,12 +93,8 @@ const methodsPostRequest = async (
       timeZoneOffSet: new Date().getTimezoneOffset(),
       packageId: Constants.manifest?.id || 'com.boxpay.checkout.sdk',
     },
-    instrumentDetails: {
-      type: instrumentDetails,
-      [paymentMethod]: {
-        token: checkoutDetails.token,
-      },
-    },
+    instrumentDetails: instrumentDetails,
+    ...(offerCode?.trim() !== '' && { offers: [offerCode] }),
     shopper: {
       email: userData.email,
       firstName: userData.firstName,
@@ -68,15 +108,14 @@ const methodsPostRequest = async (
         ? null
         : deliveryAddress,
     },
-    deviceDetails: deviceDetails
+    deviceDetails: deviceDetails,
   };
-
   try {
     const response = await axios.post("/", requestBody);
     return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
-    return { apiStatus : APIStatus.Failed, data: {status: { reasonCode: 'API_FAILED', reason: '' } }};
+    return { apiStatus : APIStatus.Failed, data : {status: { reasonCode: 'API_FAILED', reason: '' }} };
   }
 };
 
-export default methodsPostRequest;
+export default emiPostRequest;

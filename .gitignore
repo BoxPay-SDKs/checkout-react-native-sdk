@@ -94,4 +94,4 @@ CONTRIBUTING.md
 .nvmrc
 .watchmanconfig
 .yarn
-.github
+.github.env
