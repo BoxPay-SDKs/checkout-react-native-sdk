@@ -238,7 +238,7 @@ const EmiScreen = () => {
   const onProceedForward = async (instrumentValue: string) => {
     let response;
     setLoading(true);
-    response = await emiPostRequest('', '', '', '', '', '', instrumentValue);
+    response = await emiPostRequest({duration:instrumentValue});
     handlePaymentResponse({
       response: response,
       checkoutDetailsErrorMessage: checkoutDetails.errorMessage,

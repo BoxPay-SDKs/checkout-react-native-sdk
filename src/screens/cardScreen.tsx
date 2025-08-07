@@ -455,15 +455,15 @@ const CardScreen = () => {
     let response;
     setLoading(true);
     if (durationNumber !== undefined && durationNumber !== '') {
-      response = await emiPostRequest(
-        cardNumberText || '',
-        cardExpiryText || '',
-        cardCvvText || '',
-        cardHolderNameText || '',
-        cardTypeStr || '',
-        offerCodeStr || '',
-        durationNumber
-      );
+      response = await emiPostRequest({
+        cardNumber:cardNumberText || '',
+        expiryDate:cardExpiryText || '',
+        cvv:cardCvvText || '',
+        holderName:cardHolderNameText || '',
+        cardType:cardTypeStr || '',
+        offerCode:offerCodeStr || '',
+        duration:durationNumber
+      });
     } else {
       response = await cardPostRequest(
         cardNumberText || '',

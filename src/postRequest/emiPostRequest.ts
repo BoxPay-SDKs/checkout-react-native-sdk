@@ -5,14 +5,26 @@ import type { PaymentExecutedPostResponse, DeliveryAddress } from '../interface'
 import { getDeviceDetails } from '../utils/listAndObjectUtils';
 import { APIStatus } from '../interface';
 
+interface EmiPostPayload {
+  cardNumber?: string;
+  expiryDate?: string;
+  cvv?: string;
+  holderName?: string;
+  cardType?: string;
+  offerCode?: string;
+  duration?: string;
+}
+
 const emiPostRequest = async (
-  cardNumber: string,
-  expiryDate: string,
-  cvv: string,
-  holderName: string,
-  cardType: string,
-  offerCode: string,
-  duration: string
+  {
+    cardNumber,
+    expiryDate,
+    cvv,
+    holderName,
+    cardType,
+    offerCode,
+    duration
+  } : EmiPostPayload
 ) : Promise<PaymentExecutedPostResponse> => {
   const { userData } = userDataHandler;
   const deviceDetails = getDeviceDetails()
@@ -30,8 +42,8 @@ const emiPostRequest = async (
     ? {
         type: instrumentType,
         card: {
-          number: cardNumber.replace(/ /g, ''),
-          expiry: formatExpiry(expiryDate),
+          number: cardNumber?.replace(/ /g, ''),
+          expiry: formatExpiry(expiryDate ?? ""),
           cvc: cvv,
           holderName: holderName,
         },
@@ -82,7 +94,7 @@ const emiPostRequest = async (
       packageId: Constants.manifest?.id || 'com.boxpay.checkout.sdk',
     },
     instrumentDetails: instrumentDetails,
-    ...(offerCode.trim() !== '' && { offers: [offerCode] }),
+    ...(offerCode?.trim() !== '' && { offers: [offerCode] }),
     shopper: {
       email: userData.email,
       firstName: userData.firstName,
