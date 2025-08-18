@@ -13,70 +13,41 @@ const KnowMoreBottomSheet = ({ onClick }: KnowMoreBottomSheetProps) => {
       <Modal isVisible={true} style={styles.modal} onBackdropPress={onClick}>
         <View style={styles.sheet}>
           <Text
-            style={{
-              fontFamily: 'Poppins-SemiBold',
-              fontSize: 20,
-              color: '#2D2B32',
-            }}
+            style={styles.headingText}
           >
             RBI Guidelines
           </Text>
 
           <Text
-            style={{
-              fontFamily: 'Poppins-Regular',
-              fontSize: 14,
-              color: '#2D2B32',
-              paddingTop: 12,
-            }}
+            style={styles.subHeadingText}
           >
             As per the new RBI guidelines, we can no longer store your card
             information with us.
           </Text>
 
           <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 28,
-              marginEnd: 16,
-            }}
+            style={styles.container}
           >
             <Image
               source={require('../../assets/images/ic_card_lock.png')}
-              style={{ width: 28, height: 28, alignSelf: 'flex-start' }}
+              style={styles.imageStyle}
             />
             <Text
-              style={{
-                fontFamily: 'Poppins-Regular',
-                fontSize: 14,
-                color: '#4F4D55',
-                marginLeft: 12,
-              }}
+              style={styles.subHeadingText}
             >
               Your bank/card network will securely save your card information
               via tokenization if you consent for the same.
             </Text>
           </View>
           <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'flex-start',
-              marginTop: 28,
-              marginEnd: 16,
-            }}
+            style={styles.container}
           >
             <Image
               source={require('../../assets/images/ic_card_add.png')}
-              style={{ width: 28, height: 28, alignSelf: 'flex-start' }}
+              style={styles.imageStyle}
             />
             <Text
-              style={{
-                fontFamily: 'Poppins-Regular',
-                fontSize: 14,
-                color: '#4F4D55',
-                marginLeft: 12,
-              }}
+              style={styles.subHeadingText}
             >
               In case you choose to not tokenize, you’ll have to enter card
               details every time you pay.
@@ -134,4 +105,22 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontFamily: 'Poppins-SemiBold',
   },
+  headingText : {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 20,
+    color: '#2D2B32',
+  },
+  subHeadingText : {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 14,
+    color: '#2D2B32',
+    paddingTop: 12
+  },
+  imageStyle : { width: 28, height: 28, alignSelf: 'flex-start' },
+  container : {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 28,
+    marginEnd: 16,
+  }
 });
