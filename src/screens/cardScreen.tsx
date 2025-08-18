@@ -60,7 +60,7 @@ const CardScreen = () => {
   const [cardNickNameText, setCardNickNameText] = useState<string | null>(null);
 
   const [cardSelectedIcon, setCardSelectedIcon] = useState(
-    require('../assets/images/ic_default_card.png')
+    require('../../assets/images/ic_default_card.png')
   );
   const [maxCvvLength, setMaxCvvLength] = useState(4);
   const [maxCardNumberLength, setMaxCardNumberLength] = useState(19);
@@ -151,28 +151,28 @@ const CardScreen = () => {
             }
             setMethodEnabled(data.methodEnabled);
             if (data.paymentMethod.brand == 'VISA') {
-              setCardSelectedIcon(require('../assets/images/ic_visa.png'));
+              setCardSelectedIcon(require('../../assets/images/ic_visa.png'));
               setMaxCvvLength(3);
               setMaxCardNumberLength(19);
             } else if (data.paymentMethod.brand == 'Mastercard') {
-              setCardSelectedIcon(require('../assets/images/ic_masterCard.png'));
+              setCardSelectedIcon(require('../../assets/images/ic_masterCard.png'));
               setMaxCvvLength(3);
               setMaxCardNumberLength(19);
             } else if (data.paymentMethod.brand == 'RUPAY') {
-              setCardSelectedIcon(require('../assets/images/ic_rupay.png'));
+              setCardSelectedIcon(require('../../assets/images/ic_rupay.png'));
               setMaxCvvLength(3);
               setMaxCardNumberLength(19);
             } else if (data.paymentMethod.brand == 'AmericanExpress') {
-              setCardSelectedIcon(require('../assets/images/ic_amex.png'));
+              setCardSelectedIcon(require('../../assets/images/ic_amex.png'));
               setMaxCvvLength(4);
               setMaxCardNumberLength(18);
             } else if (data.paymentMethod.brand == 'Maestro') {
-              setCardSelectedIcon(require('../assets/images/ic_maestro.png'));
+              setCardSelectedIcon(require('../../assets/images/ic_maestro.png'));
               setMaxCvvLength(3);
               setMaxCardNumberLength(19);
             } else {
               setCardSelectedIcon(
-                require('../assets/images/ic_default_card.png')
+                require('../../assets/images/ic_default_card.png')
               );
               setMaxCvvLength(3);
               setMaxCardNumberLength(19);
@@ -180,7 +180,7 @@ const CardScreen = () => {
           }
         });
       } else {
-        setCardSelectedIcon(require('../assets/images/ic_default_card.png'));
+        setCardSelectedIcon(require('../../assets/images/ic_default_card.png'));
         setMaxCvvLength(3);
         setMaxCardNumberLength(19);
       }
@@ -542,7 +542,7 @@ const CardScreen = () => {
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
         >
           <LottieView
-            source={require('../../../assets/animations/boxpayLogo.json')}
+            source={require('../../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
             style={{ width: 80, height: 80 }}
@@ -607,7 +607,7 @@ const CardScreen = () => {
                     />
                   ) : (
                     <Image
-                      source={require('../assets/images/ic_netbanking_semi_bold.png')}
+                      source={require('../../assets/images/ic_netbanking_semi_bold.png')}
                       style={{ transform: [{ scale: 0.4 }] }}
                     />
                   )}
@@ -698,7 +698,7 @@ const CardScreen = () => {
                 <TextInput.Icon
                   icon={() => (
                     <Image
-                      source={require('../assets/images/ic_upi_error.png')}
+                      source={require('../../assets/images/ic_upi_error.png')}
                       style={{ width: 24, height: 24 }}
                     />
                   )}
@@ -782,7 +782,7 @@ const CardScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/ic_upi_error.png')}
+                          source={require('../../assets/images/ic_upi_error.png')}
                           style={{ width: 24, height: 24 }}
                         />
                       )}
@@ -849,7 +849,7 @@ const CardScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/ic_upi_error.png')}
+                          source={require('../../assets/images/ic_upi_error.png')}
                           style={{ width: 24, height: 24 }}
                         />
                       )}
@@ -858,7 +858,7 @@ const CardScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/ic_cvv_info.png')}
+                          source={require('../../assets/images/ic_cvv_info.png')}
                           style={{ width: 24, height: 24 }}
                         />
                       )}
@@ -929,7 +929,7 @@ const CardScreen = () => {
                 <TextInput.Icon
                   icon={() => (
                     <Image
-                      source={require('../assets/images/ic_upi_error.png')}
+                      source={require('../../assets/images/ic_upi_error.png')}
                       style={{ width: 24, height: 24 }}
                     />
                   )}
@@ -1016,7 +1016,7 @@ const CardScreen = () => {
               }}
             >
               <Image
-                source={require('../assets/images/ic_info.png')}
+                source={require('../../assets/images/ic_info.png')}
                 style={{ width: 20, height: 20, tintColor: '#2D2B32' }}
               />
               <Text

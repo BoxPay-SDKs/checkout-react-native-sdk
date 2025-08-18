@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import countryData from '../assets/json/countryCodes.json';
+import countryData from '../../assets/json/countryCodes.json';
 import Header from '../components/header';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import {
@@ -498,7 +498,7 @@ const AddressScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/chervon-down.png')}
+                          source={require('../../assets/images/chervon-down.png')}
                           style={{
                             alignSelf: 'center',
                             height: 6,
@@ -652,7 +652,7 @@ const AddressScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/chervon-down.png')}
+                          source={require('../../assets/images/chervon-down.png')}
                           style={{
                             alignSelf: 'center',
                             height: 6,

@@ -212,7 +212,7 @@ const UpiTimerScreen = () => {
           }}
         >
           <Image
-            source={require('../../../assets/images/upi-timer-sheet-upi-icon.png')}
+            source={require('../../assets/images/upi-timer-sheet-upi-icon.png')}
             style={{ height: 16, width: 16, marginRight: 4 }}
           />
           <Text
@@ -262,7 +262,7 @@ const UpiTimerScreen = () => {
           }}
         >
           <Image
-            source={require('../../../assets/images/ic_info.png')}
+            source={require('../../assets/images/ic_info.png')}
             style={{ height: 26, width: 26 }}
           />
           <Text

@@ -629,7 +629,7 @@ const BoxpayCheckout = ({
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
         >
           <LottieView
-            source={require('./assets/animations/boxpayLogo.json')}
+            source={require('../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
             style={{ width: 80, height: 80 }}
@@ -692,7 +692,7 @@ const BoxpayCheckout = ({
                           type
                         )
                       }
-                      errorImage={require('./assets/images/ic_upi.png')}
+                      errorImage={require('../assets/images/ic_upi.png')}
                       isLastUsed={true}
                       onClickRadio={(selectedInstrumentRef) => {
                         handleRecommendedSectionClick(selectedInstrumentRef);
@@ -742,7 +742,7 @@ const BoxpayCheckout = ({
                       onProceedForward={(instrumentValue) => {
                         handleUpiCollectPayment('', instrumentValue, 'Card');
                       }}
-                      errorImage={require('./assets/images/ic_card.png')}
+                      errorImage={require('../assets/images/ic_card.png')}
                       onClickAddCard={navigateToCardScreen}
                       onClickRadio={(selectedInstrumentRef) =>
                         handleSavedCardSectionClick(selectedInstrumentRef)
@@ -795,7 +795,7 @@ const BoxpayCheckout = ({
                   Secured by
                 </Text>
                 <Image
-                  source={require('./assets/images/splash-icon.png')}
+                  source={require('../assets/images/splash-icon.png')}
                   style={{ height: 50, width: 50 }}
                 />
               </View>

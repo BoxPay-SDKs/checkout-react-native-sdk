@@ -6,42 +6,31 @@
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
     ".": {
-      "source": "./src/index.tsx",
       "types": "./lib/typescript/src/index.d.ts",
       "default": "./lib/module/index.js"
     },
     "./interface": {
-      "source": "./src/interface.tsx",
       "types": "./lib/typescript/src/interface.d.ts",
-      "default": "./src/interface.tsx"
+      "default": "./lib/module/interface.js"
     },
     "./package.json": "./package.json"
   },
   "files": [
     "src",
     "lib",
-    "android",
-    "ios",
+    "assets",
+    "cross_platform_sdk_react_native_plugin",
     "cpp",
     "*.podspec",
     "react-native.config.js",
-    "!ios/build",
-    "!android/build",
-    "!android/gradle",
-    "!android/gradlew",
-    "!android/gradlew.bat",
-    "!android/local.properties",
     "!**/__tests__",
-    "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/node_modules"
   ],
   "scripts": {
-    "example": "yarn workspace checkout-react-native-sdk-example",
-    "test": "jest",
     "typecheck": "tsc",
     "clean": "del-cli lib",
-    "prepare": "bob build",
+    "prepare": "bob build && cp -r assets lib/assets && cp -r cross_platform_sdk_react_native_plugin lib/cross_platform_sdk_react_native_plugin",
     "release": "release-it --only-version"
   },
   "keywords": [
@@ -68,7 +57,6 @@
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.22.0",
     "@evilmartians/lefthook": "^1.5.0",
-    "@react-native-community/bob": "^0.17.1",
     "@react-native/babel-preset": "0.78.2",
     "@react-native/eslint-config": "^0.78.0",
     "@release-it/conventional-changelog": "^9.0.2",
@@ -79,19 +67,22 @@
     "del-cli": "^5.1.0",
     "jest": "^29.7.0",
     "prettier": "^3.0.3",
-    "react": "18.2.0",
-    "react-native": "0.72.4",
     "react-native-builder-bob": "^0.40.13",
     "release-it": "^17.10.0",
     "typescript": "^5.5.4"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-native": ">=0.71.0"
+  "react": ">=18.0.0 <20.0.0",
+  "react-native": ">=0.71.0 <0.80.0",
+  "lottie-react-native": ">=7.0.0",
+  "react-native-svg": ">=15.0.0",
+  "react-native-webview": ">=13.0.0",
+  "react-native-modal": ">=13.0.0",
+  "react-native-paper": ">=5.0.0",
+  "react-native-shimmer-placeholder": ">=2.0.0",
+  "react-native-toast-message": ">=2.0.0",
+  "expo-router": ">=5.0.0"
   },
-  "workspaces": [
-    "example"
-  ],
   "packageManager": "yarn@3.6.1",
   "jest": {
     "preset": "react-native",
@@ -150,27 +141,7 @@
   "dependencies": {
     "axios": "^1.11.0",
     "base-64": "^1.0.0",
-    "cross_platform_sdk": "file:./cross_platform_sdk_react_native_plugin/src",
-    "currency-symbol-map": "^5.1.0",
-    "expo-router": "^5.1.4",
-    "lottie-react-native": "^7.2.5",
-    "react-native-dotenv": "^3.4.11",
-    "react-native-modal": "^14.0.0-rc.1",
-    "react-native-paper": "^5.14.5",
-    "react-native-shimmer-placeholder": "^2.0.9",
-    "react-native-svg": "^15.12.0",
-    "react-native-toast-message": "^2.3.3",
-    "react-native-webview": "^13.15.0"
+    "currency-symbol-map": "^5.1.0"
   },
-  "react-native": "src/index.tsx",
-  "module": "lib/module/index.js",
-  "@react-native-community/bob": {
-    "source": "src",
-    "output": "lib",
-    "targets": [
-      "commonjs",
-      "module",
-      "typescript"
-    ]
-  }
+  "module": "lib/module/index.js"
 }

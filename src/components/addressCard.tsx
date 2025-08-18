@@ -44,7 +44,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                     }}
                   >
                     <Image
-                      source={require('../assets/images/ic_location.png')}
+                      source={require('../../assets/images/ic_location.png')}
                       style={{
                         height: 20,
                         width: 20,
@@ -128,7 +128,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                     }}
                   >
                     <Image
-                      source={require('./assets/images/add_icon.png')}
+                      source={require('../../assets/images/add_icon.png')}
                       style={{
                         height: 20,
                         width: 20,
@@ -191,7 +191,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                       {(userData.firstName != '' || userData.phone != '' || userData.email != '') && (
                         <>
                           <Image
-                            source={require('./assets/images/ic_user.png')}
+                            source={require('../../assets/images/ic_user.png')}
                             style={{
                               height: 20,
                               width: 20,
@@ -245,7 +245,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                       {(userData.firstName == '' || userData.phone == '' || userData.email == '') && (
                         <>
                           <Image
-                            source={require('./assets/images/add_icon.png')}
+                            source={require('../../assets/images/add_icon.png')}
                             style={{
                               height: 20,
                               width: 20,

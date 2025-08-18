@@ -18,7 +18,7 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({
       <Modal isVisible={true} style={styles.modal}>
         <View style={styles.sheet}>
           <LottieView
-            source={require('../assets/animations/payment_failed.json')}
+            source={require('../../assets/animations/payment_failed.json')}
             autoPlay
             loop={false}
             style={{ width: 90, height: 90, alignSelf: 'center' }}

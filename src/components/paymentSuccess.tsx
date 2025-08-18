@@ -69,7 +69,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
       <Modal isVisible={true} style={styles.modal}>
         <View style={styles.sheet}>
           <LottieView
-            source={require('../assets/animations/payment_successful.json')}
+            source={require('../../assets/animations/payment_successful.json')}
             autoPlay
             loop={false}
             speed={0.6}

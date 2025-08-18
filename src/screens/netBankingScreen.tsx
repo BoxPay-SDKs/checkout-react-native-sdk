@@ -253,7 +253,7 @@ const NetBankingScreen = () => {
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
         >
           <LottieView
-            source={require('../../../assets/animations/boxpayLogo.json')}
+            source={require('../../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
             style={{ width: 80, height: 80 }}
@@ -394,7 +394,7 @@ const NetBankingScreen = () => {
                   <TextInput.Icon
                     icon={() => (
                       <Image
-                        source={require('../assets/images/ic_search.png')}
+                        source={require('../../assets/images/ic_search.png')}
                         style={{ width: 20, height: 20 }}
                       />
                     )}
@@ -447,7 +447,7 @@ const NetBankingScreen = () => {
                   <PaymentSelectorView
                     providerList={popularNetBankingList}
                     onProceedForward={onProceedForward}
-                    errorImage={require('../assets/images/ic_netbanking_semi_bold.png')}
+                    errorImage={require('../../assets/images/ic_netbanking_semi_bold.png')}
                     onClickRadio={(selectedInstrumentValue) =>
                       onClickPopularBank(selectedInstrumentValue)
                     }
@@ -482,7 +482,7 @@ const NetBankingScreen = () => {
                 <PaymentSelectorView
                   providerList={netBankingList}
                   onProceedForward={onProceedForward}
-                  errorImage={require('../assets/images/ic_netbanking_semi_bold.png')}
+                  errorImage={require('../../assets/images/ic_netbanking_semi_bold.png')}
                   onClickRadio={(selectedInstrumentValue) =>
                     onClickRadioButton(selectedInstrumentValue)
                   }
@@ -503,7 +503,7 @@ const NetBankingScreen = () => {
                 }}
               >
                 <Image
-                  source={require('../assets/images/no_results_found.png')}
+                  source={require('../../assets/images/no_results_found.png')}
                   style={{ width: 100, height: 100 }}
                 />
                 <Text
@@ -548,7 +548,7 @@ const NetBankingScreen = () => {
               Secured by
             </Text>
             <Image
-              source={require('../assets/images/splash-icon.png')}
+              source={require('../../assets/images/splash-icon.png')}
               style={{ height: 50, width: 50 }}
             />
           </View>

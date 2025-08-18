@@ -15,7 +15,7 @@ const SessionExpire: React.FC<SessionExpireProps> = ({ onClick }) => {
       <Modal isVisible={true} style={styles.modal}>
         <View style={styles.sheet}>
           <LottieView
-            source={require('../assets/animations/payment_status_pending.json')}
+            source={require('../../assets/animations/payment_status_pending.json')}
             autoPlay
             loop={false}
             style={{ width: 90, height: 90, alignSelf: 'center' }}

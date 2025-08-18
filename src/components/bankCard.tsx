@@ -51,7 +51,7 @@ const BankCard: React.FC<BankCardProps> = ({
           />
         ) : (
           <Image
-            source={require('../assets/images/ic_netbanking_semi_bold.png')}
+            source={require('../../assets/images/ic_netbanking_semi_bold.png')}
             style={{ transform: [{ scale: 0.4 }] }}
           />
         )}
@@ -75,7 +75,7 @@ const BankCard: React.FC<BankCardProps> = ({
       </View>
 
       <Image
-        source={require('../assets/images/chervon-down.png')}
+        source={require('../../assets/images/chervon-down.png')}
         style={{
           alignSelf: 'center',
           height: 6,

@@ -12,7 +12,7 @@ import { TextInput } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import type { PaymentClass } from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
-import { getInstalledUpiApps } from 'cross_platform_sdk';
+import { getInstalledUpiApps } from '../../cross_platform_sdk_react_native_plugin';
 
 interface UpiScreenProps {
   handleUpiPayment: (selectedIntent: string) => void;
@@ -96,7 +96,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
           onProceedForward={(displayValue, instrumentValue, type) =>
             handleCollectPayment(displayValue, instrumentValue, type)
           }
-          errorImage={require('../assets/images/ic_upi.png')}
+          errorImage={require('../../assets/images/ic_upi.png')}
           isLastUsed={false}
           onClickRadio={(selectedValue) => {
             setSelectedIntent(null);
@@ -132,7 +132,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                     }}
                   >
                     <Image
-                      source={require('../assets/images/gpay-icon.png')}
+                      source={require('../../assets/images/gpay-icon.png')}
                       style={styles.intentIcon}
                     />
                   </Pressable>
@@ -167,7 +167,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                     }}
                   >
                     <Image
-                      source={require('../assets/images/phonepe-icon.png')}
+                      source={require('../../assets/images/phonepe-icon.png')}
                       style={{ height: 30, width: 30 }}
                     />
                   </Pressable>
@@ -203,7 +203,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                     }}
                   >
                     <Image
-                      source={require('../assets/images/paytm-icon.png')}
+                      source={require('../../assets/images/paytm-icon.png')}
                       style={{ height: 28, width: 44 }}
                     />
                   </Pressable>
@@ -232,7 +232,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   }}
                 >
                   <Image
-                    source={require('../assets/images/other-intent-icon.png')}
+                    source={require('../../assets/images/other-intent-icon.png')}
                     style={styles.intentIcon}
                   />
                 </Pressable>
@@ -264,7 +264,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
           <View>
             {upiCollectVisible ? (
               <ImageBackground
-                source={require('../assets/images/add_upi_id_background.png')} // Replace with your background image
+                source={require('../../assets/images/add_upi_id_background.png')} // Replace with your background image
                 resizeMode="cover"
                 style={{
                   paddingBottom: 34,
@@ -285,7 +285,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   {/* Icon and Text Wrapper */}
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Image
-                      source={require('../assets/images/add_icon.png')}
+                      source={require('../../assets/images/add_icon.png')}
                       style={{
                         height: 14,
                         width: 14,
@@ -305,7 +305,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   </View>
 
                   <Animated.Image
-                    source={require('../assets/images/chervon-down.png')}
+                    source={require('../../assets/images/chervon-down.png')}
                     style={{
                       alignSelf: 'center',
                       height: 6,
@@ -345,7 +345,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   {/* Icon and Text Wrapper */}
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Image
-                      source={require('../assets/images/add_icon.png')}
+                      source={require('../../assets/images/add_icon.png')}
                       style={{
                         height: 14,
                         width: 14,
@@ -365,7 +365,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   </View>
 
                   <Animated.Image
-                    source={require('../assets/images/chervon-down.png')}
+                    source={require('../../assets/images/chervon-down.png')}
                     style={{
                       alignSelf: 'center',
                       height: 6,
@@ -415,7 +415,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   <TextInput.Icon
                     icon={() => (
                       <Image
-                        source={require('../assets/images/ic_upi_error.png')}
+                        source={require('../../assets/images/ic_upi_error.png')}
                         style={{ width: 24, height: 24 }}
                       />
                     )}

@@ -65,7 +65,7 @@ const SavedCardComponentView = ({
         {/* Icon and Text Wrapper */}
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
-            source={require('../assets/images/add_icon.png')}
+            source={require('../../assets/images/add_icon.png')}
             style={{
               height: 14,
               width: 14,
@@ -85,7 +85,7 @@ const SavedCardComponentView = ({
         </View>
 
         <Image
-          source={require('../assets/images/chervon-down.png')}
+          source={require('../../assets/images/chervon-down.png')}
           style={{
             alignSelf: 'center',
             height: 6,

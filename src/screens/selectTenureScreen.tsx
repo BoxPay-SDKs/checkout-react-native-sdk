@@ -90,7 +90,7 @@ const SelectTenureScreen = ({
               />
             ) : (
               <Image
-                source={require('../assets/images/ic_netbanking_semi_bold.png')}
+                source={require('../../assets/images/ic_netbanking_semi_bold.png')}
                 style={{ transform: [{ scale: 0.4 }] }}
               />
             )}

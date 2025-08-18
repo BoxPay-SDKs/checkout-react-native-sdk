@@ -21,7 +21,7 @@ const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick }) => {
             Where to find CVV?
           </Text>
           <Image
-            source={require('../assets/images/cvv_info_image.png')}
+            source={require('../../assets/images/cvv_info_image.png')}
             style={{ width: 120, height: 58, marginTop: 28 }}
           />
           <Text style={styles.secondaryHeading}>Generic position for CVV</Text>
@@ -37,7 +37,7 @@ const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick }) => {
             }}
           />
           <Image
-            source={require('../assets/images/cvv_info_image_amex.png')}
+            source={require('../../assets/images/cvv_info_image_amex.png')}
             style={{ width: 120, height: 58, marginTop: 28 }}
           />
           <Text style={styles.secondaryHeading}>

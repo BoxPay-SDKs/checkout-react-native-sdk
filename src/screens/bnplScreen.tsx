@@ -185,7 +185,7 @@ const BNPLScreen = () => {
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
         >
           <LottieView
-            source={require('../../../assets/animations/boxpayLogo.json')}
+            source={require('../../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
             style={{ width: 80, height: 80 }}
@@ -302,7 +302,7 @@ const BNPLScreen = () => {
                 <PaymentSelectorView
                   providerList={bnplList}
                   onProceedForward={onProceedForward}
-                  errorImage={require('../assets/images/ic_bnpl_semi_bold.png')}
+                  errorImage={require('../../assets/images/ic_bnpl_semi_bold.png')}
                   onClickRadio={(selectedInstrumentValue) =>
                     onClickRadioButton(selectedInstrumentValue)
                   }
@@ -323,7 +323,7 @@ const BNPLScreen = () => {
                 }}
               >
                 <Image
-                  source={require('../assets/images/no_results_found.png')}
+                  source={require('../../assets/images/no_results_found.png')}
                   style={{ width: 100, height: 100 }}
                 />
                 <Text
@@ -368,7 +368,7 @@ const BNPLScreen = () => {
               Secured by
             </Text>
             <Image
-              source={require('../assets/images/splash-icon.png')}
+              source={require('../../assets/images/splash-icon.png')}
               style={{ height: 50, width: 50 }}
             />
           </View>

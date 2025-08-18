@@ -43,7 +43,7 @@ const KnowMoreBottomSheet = ({ onClick }: KnowMoreBottomSheetProps) => {
             }}
           >
             <Image
-              source={require('../assets/images/ic_card_lock.png')}
+              source={require('../../assets/images/ic_card_lock.png')}
               style={{ width: 28, height: 28, alignSelf: 'flex-start' }}
             />
             <Text
@@ -67,7 +67,7 @@ const KnowMoreBottomSheet = ({ onClick }: KnowMoreBottomSheetProps) => {
             }}
           >
             <Image
-              source={require('../assets/images/ic_card_add.png')}
+              source={require('../../assets/images/ic_card_add.png')}
               style={{ width: 28, height: 28, alignSelf: 'flex-start' }}
             />
             <Text

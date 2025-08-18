@@ -23,7 +23,7 @@ const MorePaymentContainer = ({ title, image }: MorePaymentContainerProps) => {
         {title}
       </Text>
       <Image
-        source={require('../assets/images/chervon-down.png')}
+        source={require('../../assets/images/chervon-down.png')}
         style={{
           alignSelf: 'center',
           height: 6,

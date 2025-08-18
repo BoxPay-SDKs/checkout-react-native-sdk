@@ -612,7 +612,7 @@ const EmiScreen = () => {
           style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
         >
           <LottieView
-            source={require('../../../assets/animations/boxpayLogo.json')}
+            source={require('../../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
             style={{ width: 80, height: 80 }}
@@ -727,7 +727,7 @@ const EmiScreen = () => {
                         <TextInput.Icon
                           icon={() => (
                             <Image
-                              source={require('../assets/images/ic_search.png')}
+                              source={require('../../assets/images/ic_search.png')}
                               style={{ width: 20, height: 20 }}
                             />
                           )}
@@ -781,8 +781,8 @@ const EmiScreen = () => {
                         <Image
                           source={
                             isSelected
-                              ? require('../assets/images/ic_cross.png')
-                              : require('../assets/images/add_icon.png')
+                              ? require('../../assets/images/ic_cross.png')
+                              : require('../../assets/images/add_icon.png')
                           }
                           style={{
                             height: 10,
@@ -850,7 +850,7 @@ const EmiScreen = () => {
                           }}
                         >
                           <Image
-                            source={require('../assets/images/no_results_found.png')}
+                            source={require('../../assets/images/no_results_found.png')}
                             style={{ width: 100, height: 100 }}
                           />
                           <Text
@@ -893,7 +893,7 @@ const EmiScreen = () => {
                           onProceedForward={(_, instrumentValue) =>
                             onProceedForward(instrumentValue)
                           }
-                          errorImage={require('../assets/images/ic_bnpl_semi_bold.png')}
+                          errorImage={require('../../assets/images/ic_bnpl_semi_bold.png')}
                           onClickRadio={(selectedInstumentValue) => {
                             setSelectedOthersOption(selectedInstumentValue);
                           }}

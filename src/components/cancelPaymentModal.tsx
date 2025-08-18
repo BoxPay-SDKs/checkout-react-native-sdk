@@ -20,7 +20,7 @@ const CancelPaymentModal: React.FC<CancelPaymentModalProps> = ({
         <View style={styles.modalContent}>
           <View style={styles.iconContainer}>
             <Image
-              source={require('../assets/images/ic_info.png')}
+              source={require('../../assets/images/ic_info.png')}
               style={styles.iconImage}
             />
             <Text style={styles.modalTitle}>Cancel Transaction?</Text>
