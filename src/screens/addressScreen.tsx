@@ -22,7 +22,7 @@ import styles from '../styles/screens/addressScreenStyles.';
 const AddressScreen = () => {
   const { userData } = userDataHandler;
   const { checkoutDetails } = checkoutDetailsHandler;
-  const [selectedCountryCode, setSelectedCountryCode] = useState('');
+  const [selectedCountryCode, /*setSelectedCountryCode*/] = useState('');
   const selectedPhoneCodeRef = useRef('');
 
   const isShippingEnabled = checkoutDetails.isShippingAddressEnabled;
@@ -45,9 +45,9 @@ const AddressScreen = () => {
     setSecondaryAddressTextFieldFocused,
   ] = useState(false);
 
-  const [countryTextField, setCountryTextField] = useState<string>('');
+  const [countryTextField, /*setCountryTextField*/] = useState<string>('');
   const [fullNameTextField, setFullNameTextField] = useState<string>('');
-  const [phoneNumberTextField, setPhoneNumberTextField] = useState<string>('');
+  const [phoneNumberTextField, /*setPhoneNumberTextField*/] = useState<string>('');
   const [emailTextField, setEmailTextField] = useState<string>('');
   const [pinTextField, setPinTextField] = useState<string>('');
   const [cityTextField, setCityTextField] = useState<string>('');
@@ -57,7 +57,7 @@ const AddressScreen = () => {
     useState<string>('');
 
   const [fullNameErrorText, setFullNameErrorText] = useState('');
-  const [mobileNumberErrorText, setMobileNumberErrorText] = useState('');
+  const [mobileNumberErrorText, /*setMobileNumberErrorText*/] = useState('');
   const [emailIdErrorText, setEmailIdErrorText] = useState('');
   const [pinCodeErrorText, setPinCodeErrorText] = useState('');
   const [cityErrorText, setCityErrorText] = useState('');
@@ -65,7 +65,7 @@ const AddressScreen = () => {
   const [mainAddressErrorText, setMainAddressErrorText] = useState('');
 
   const [isFullNameValid, setIsFullNameValid] = useState(false);
-  const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(false);
+  const [isPhoneNumberValid, /*setIsPhoneNumberValid*/] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isPinValid, setIsPinValid] = useState(false);
   const [isCityValid, setIsCityValid] = useState(false);
