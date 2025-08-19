@@ -1,7 +1,8 @@
-import { type HandleFetchStatusOptions, type HandlePaymentOptions, type PaymentClass, APIStatus, TransactionStatus } from "../interface";
+import { type HandleFetchStatusOptions, type HandlePaymentOptions, type PaymentClass, type RecommendedInstruments, APIStatus, TransactionStatus } from "../interface";
 import { transformAndFilterList } from '../utils/listAndObjectUtils';
 import Toast from 'react-native-toast-message'
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
+import fetchRecommendedInstruments from "../postRequest/fetchRecommendedInstruments";
 
 export function handlePaymentResponse({
     response,
@@ -214,4 +215,53 @@ export async function fetchPaymentMethodHandler({
         default:
           break;
       }
+}
+
+interface fetchSavedInstrumentsArgs {
+    setRecommendedList : (list:PaymentClass[]) => void,
+    setUpiInstrumentList : (list : PaymentClass[]) => void,
+    setCardInstrumentList : (list : PaymentClass[]) => void
+}
+
+
+export async function fetchSavedInstrumentsHandler({setRecommendedList, setUpiInstrumentList, setCardInstrumentList} : fetchSavedInstrumentsArgs) {
+    const response = await fetchRecommendedInstruments()
+    switch(response.apiStatus) {
+        case APIStatus.Success : {
+            const instrumentList = response.data
+            const upiList : PaymentClass[] = []
+            const cardList : PaymentClass[] = []
+            instrumentList.forEach((instrument: RecommendedInstruments) => {
+                const item: PaymentClass = {
+                  type: instrument.type,
+                  id: instrument.instrumentRef,
+                  displayName: instrument.cardNickName ? instrument.cardNickName : '',
+                  displayValue: instrument.displayValue,
+                  iconUrl: instrument.logoUrl ? instrument.logoUrl : '///',
+                  instrumentTypeValue: instrument.instrumentRef,
+                  isSelected: false,
+                };
+              
+                if (instrument.type.toLowerCase() === 'upi') {
+                  upiList.push(item);
+                } else if (instrument.type.toLowerCase() === 'card') {
+                  cardList.push(item);
+                }
+            });
+            setRecommendedList(upiList.slice(0, 2));
+            setUpiInstrumentList(upiList)
+            setCardInstrumentList(cardList)
+            break
+        }
+        case APIStatus.Failed: {
+            Toast.show({
+                type: 'error',
+                text1: 'Oops!',
+                text2: 'Something went wrong. Please try again.',
+            });
+            break;
+        }
+        default:
+          break;
+    }
 }

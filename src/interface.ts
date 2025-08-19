@@ -232,7 +232,7 @@ interface PaymentActions {
   htmlPageString : string
 }
 
-export interface FetchCardDetailsResponse {
+export interface FetchCardDetails {
   paymentMethod : {
     id : string,
     type : string,
@@ -292,6 +292,47 @@ export type PaymentMethodFetchResponse =
   data: ErrorResponse;
 };
 
+export type SavedInstrumentFetchResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: RecommendedInstruments[];
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+
+export type FetchCardDetailsResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: FetchCardDetails
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+export type DeleteSavedAddressResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: FetchSavedAddress
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+export type FetchSavedAddressResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: FetchSavedAddress[]
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
 export interface HandleFetchStatusOptions {
   response: FetchStatusApiResponse;
   checkoutDetailsErrorMessage: string;
@@ -318,4 +359,20 @@ export enum TransactionStatus {
 export enum APIStatus {
   Success = 'SUCCESS',
   Failed = 'FAILED',
+}
+
+export interface FetchSavedAddress {
+  address1 : string,
+  address2 : string | null,
+  city : string,
+  state : string,
+  countryCode : string,
+  postalCode : string,
+  shopperRef : string,
+  addressRef : string,
+  labelType : string,
+  labelName : string | null,
+  name : string,
+  email : string,
+  phoneNumber : string
 }

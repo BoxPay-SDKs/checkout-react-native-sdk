@@ -20,7 +20,7 @@ import {
 } from '../interface';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
-import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
+import ShimmerView from '../components/shimmerView';
 import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
 import BankCard from '../components/bankCard';
@@ -35,6 +35,7 @@ import WebViewScreen from './webViewScreen';
 import fetchStatus from '../postRequest/fetchStatus';
 import PaymentSelectorView from '../components/paymentSelector';
 import Toast from 'react-native-toast-message'
+import styles from '../styles/screens/emiScreenStyles';
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 
 const EmiScreen = () => {
@@ -528,99 +529,24 @@ const EmiScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={styles.screenView}>
       <StatusBar barStyle="dark-content" />
       {isFirstLoad ? (
-        <View
-          style={{ flex: 1, backgroundColor: 'white', marginHorizontal: 16 }}
-        >
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 30,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-        </View>
+        <ShimmerView/>
       ) : loading ? (
         <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          style={styles.loadingContainer}
         >
           <LottieView
             source={require('../../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
-            style={{ width: 80, height: 80 }}
+            style={styles.lottieStyle}
           />
           <Text>Loading...</Text>
         </View>
       ) : (
-        <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+        <View style={styles.availableScreenView}>
           {!selectTenureScreen && (
             <>
               <Header
@@ -630,59 +556,40 @@ const EmiScreen = () => {
                 text="Choose EMI Option"
               />
               <View
-                style={{
-                  backgroundColor: 'white',
-                  marginTop: 4,
-                  paddingBottom: 16,
-                }}
+                style={styles.container}
               >
                 <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    paddingHorizontal: 16,
-                  }}
+                  style={styles.insideContainer}
                 >
                   {emiBankList.cards.map((item, index) => (
                     <View
                       key={index}
-                      style={{ paddingHorizontal: 16, paddingTop: 12 }}
+                      style={styles.cardsContainer}
                     >
                       <Text
-                        style={{
-                          fontFamily: 'Poppins-SemiBold',
-                          fontSize: 14,
+                        style={[styles.cardsText,{
                           color:
                             selectedCard === item.cardType
                               ? checkoutDetails.brandColor
                               : '#01010273',
-                        }}
+                        }]}
                         onPress={() => handleCardClick(item.cardType)}
                       >
                         {item.cardType}
                       </Text>
                       <View
-                        style={{
-                          height: 2,
+                        style={[styles.highlightedDivider,{
                           backgroundColor:
                             selectedCard === item.cardType
                               ? checkoutDetails.brandColor
                               : '',
-                          width: '120%',
-                          minWidth: 40,
-                          alignSelf: 'center',
-                          borderRadius: 1,
-                        }}
+                        }]}
                       />
                     </View>
                   ))}
                 </View>
                 <View
-                  style={{
-                    height: 1,
-                    backgroundColor: '#DCDCDE',
-                    borderRadius: 1,
-                  }}
+                  style={styles.divider}
                 />
                 {isSearchVisible && (
                   <View style={{ backgroundColor: 'white' }}>
@@ -690,15 +597,13 @@ const EmiScreen = () => {
                       mode="outlined"
                       label={
                         <Text
-                          style={{
-                            fontSize: 16,
-                            fontFamily: 'Poppins-Regular',
+                          style={[styles.searchTextLable,{
                             color: searchTextFocused
                               ? '#2D2B32'
                               : searchText != '' && searchText != null
                                 ? '#2D2B32'
                                 : '#ADACB0',
-                          }}
+                          }]}
                         >
                           {selectedCard === 'Others'
                             ? 'Search for other EMI options'
@@ -715,14 +620,7 @@ const EmiScreen = () => {
                           outline: '#E6E6E6',
                         },
                       }}
-                      style={{
-                        marginTop: 16,
-                        marginHorizontal: 16,
-                        backgroundColor: 'white',
-                        fontSize: 16,
-                        fontFamily: 'Poppins-Regular',
-                        color: '#0A090B',
-                      }}
+                      style={styles.textInputStyle}
                       left={
                         <TextInput.Icon
                           icon={() => (
@@ -747,31 +645,16 @@ const EmiScreen = () => {
                   filterList.map(([item, isSelected], index) => (
                     <View
                       key={index}
-                      style={{
-                        flexDirection: 'row',
-                        marginHorizontal: 16,
-                        marginTop: 20,
-                      }}
+                      style={styles.filterContainer}
                     >
                       <View
-                        style={{
+                        style={[styles.filterBox,{
                           borderColor: isSelected ? '#1CA672' : '#E6E6E6',
-                          borderWidth: 1,
-                          flexDirection: 'row',
-                          paddingTop: 6,
-                          paddingBottom: 4,
-                          paddingHorizontal: 12,
-                          alignItems: 'baseline',
-                          borderRadius: 20,
                           backgroundColor: isSelected ? '#E8F6F1' : 'white',
-                        }}
+                        }]}
                       >
                         <Text
-                          style={{
-                            fontFamily: 'Poppins-SemiBold',
-                            fontSize: 12,
-                            color: '#2D2B32',
-                          }}
+                          style={styles.filterText}
                           onPress={() => {
                             getBanksByFilter(selectedCard, item);
                           }}
@@ -784,12 +667,9 @@ const EmiScreen = () => {
                               ? require('../../assets/images/ic_cross.png')
                               : require('../../assets/images/add_icon.png')
                           }
-                          style={{
-                            height: 10,
-                            width: 10,
-                            marginStart: 4,
+                          style={[styles.filterImage,{
                             tintColor: isSelected ? '#2D2B32' : '#7F7D83',
-                          }}
+                          }]}
                         />
                       </View>
                     </View>
@@ -808,26 +688,12 @@ const EmiScreen = () => {
                 }}
               >
                 <Text
-                  style={{
-                    marginTop: 16,
-                    marginBottom: 8,
-                    marginHorizontal: 16,
-                    color: '#020815B5',
-                    fontFamily: 'Poppins-SemiBold',
-                    fontSize: 14,
-                  }}
+                  style={styles.headingText}
                 >
                   {selectedCard === 'Others' ? 'Others' : 'All Banks'}
                 </Text>
                 <View
-                  style={{
-                    backgroundColor: 'white',
-                    borderColor: '#F1F1F1',
-                    borderWidth: 1,
-                    borderRadius: 12,
-                    marginHorizontal: 16,
-                    marginBottom: 30,
-                  }}
+                  style={styles.listContainer}
                 >
                   {(() => {
                     const selectedCardData = emiBankList.cards.find(
@@ -840,36 +706,19 @@ const EmiScreen = () => {
                     ) {
                       return (
                         <View
-                          style={{
-                            marginHorizontal: 16,
-                            backgroundColor: 'white',
-                            marginBottom: 32,
-                            height: 300,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
+                          style={styles.emptyListContainer}
                         >
                           <Image
                             source={require('../../assets/images/no_results_found.png')}
-                            style={{ width: 100, height: 100 }}
+                            style={styles.emptyListImage}
                           />
                           <Text
-                            style={{
-                              fontFamily: 'Poppins-SemiBold',
-                              fontSize: 16,
-                              color: '#212426',
-                              marginTop: 16,
-                            }}
+                            style={styles.emptyListHeadingText}
                           >
                             Oops!! No result found
                           </Text>
                           <Text
-                            style={{
-                              fontFamily: 'Poppins-Regular',
-                              fontSize: 14,
-                              color: '#4F4D55',
-                              marginTop: -4,
-                            }}
+                            style={styles.emptyListDescText}
                           >
                             Please try another search
                           </Text>
@@ -914,7 +763,7 @@ const EmiScreen = () => {
                           />
                           {index !== bankArray.length - 1 && (
                             <View
-                              style={{ height: 1, backgroundColor: '#ECECED' }}
+                              style={styles.divider}
                             />
                           )}
                         </View>
@@ -927,7 +776,7 @@ const EmiScreen = () => {
           )}
 
           {selectTenureScreen && (
-            <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+            <View style={styles.availableScreenView}>
               <SelectTenureScreen
                 bankName={selectedBank?.name || ''}
                 bankUrl={selectedBank?.iconUrl || ''}
@@ -978,14 +827,7 @@ const EmiScreen = () => {
 
       {showWebView && (
         <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'white',
-          }}
+          style={styles.webViewScreenStyle}
         >
           <WebViewScreen
             url={paymentUrl}

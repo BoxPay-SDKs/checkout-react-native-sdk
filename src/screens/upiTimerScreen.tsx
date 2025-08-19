@@ -3,7 +3,6 @@ import {
   Text,
   Image,
   BackHandler,
-  StyleSheet,
   StatusBar,
 } from 'react-native'; // Import Modal
 import { useEffect, useRef, useState } from 'react';
@@ -17,6 +16,7 @@ import CancelPaymentModal from '../components/cancelPaymentModal';
 import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CircularProgressBar from '../components/circularProgress';
 import type { PaymentResult } from '../interface';
+import styles from '../styles/screens/upiTimerScreenStyle';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import { handleFetchStatusResponseHandler } from '../sharedContext/handlePaymentResponseHandler';
 
@@ -157,7 +157,7 @@ const UpiTimerScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+    <View style={styles.screenView}>
       <StatusBar barStyle="dark-content" />
       <Header
         onBackPress={onProceedBack}
@@ -167,76 +167,38 @@ const UpiTimerScreen = () => {
       />
 
       <View
-        style={{
-          flex: 1,
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          marginTop: 32,
-        }}
+        style={styles.mainContainer}
       >
         <Text
-          style={{
-            color: '#2D2B32',
-            fontSize: 18,
-            textAlign: 'center',
-            fontFamily: 'Poppins-SemiBold',
-          }}
+          style={styles.headingText}
         >
           Complete your payment
         </Text>
         <Text
-          style={{
-            color: '#2D2B32',
-            fontSize: 14,
-            paddingTop: 12,
-            textAlign: 'center',
-            lineHeight: 24,
-            fontFamily: 'Poppins-Regular',
-          }}
+          style={styles.descText}
         >
           Open your UPI application and confirm the payment before the time
           expires
         </Text>
         <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderColor: '#BABABA',
-            borderWidth: 2,
-            borderRadius: 8,
-            paddingVertical: 6,
-            paddingHorizontal: 8,
-            marginTop: 12,
-          }}
+          style={styles.container}
         >
           <Image
             source={require('../../assets/images/upi-timer-sheet-upi-icon.png')}
-            style={{ height: 16, width: 16, marginRight: 4 }}
+            style={styles.imageStyle}
           />
           <Text
-            style={{
-              color: '#1D1C20',
-              fontSize: 12,
-              fontFamily: 'Poppins-Regular',
-            }}
+            style={styles.text}
           >
             UPI Id : {upiIdStr}
           </Text>
         </View>
         <Text
-          style={{
-            color: '#1D1C20',
-            fontSize: 16,
-            textAlign: 'center',
-            marginTop: 32,
-            fontFamily: 'Poppins-Medium',
-          }}
+          style={styles.expireInTextStyle}
         >
           Expires in
         </Text>
-        <View style={{ marginTop: 14, alignItems: 'center' }}>
+        <View style={styles.progressBarContainer}>
           <CircularProgressBar
             size={150}
             strokeWidth={10}
@@ -251,28 +213,14 @@ const UpiTimerScreen = () => {
           />
         </View>
         <View
-          style={{
-            flexDirection: 'row',
-            borderColor: '#ECECED',
-            borderWidth: 2,
-            borderRadius: 8,
-            paddingVertical: 16,
-            paddingHorizontal: 16,
-            marginTop: 32,
-          }}
+          style={styles.infoContainer}
         >
           <Image
             source={require('../../assets/images/ic_info.png')}
-            style={{ height: 26, width: 26 }}
+            style={styles.infoImageStyle}
           />
           <Text
-            style={{
-              color: '#1D1C20',
-              fontSize: 12,
-              paddingStart: 16,
-              lineHeight: 18,
-              fontFamily: 'Poppins-Regular',
-            }}
+            style={styles.infoText}
           >
             Kindly avoid using the back button until the transaction process is
             complete
@@ -281,20 +229,13 @@ const UpiTimerScreen = () => {
       </View>
 
       <View
-        style={{
-          flexDirection: 'row',
-          height: 2,
-          backgroundColor: '#ECECED',
-          marginBottom: 48,
-        }}
+        style={styles.thickDivider}
       />
       <View style={styles.cancelPaymentContainer}>
         <Text
-          style={{
-            fontSize: 16,
-            color: checkoutDetails.brandColor,
-            fontFamily: 'Poppins-SemiBold',
-          }}
+          style={[styles.cancelTextStyle,{
+            color: checkoutDetails.brandColor
+          }]}
           onPress={() => {
             setCancelClicked(true);
           }}
@@ -338,15 +279,3 @@ const UpiTimerScreen = () => {
 };
 
 export default UpiTimerScreen;
-
-const styles = StyleSheet.create({
-  cancelPaymentContainer: {
-    alignItems: 'center',
-    paddingBottom: 10,
-    paddingHorizontal: 16,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-});

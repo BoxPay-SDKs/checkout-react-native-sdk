@@ -14,13 +14,13 @@ import { router, useFocusEffect } from 'expo-router';
 import { paymentHandler, setPaymentHandler } from "./sharedContext/paymentStatusHandler";
 import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
 import { setUserDataHandler, userDataHandler } from './sharedContext/userdataHandler';
-import type { PaymentResult, PaymentClass, InstrumentDetails, RecommendedInstruments, PaymentMethod, OrderItem, BoxpayCheckoutProps } from './interface';
+import type { PaymentResult, PaymentClass, InstrumentDetails, PaymentMethod, OrderItem, BoxpayCheckoutProps } from './interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './sharedContext/checkoutDetailsHandler';
 import WebViewScreen from './screens/webViewScreen';
+import styles from './styles/indexStyles';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import type { ItemsProp } from './components/orderDetails';
 import OrderDetails from './components/orderDetails';
-import fetchRecommendedInstruments from './postRequest/fetchRecommendedInstruments';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PaymentSelectorView from './components/paymentSelector';
 import SavedCardComponentView from './components/savedCardComponent';
@@ -29,7 +29,7 @@ import AddressComponent from './components/addressCard';
 import { navigateToAddressScreen, navigateToCardScreen, navigateToUpiTimerModal } from './navigation';
 import fetchSessionDetails from './postRequest/fetchSessionDetails';
 import MorePaymentMethods from './components/morePaymentMethods';
-import { handleFetchStatusResponseHandler, handlePaymentResponse } from './sharedContext/handlePaymentResponseHandler';
+import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from './sharedContext/handlePaymentResponseHandler';
 
 const BoxpayCheckout = ({
   token,
@@ -181,61 +181,12 @@ const BoxpayCheckout = ({
   };
 
   const getRecommendedInstruments = async () => {
-    try {
-      const response = await fetchRecommendedInstruments();
-
-      // Ensure response is an array; default to an empty array if null/undefined
-      const instrumentsList = Array.isArray(response) ? response : [];
-
-      const instruments = instrumentsList
-        .slice(0, 2)
-        .map((instrument: RecommendedInstruments, index: number) => ({
-          type: instrument.type,
-          id: instrument.instrumentRef,
-          displayName: instrument.cardNickName ? instrument.cardNickName : '',
-          displayValue: instrument.displayValue,
-          iconUrl: instrument.logoUrl ? instrument.logoUrl : '///', // Add appropriate image logic if needed
-          instrumentTypeValue: instrument.instrumentRef,
-          isLastUsed: index === 0, // Only the first item should have isLastUsed = true
-          isSelected: false,
-        }));
-
-      const upiInstruments = instrumentsList
-        .filter(
-          (instrument: RecommendedInstruments) => instrument.type === 'Upi'
-        )
-        .map((instrument: RecommendedInstruments) => ({
-          type: instrument.type,
-          id: instrument.instrumentRef,
-          displayName: instrument.cardNickName ? instrument.cardNickName : '',
-          displayValue: instrument.displayValue,
-          iconUrl: instrument.logoUrl ? instrument.logoUrl : '///',
-          instrumentTypeValue: instrument.instrumentRef,
-          isSelected: false,
-        }));
-
-      const cardInstruments = instrumentsList
-        .filter(
-          (instrument: RecommendedInstruments) => instrument.type === 'Card'
-        )
-        .map((instrument: RecommendedInstruments) => ({
-          type: instrument.type,
-          id: instrument.instrumentRef,
-          displayName: instrument.cardNickName,
-          displayValue: instrument.displayValue,
-          iconUrl: instrument.logoUrl ? instrument.logoUrl : '///',
-          instrumentTypeValue: instrument.instrumentRef,
-          isSelected: false,
-        }));
-
-      setRecommendedInstruments(instruments);
-      setSavedUpiArray(upiInstruments);
-      setSavedCardArray(cardInstruments);
-    } catch (error) {
-      setRecommendedInstruments([]); // Ensure the list is explicitly set to empty
-    } finally {
-      setIsFirstLoading(false);
-    }
+    fetchSavedInstrumentsHandler({
+      setRecommendedList: setRecommendedInstruments,
+      setUpiInstrumentList : setSavedUpiArray,
+      setCardInstrumentList : setSavedCardArray
+    });
+    setIsFirstLoading(false)
   };
 
   useEffect(() => {
@@ -620,24 +571,24 @@ const BoxpayCheckout = ({
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+    <SafeAreaView style={styles.screenView}>
       <StatusBar barStyle="dark-content" />
       {isFirstLoading ? (
         <ShimmerView />
       ) : loadingState ? (
         <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          style={styles.loadingContainer}
         >
           <LottieView
             source={require('../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
-            style={{ width: 80, height: 80 }}
+            style={styles.lottieStyle}
           />
           <Text>Loading...</Text>
         </View>
       ) : (
-        <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+        <View style={styles.screenView}>
           <ScrollView 
             contentContainerStyle={{ flexGrow: 1 }} 
             keyboardShouldPersistTaps="handled" 
@@ -654,34 +605,16 @@ const BoxpayCheckout = ({
               {recommendedInstrumentsArray.length > 0 && (
                 <>
                   <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}
+                    style={styles.container}
                   >
                     <Text
-                      style={{
-                        marginStart: 14,
-                        marginTop: 20,
-                        fontSize: 14,
-                        color: '#020815B5',
-                        fontFamily: 'Poppins-SemiBold',
-                      }}
+                      style={styles.headingText}
                     >
                       Recommended
                     </Text>
                   </View>
                   <View
-                    style={{
-                      borderColor: '#F1F1F1',
-                      borderWidth: 1,
-                      marginHorizontal: 16,
-                      marginVertical: 8,
-                      backgroundColor: 'white',
-                      flexDirection: 'column',
-                      borderRadius: 12,
-                    }}
+                    style={styles.paymentContainer}
                   >
                     <PaymentSelectorView
                       providerList={recommendedInstrumentsArray}
@@ -716,26 +649,12 @@ const BoxpayCheckout = ({
               {savedCardArray.length != 0 && (
                 <View>
                   <Text
-                    style={{
-                      marginStart: 14,
-                      marginTop: 20,
-                      fontSize: 14,
-                      color: '#020815B5',
-                      fontFamily: 'Poppins-SemiBold',
-                    }}
+                    style={styles.headingText}
                   >
                     Credit & Debit Cards
                   </Text>
                   <View
-                    style={{
-                      borderColor: '#F1F1F1',
-                      borderWidth: 1,
-                      marginHorizontal: 16,
-                      marginVertical: 8,
-                      backgroundColor: 'white',
-                      flexDirection: 'column',
-                      borderRadius: 12,
-                    }}
+                    style={styles.paymentContainer}
                   >
                     <SavedCardComponentView
                       savedCards={savedCardArray}
@@ -754,13 +673,7 @@ const BoxpayCheckout = ({
               <MorePaymentMethods savedCards={savedCardArray}/>
               <View>
                 <Text
-                  style={{
-                    marginStart: 16,
-                    marginTop: 12,
-                    fontSize: 14,
-                    color: '#020815B5',
-                    fontFamily: 'Poppins-SemiBold',
-                  }}
+                  style={styles.headingText}
                 >
                   Order Summary
                 </Text>
@@ -776,27 +689,16 @@ const BoxpayCheckout = ({
 
               {/* Secured by BoxPay - Fixed at Bottom */}
               <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'flex-end',
-                  backgroundColor: '#F5F6FB',
-                  flexDirection: 'row',
-                }}
+                style={styles.footerContainer}
               >
                 <Text
-                  style={{
-                    fontSize: 12,
-                    color: '#888888',
-                    marginBottom: 15,
-                    fontFamily: 'Poppins-Medium',
-                  }}
+                  style={styles.footerText}
                 >
                   Secured by
                 </Text>
                 <Image
                   source={require('../assets/images/splash-icon.png')}
-                  style={{ height: 50, width: 50 }}
+                  style={styles.footerImage}
                 />
               </View>
             </View>
@@ -825,14 +727,7 @@ const BoxpayCheckout = ({
 
       {showWebView && (
         <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'white',
-          }}
+          style={styles.webViewScreenStyle}
         >
           <WebViewScreen
             url={paymentUrl}

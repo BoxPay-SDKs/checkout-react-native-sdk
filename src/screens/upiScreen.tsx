@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  StyleSheet,
   Pressable,
   Image,
   Animated,
@@ -13,6 +12,7 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 import type { PaymentClass } from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
 import { getInstalledUpiApps } from '../../cross_platform_sdk_react_native_plugin';
+import styles from '../styles/screens/upiScreenStyles';
 
 interface UpiScreenProps {
   handleUpiPayment: (selectedIntent: string) => void;
@@ -86,8 +86,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
   return (
     <View>
       {(isUpiIntentVisible || isUpiCollectVisible) && (
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={styles.addressText}>Pay by any UPI</Text>
+        <View style={styles.headingContainer}>
+          <Text style={styles.headingText}>Pay by any UPI</Text>
         </View>
       )}
       <View style={styles.intentBackground}>
@@ -105,11 +105,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
           }}
         />
         <View
-          style={{
-            flexDirection: 'row',
-            height: 1,
-            backgroundColor: '#ECECED',
-          }}
+          style={styles.divider}
         />
         {isUpiIntentVisible && (
           <View>
@@ -272,14 +268,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                 }}
               >
                 <Pressable
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center', // Ensures vertical alignment of items
-                    paddingTop: 16,
-                    paddingStart: 16,
-                    marginEnd: 16,
-                    justifyContent: 'space-between', // Spaces items between the start and end
-                  }}
+                  style={styles.pressableCollectContainer}
                   onPress={() => handleUpiChevronClick()}
                 >
                   {/* Icon and Text Wrapper */}
@@ -332,14 +321,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   />
                 )}
                 <Pressable
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center', // Ensures vertical alignment of items
-                    paddingTop: 16,
-                    paddingStart: 16,
-                    marginEnd: 16,
-                    justifyContent: 'space-between', // Spaces items between the start and end
-                  }}
+                  style={styles.pressableCollectContainer}
                   onPress={() => handleUpiChevronClick()}
                 >
                   {/* Icon and Text Wrapper */}
@@ -389,11 +371,9 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
               mode="outlined"
               label={
                 <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'Poppins-Regular',
+                  style={[styles.labelText,{
                     color: upiIdFocused ? '#2D2B32' : '#ADACB0',
-                  }}
+                  }]}
                 >
                   Enter UPI Id
                 </Text>
@@ -416,7 +396,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                     icon={() => (
                       <Image
                         source={require('../../assets/images/ic_upi_error.png')}
-                        style={{ width: 24, height: 24 }}
+                        style={styles.errorIcon}
                       />
                     )}
                   />
@@ -431,13 +411,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
             />
             {upiCollectError && (
               <Text
-                style={{
-                  fontSize: 12,
-                  color: '#E12121',
-                  marginStart: 16,
-                  marginHorizontal: 16,
-                  fontFamily: 'Poppins-Regular',
-                }}
+                style={styles.errorText}
               >
                 Please enter a valid UPI Id
               </Text>
@@ -485,80 +459,3 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 };
 
 export default UpiScreen;
-
-const styles = StyleSheet.create({
-  addressText: {
-    marginStart: 14,
-    marginTop: 20,
-    fontSize: 14,
-    color: '#020815B5',
-    fontFamily: 'Poppins-SemiBold',
-  },
-  upiIntentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 14,
-  },
-  textInput: {
-    marginHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: 'white',
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-    color: '#0A090B',
-  },
-  labeltextInput: {
-    fontSize: 20,
-  },
-  intentIcon: {
-    height: 28,
-    width: 30,
-  },
-  intentIconBorder: {
-    height: 56,
-    width: 56,
-    borderWidth: 1,
-    borderColor: '#DCDEE3',
-    borderRadius: 7,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  intentContainer: {
-    alignItems: 'center',
-    marginEnd: 22,
-  },
-  intentTitle: {
-    color: '#363840',
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-    marginTop: 4,
-  },
-  intentBackground: {
-    borderColor: '#F1F1F1',
-    borderWidth: 1,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    backgroundColor: 'white',
-    flexDirection: 'column',
-    borderRadius: 12,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    borderRadius: 8,
-    justifyContent: 'center',
-    marginTop: 20,
-    marginHorizontal: 16,
-    paddingVertical: 14,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
-  },
-  currencySymbol: {
-    color: 'white',
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-  },
-});

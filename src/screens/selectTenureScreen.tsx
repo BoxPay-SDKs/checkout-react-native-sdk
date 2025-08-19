@@ -6,6 +6,7 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 import { SvgUri } from 'react-native-svg';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import SelectTenureCard from '../components/selectTenureCard';
+import styles from '../styles/screens/selectTenureScreenStyles';
 
 interface SelectTenureProps {
   bankName: string;
@@ -37,7 +38,7 @@ const SelectTenureScreen = ({
   const [selectedEmi, setSelectedEmi] = useState('');
   const [selectedDuration, setSelectedDuration] = useState(0);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
+    <SafeAreaView style={styles.screenView}>
       <Header
         onBackPress={onbackPress}
         showDesc={true}
@@ -45,35 +46,18 @@ const SelectTenureScreen = ({
         text="Select Tenure"
       />
       <View
-        style={{
-          backgroundColor: 'white',
-          borderColor: '#E6E6E6',
-          borderWidth: 1,
-          marginTop: 8,
-          marginHorizontal: 16,
-          borderRadius: 12,
-        }}
+        style={styles.outerContainer}
       >
         <View
-          style={{
-            flexDirection: 'row',
-            paddingHorizontal: 12,
-            paddingVertical: 16,
-            alignItems: 'center',
-          }}
+          style={styles.container}
         >
           <View
-            style={{
-              width: 28,
-              height: 28,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
+            style={styles.insideContainer}
           >
             {load && !error && (
               <ShimmerPlaceHolder
                 visible={false} // Keep shimmer until loading is done
-                style={{ width: 32, height: 32, borderRadius: 8 }}
+                style={styles.shimmer}
               />
             )}
             {!error ? (
@@ -96,21 +80,13 @@ const SelectTenureScreen = ({
             )}
           </View>
           <Text
-            style={{
-              fontFamily: 'Poppins-SemiBold',
-              fontSize: 14,
-              paddingStart: 8,
-            }}
+            style={styles.text}
           >
             {bankName} | {cardType} EMI
           </Text>
         </View>
         <View
-          style={{
-            flexDirection: 'row',
-            height: 1,
-            backgroundColor: '#ECECED',
-          }}
+          style={styles.insideContainerDivider}
         />
         {emiModel.map((item, index) => (
           <View key={index}>
@@ -148,11 +124,7 @@ const SelectTenureScreen = ({
             />
             {index !== emiModel.length - 1 && (
               <View
-                style={{
-                  flexDirection: 'row',
-                  height: 1,
-                  backgroundColor: '#ECECED',
-                }}
+                style={styles.insideContainerDivider}
               />
             )}
           </View>
