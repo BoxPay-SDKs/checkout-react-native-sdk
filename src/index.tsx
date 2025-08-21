@@ -41,7 +41,6 @@ const BoxpayCheckout = ({
   const [transactionId, setTransactionId] = useState('');
   const env = configurationOptions?.ENABLE_SANDBOX_ENV ? 'test' : 'prod';
   const appStateListenerRef = useRef<any>(null);
-  const [appState] = useState(AppState.currentState);
   const [loadingState, setLoadingState] = useState(false);
   const [isFirstLoading, setIsFirstLoading] = useState(true);
   const [amount, setAmount] = useState('');
@@ -224,8 +223,7 @@ const BoxpayCheckout = ({
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    if (appState == 'active') {
-      handleFetchStatusResponseHandler({
+    handleFetchStatusResponseHandler({
         response: response,
         checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
         onSetStatus: setStatus,
@@ -241,7 +239,6 @@ const BoxpayCheckout = ({
       });
       appStateListenerRef.current?.remove();
       isUpiOpeningRef.current = false;
-    }
   };
 
   const onExitCheckout = () => {

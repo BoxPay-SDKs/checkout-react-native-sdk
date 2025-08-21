@@ -30,6 +30,7 @@
   "scripts": {
     "typecheck": "tsc",
     "clean": "del-cli lib",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prepare": "bob build && cp -r assets lib/assets && cp -r cross_platform_sdk_react_native_plugin lib/cross_platform_sdk_react_native_plugin",
     "release": "release-it --only-version"
   },
@@ -72,16 +73,16 @@
     "typescript": "^5.5.4"
   },
   "peerDependencies": {
-  "react": ">=18.0.0 <20.0.0",
-  "react-native": ">=0.71.0 <0.80.0",
-  "lottie-react-native": ">=7.0.0",
-  "react-native-svg": ">=15.0.0",
-  "react-native-webview": ">=13.0.0",
-  "react-native-modal": ">=13.0.0",
-  "react-native-paper": ">=5.0.0",
-  "react-native-shimmer-placeholder": ">=2.0.0",
-  "react-native-toast-message": ">=2.0.0",
-  "expo-router": ">=5.0.0"
+    "expo-router": ">=5.0.0",
+    "lottie-react-native": ">=7.0.0",
+    "react": "19.0.0",
+    "react-native": ">=0.73.0 < 0.80",
+    "react-native-modal": ">=13.0.0",
+    "react-native-paper": ">=5.0.0",
+    "react-native-shimmer-placeholder": ">=2.0.0",
+    "react-native-svg": ">=15.0.0",
+    "react-native-toast-message": ">=2.0.0",
+    "react-native-webview": ">=13.0.0"
   },
   "packageManager": "yarn@3.6.1",
   "jest": {

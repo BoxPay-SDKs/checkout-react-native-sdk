@@ -22,4 +22,9 @@ module.exports = {
       presets: ['module:@react-native/babel-preset'],
     },
   ],
+  externals: [
+    'react',
+    'react-native',
+    'react/jsx-runtime'
+  ],
 };
