@@ -8,7 +8,7 @@ const fetchStatus = async () : Promise<FetchStatusApiResponse> => {
     return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
     console.error('API Error:', error);
-    return { apiStatus: APIStatus.Failed, data : {status: { reasonCode: 'API_FAILED', reason: '' }} };
+    return { apiStatus: APIStatus.Failed, data : {status: { reasonCode: 'API_FAILED', reason: `${error}` }} };
   }
 };
 

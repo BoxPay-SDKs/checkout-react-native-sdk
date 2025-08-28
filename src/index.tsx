@@ -14,7 +14,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { paymentHandler, setPaymentHandler } from "./sharedContext/paymentStatusHandler";
 import { loadCustomFonts, loadInterCustomFonts } from './components/fontFamily';
 import { setUserDataHandler, userDataHandler } from './sharedContext/userdataHandler';
-import type { PaymentResult, PaymentClass, InstrumentDetails, PaymentMethod, OrderItem, BoxpayCheckoutProps } from './interface';
+import { type PaymentResult, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, type BoxpayCheckoutProps, APIStatus } from './interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler } from './sharedContext/checkoutDetailsHandler';
 import WebViewScreen from './screens/webViewScreen';
 import styles from './styles/indexStyles';
@@ -283,206 +283,217 @@ const BoxpayCheckout = ({
       await loadInterCustomFonts();
     }
     loadFonts()
-    checkoutDetailsHandler.checkoutDetails.env = env
-    checkoutDetailsHandler.checkoutDetails.token = token
-    fetchSessionDetails().then(
-      (response) => {
-        try {
-          setIsFirstLoading(true);
-          const paymentMethods = response.data.configs.paymentMethods;
-          const enabledFields = response.data.configs.enabledFields;
-          const paymentDetails = response.data.paymentDetails;
-          const methodFlags = {
-            isUPIIntentVisible: false,
-            isUPICollectVisible: false,
-            isCardsVisible: false,
-            isWalletVisible: false,
-            isNetbankingVisible: false,
-            isEMIVisible: false,
-            isBNPLVisible: false,
-          };
+
+    async function loadSession() {
+      if(token != "") {
+        checkoutDetailsHandler.checkoutDetails.env = env
+        checkoutDetailsHandler.checkoutDetails.token = token
+        const response = await fetchSessionDetails()
+        switch(response.apiStatus) {
+          case APIStatus.Success : {
+            const paymentMethods = response.data.configs.paymentMethods;
+              const enabledFields = response.data.configs.enabledFields;
+              const paymentDetails = response.data.paymentDetails;
+              const methodFlags = {
+                isUPIIntentVisible: false,
+                isUPICollectVisible: false,
+                isCardsVisible: false,
+                isWalletVisible: false,
+                isNetbankingVisible: false,
+                isEMIVisible: false,
+                isBNPLVisible: false,
+              };
+              
+              paymentMethods.forEach((method: PaymentMethod) => {
+                if (method.type === 'Upi') {
+                  if (method.brand === 'UpiIntent') {
+                    methodFlags.isUPIIntentVisible = true;
+                  } else if (method.brand === 'UpiCollect') {
+                    methodFlags.isUPICollectVisible = true;
+                  }
+                } else if (method.type === 'Card') {
+                  methodFlags.isCardsVisible = true;
+                } else if (method.type === 'Wallet') {
+                  methodFlags.isWalletVisible = true;
+                } else if (method.type === 'NetBanking') {
+                  methodFlags.isNetbankingVisible = true;
+                } else if (method.type === 'Emi') {
+                  methodFlags.isEMIVisible = true;
+                } else if (method.type === 'BuyNowPayLater') {
+                  methodFlags.isBNPLVisible = true;
+                }
+              });
           
-          paymentMethods.forEach((method: PaymentMethod) => {
-            if (method.type === 'Upi') {
-              if (method.brand === 'UpiIntent') {
-                methodFlags.isUPIIntentVisible = true;
-              } else if (method.brand === 'UpiCollect') {
-                methodFlags.isUPICollectVisible = true;
+              setAmount(paymentDetails.money.amountLocaleFull);
+              const currencyCode: string | undefined =
+                paymentDetails?.money?.currencyCode;
+              const symbol = currencyCode
+                ? (getSymbolFromCurrency(currencyCode) ?? '₹')
+                : '₹';
+              if (
+                paymentDetails.order != null &&
+                paymentDetails.order.items != null
+              ) {
+                const total = paymentDetails.order.items.reduce(
+                  (sum: number, item: OrderItem) => sum + (item.quantity || 1),
+                  0
+                );
+                totalItemsRef.current = total;
+                shippingAmountRef.current =
+                  paymentDetails.order.shippingAmountLocaleFull != null
+                    ? paymentDetails.order.shippingAmountLocaleFull
+                    : '';
+                taxAmountRef.current =
+                  paymentDetails.order.taxAmountLocaleFull != null
+                    ? paymentDetails.order.taxAmountLocaleFull
+                    : '';
+                subTotalAmountRef.current =
+                  paymentDetails.order.originalAmountLocaleFull != null
+                    ? paymentDetails.order.originalAmountLocaleFull
+                    : '';
+                const formattedItemsArray: ItemsProp[] =
+                  paymentDetails.order.items.map((item: OrderItem) => ({
+                    imageUrl: item.imageUrl,
+                    imageTitle: item.itemName,
+                    imageOty: item.quantity,
+                    imageAmount: item.amountWithoutTaxLocaleFull,
+                  }));
+                orderItemsArrayRef.current = formattedItemsArray;
               }
-            } else if (method.type === 'Card') {
-              methodFlags.isCardsVisible = true;
-            } else if (method.type === 'Wallet') {
-              methodFlags.isWalletVisible = true;
-            } else if (method.type === 'NetBanking') {
-              methodFlags.isNetbankingVisible = true;
-            } else if (method.type === 'Emi') {
-              methodFlags.isEMIVisible = true;
-            } else if (method.type === 'BuyNowPayLater') {
-              methodFlags.isBNPLVisible = true;
-            }
-          });
+              const emailRef = paymentDetails.shopper.email;
+              const firstNameRef = paymentDetails.shopper.firstName;
+              const lastNameRef = paymentDetails.shopper.lastName;
+              const phoneRef = paymentDetails.shopper.phoneNumber;
+              const uniqueIdRef = paymentDetails.shopper.uniqueReference;
+              const dobRef = paymentDetails.shopper.dateOfBirth;
+              const panRef = paymentDetails.shopper.panNumber;
+              startCountdown(response.data.sessionExpiryTimestamp);
+              let labelTypeRef = null;
+              let address1Ref = null;
+              let labelNameRef = null;
+              let address2Ref = null;
+              let cityRef = null;
+              let stateRef = null;
+              let postalCodeRef = null;
+              let countryCodeRef = null;
+              if (paymentDetails.shopper.deliveryAddress != null) {
+                const deliveryObject = paymentDetails.shopper.deliveryAddress;
+                labelTypeRef = deliveryObject.labelType;
+                labelNameRef = deliveryObject.labelName;
+                address1Ref = deliveryObject.address1;
+                address2Ref = deliveryObject.address2;
+                cityRef = deliveryObject.city;
+                stateRef = deliveryObject.state;
+                postalCodeRef = deliveryObject.postalCode;
+                countryCodeRef = deliveryObject.countryCode;
+                if (address2Ref == null || address2Ref == '') {
+                  setAddress(
+                    `${address1Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`
+                  );
+                } else {
+                  setAddress(
+                    `${address1Ref}, ${address2Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`
+                  );
+                }
+              }
+              if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
+                setSuccessfulTimeStamp(response.data.lastPaidAtTimestamp);
+                setTransactionId(response.data.lastTransactionId);
+                setStatus(response.data.status);
+                setSuccessModalState(true);
+              } else if (['EXPIRED'].includes(response.data.status)) {
+                setSessionExppireModalState(true);
+              }
+              setUserDataHandler({
+                userData: {
+                  email: emailRef,
+                  firstName: firstNameRef,
+                  lastName: lastNameRef,
+                  phone: phoneRef,
+                  uniqueId: uniqueIdRef,
+                  dob: dobRef,
+                  pan: panRef,
+                  address1: address1Ref,
+                  address2: address2Ref,
+                  city: cityRef,
+                  state: stateRef,
+                  pincode: postalCodeRef,
+                  country: countryCodeRef,
+                  labelType: labelTypeRef,
+                  labelName: labelNameRef,
+                },
+              });
+              const isFieldEnabled = (fieldName: string) =>  {
+                return enabledFields.some(
+                  (field: { field: string }) => field.field === fieldName
+                );
+              };
       
-          setAmount(paymentDetails.money.amountLocaleFull);
-          const currencyCode: string | undefined =
-            paymentDetails?.money?.currencyCode;
-          const symbol = currencyCode
-            ? (getSymbolFromCurrency(currencyCode) ?? '₹')
-            : '₹';
-          if (
-            paymentDetails.order != null &&
-            paymentDetails.order.items != null
-          ) {
-            const total = paymentDetails.order.items.reduce(
-              (sum: number, item: OrderItem) => sum + (item.quantity || 1),
-              0
-            );
-            totalItemsRef.current = total;
-            shippingAmountRef.current =
-              paymentDetails.order.shippingAmountLocaleFull != null
-                ? paymentDetails.order.shippingAmountLocaleFull
-                : '';
-            taxAmountRef.current =
-              paymentDetails.order.taxAmountLocaleFull != null
-                ? paymentDetails.order.taxAmountLocaleFull
-                : '';
-            subTotalAmountRef.current =
-              paymentDetails.order.originalAmountLocaleFull != null
-                ? paymentDetails.order.originalAmountLocaleFull
-                : '';
-            const formattedItemsArray: ItemsProp[] =
-              paymentDetails.order.items.map((item: OrderItem) => ({
-                imageUrl: item.imageUrl,
-                imageTitle: item.itemName,
-                imageOty: item.quantity,
-                imageAmount: item.amountWithoutTaxLocaleFull,
-              }));
-            orderItemsArrayRef.current = formattedItemsArray;
+              const isFieldEditable = (fieldName: string) => {
+                const field = enabledFields.find(
+                  (field: { field: string; editable: boolean }) =>
+                    field.field === fieldName
+                );
+                return field?.editable === true;
+              };
+       
+              setCheckoutDetailsHandler({
+                checkoutDetails: {
+                  currencySymbol: symbol,
+                  amount: paymentDetails.money.amountLocaleFull,
+                  token: token,
+                  brandColor:
+                    response.data.merchantDetails.checkoutTheme.primaryButtonColor,
+                  env: env,
+                  itemsLength: totalItemsRef.current,
+                  errorMessage:
+                    'You may have cancelled the payment or there was a delay in response. Please retry.',
+                  shopperToken: shopperToken,
+                  isSuccessScreenVisible: configurationOptions?.SHOW_BOXPAY_SUCCESS_SCREEN ? true : false,
+                  isShippingAddressEnabled: isFieldEnabled('SHIPPING_ADDRESS'),
+                  isShippingAddressEditable: isFieldEditable('SHIPPING_ADDRESS'),
+                  isFullNameEnabled: isFieldEnabled('SHOPPER_NAME'),
+                  isFullNameEditable: isFieldEditable('SHOPPER_NAME'),
+                  isEmailEnabled: isFieldEnabled('SHOPPER_EMAIL'),
+                  isEmailEditable: isFieldEditable('SHOPPER_EMAIL'),
+                  isPhoneEnabled: isFieldEnabled('SHOPPER_PHONE'),
+                  isPhoneEditable: isFieldEditable('SHOPPER_PHONE'),
+                  isPanEnabled: isFieldEnabled('SHOPPER_PAN'),
+                  isPanEditable: isFieldEditable('SHOPPER_PAN'),
+                  isDOBEnabled: isFieldEnabled('SHOPPER_DOB'),
+                  isDOBEditable: isFieldEditable('SHOPPER_DOB'),
+                  isUpiIntentMethodEnabled : methodFlags.isUPIIntentVisible,
+                  isUpiCollectMethodEnabled : methodFlags.isUPICollectVisible,
+                  isCardMethodEnabled : methodFlags.isCardsVisible,
+                  isWalletMethodEnabled : methodFlags.isWalletVisible,
+                  isNetBankingMethodEnabled : methodFlags.isNetbankingVisible,
+                  isEmiMethodEnabled : methodFlags.isEMIVisible,
+                  isBnplMethodEnabled : methodFlags.isBNPLVisible
+                },
+              });
+              setPaymentHandler({
+                onPaymentResult: onPaymentResult,
+              });
+            break;
           }
-          const emailRef = paymentDetails.shopper.email;
-          const firstNameRef = paymentDetails.shopper.firstName;
-          const lastNameRef = paymentDetails.shopper.lastName;
-          const phoneRef = paymentDetails.shopper.phoneNumber;
-          const uniqueIdRef = paymentDetails.shopper.uniqueReference;
-          const dobRef = paymentDetails.shopper.dateOfBirth;
-          const panRef = paymentDetails.shopper.panNumber;
-          startCountdown(response.data.sessionExpiryTimestamp);
-          let labelTypeRef = null;
-          let address1Ref = null;
-          let labelNameRef = null;
-          let address2Ref = null;
-          let cityRef = null;
-          let stateRef = null;
-          let postalCodeRef = null;
-          let countryCodeRef = null;
-          if (paymentDetails.shopper.deliveryAddress != null) {
-            const deliveryObject = paymentDetails.shopper.deliveryAddress;
-            labelTypeRef = deliveryObject.labelType;
-            labelNameRef = deliveryObject.labelName;
-            address1Ref = deliveryObject.address1;
-            address2Ref = deliveryObject.address2;
-            cityRef = deliveryObject.city;
-            stateRef = deliveryObject.state;
-            postalCodeRef = deliveryObject.postalCode;
-            countryCodeRef = deliveryObject.countryCode;
-            if (address2Ref == null || address2Ref == '') {
-              setAddress(
-                `${address1Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`
-              );
-            } else {
-              setAddress(
-                `${address1Ref}, ${address2Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`
-              );
-            }
+          case APIStatus.Failed : {
+            Alert.alert('Error', response.data.status.reason);
+            break
           }
-          if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
-            setSuccessfulTimeStamp(response.data.lastPaidAtTimestampLocale);
-            setTransactionId(response.data.lastTransactionId);
-            setStatus(response.data.status);
-            setSuccessModalState(true);
-          } else if (['EXPIRED'].includes(response.data.status)) {
-            setSessionExppireModalState(true);
+          default : {
+            break
           }
-          setUserDataHandler({
-            userData: {
-              email: emailRef,
-              firstName: firstNameRef,
-              lastName: lastNameRef,
-              phone: phoneRef,
-              uniqueId: uniqueIdRef,
-              dob: dobRef,
-              pan: panRef,
-              address1: address1Ref,
-              address2: address2Ref,
-              city: cityRef,
-              state: stateRef,
-              pincode: postalCodeRef,
-              country: countryCodeRef,
-              labelType: labelTypeRef,
-              labelName: labelNameRef,
-            },
-          });
-          const isFieldEnabled = (fieldName: string) =>  {
-            return enabledFields.some(
-              (field: { field: string }) => field.field === fieldName
-            );
-          };
-  
-          const isFieldEditable = (fieldName: string) => {
-            const field = enabledFields.find(
-              (field: { field: string; editable?: boolean }) =>
-                field.field === fieldName
-            );
-            return field?.editable === true;
-          };
-   
-          setCheckoutDetailsHandler({
-            checkoutDetails: {
-              currencySymbol: symbol,
-              amount: paymentDetails.money.amountLocaleFull,
-              token: token,
-              brandColor:
-                response.data.merchantDetails.checkoutTheme.primaryButtonColor,
-              env: env,
-              itemsLength: totalItemsRef.current,
-              errorMessage:
-                'You may have cancelled the payment or there was a delay in response. Please retry.',
-              shopperToken: shopperToken,
-              isSuccessScreenVisible: configurationOptions?.SHOW_BOXPAY_SUCCESS_SCREEN ? true : false,
-              isShippingAddressEnabled: isFieldEnabled('SHIPPING_ADDRESS'),
-              isShippingAddressEditable: isFieldEditable('SHIPPING_ADDRESS'),
-              isFullNameEnabled: isFieldEnabled('SHOPPER_NAME'),
-              isFullNameEditable: isFieldEditable('SHOPPER_NAME'),
-              isEmailEnabled: isFieldEnabled('SHOPPER_EMAIL'),
-              isEmailEditable: isFieldEditable('SHOPPER_EMAIL'),
-              isPhoneEnabled: isFieldEnabled('SHOPPER_PHONE'),
-              isPhoneEditable: isFieldEditable('SHOPPER_PHONE'),
-              isPanEnabled: isFieldEnabled('SHOPPER_PAN'),
-              isPanEditable: isFieldEditable('SHOPPER_PAN'),
-              isDOBEnabled: isFieldEnabled('SHOPPER_DOB'),
-              isDOBEditable: isFieldEditable('SHOPPER_DOB'),
-              isUpiIntentMethodEnabled : methodFlags.isUPIIntentVisible,
-              isUpiCollectMethodEnabled : methodFlags.isUPICollectVisible,
-              isCardMethodEnabled : methodFlags.isCardsVisible,
-              isWalletMethodEnabled : methodFlags.isWalletVisible,
-              isNetBankingMethodEnabled : methodFlags.isNetbankingVisible,
-              isEmiMethodEnabled : methodFlags.isEMIVisible,
-              isBnplMethodEnabled : methodFlags.isBNPLVisible
-            },
-          });
-          setPaymentHandler({
-            onPaymentResult: onPaymentResult,
-          });
-        } catch (error) {
-          Alert.alert('Error', `${error}`);
-        } finally {
-          if (shopperToken != null && shopperToken != '') {
-            getRecommendedInstruments();
-          } else {
-            setIsFirstLoading(false);
-          } // Set loading to false when API request is finished
         }
+      } else {
+        Alert.alert('Error', `Token is empty`);
       }
-    );
+    }
+    loadSession()
+
+    if(shopperToken != null && shopperToken != "") {
+      checkoutDetailsHandler.checkoutDetails.shopperToken = shopperToken
+      getRecommendedInstruments()
+    }
 
   }, [token]);
 

@@ -197,6 +197,7 @@ export interface OrderItem {
   quantity: number;
   imageUrl: string;
   amountWithoutTaxLocaleFull: string;
+  description : string | null,
 }
 
 export interface ErrorResponse {
@@ -333,6 +334,16 @@ export type FetchSavedAddressResponse =
   data: ErrorResponse;
 };
 
+export type FetchSessionDetailsResponse = 
+| {
+  apiStatus : APIStatus.Success,
+  data : SessionDetails
+}
+| {
+  apiStatus : APIStatus.Failed,
+  data : ErrorResponse
+}
+
 export interface HandleFetchStatusOptions {
   response: FetchStatusApiResponse;
   checkoutDetailsErrorMessage: string;
@@ -375,4 +386,55 @@ export interface FetchSavedAddress {
   name : string,
   email : string,
   phoneNumber : string
+}
+
+export interface SessionDetails {
+  configs : {
+    paymentMethods : PaymentMethod[],
+    enabledFields : EnabledFields[]
+  },
+  paymentDetails : {
+    context : {
+      countryCode : string,
+      localeCode : string,
+    },
+    money : {
+      amountLocaleFull : string,
+      currencySymbol : string,
+      currencyCode : string
+    },
+    shopper : {
+      firstName : string | null,
+      lastName : string | null,
+      phoneNumber : string | null,
+      email : string | null,
+      uniqueReference : string,
+      deliveryAddress : DeliveryAddress | null,
+      dateOfBirth : string | null,
+      panNumber : string | null
+    },
+    order : OrderDetails | null
+  },
+  merchantDetails : {
+    checkoutTheme : {
+      primaryButtonColor : string,
+      buttonTextColor : string
+    }
+  },
+  sessionExpiryTimestamp : string,
+  status : string,
+  lastPaidAtTimestamp : string,
+  lastTransactionId : string
+}
+
+interface EnabledFields {
+  field : string,
+  editable : boolean,
+  mandatory : boolean
+}
+interface OrderDetails {
+  shippingAmountLocaleFull : string | null,
+  taxAmountLocaleFull : string | null,
+  originalAmountLocaleFull : string | null,
+  items : OrderItem[] | null
 }
