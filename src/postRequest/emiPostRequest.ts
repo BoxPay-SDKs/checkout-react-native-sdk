@@ -1,9 +1,10 @@
 import Constants from 'expo-constants';
-import axios from 'axios';
+import api from '../serviceRequest'
 import { userDataHandler } from '../sharedContext/userdataHandler';
 import type { PaymentExecutedPostResponse, DeliveryAddress } from '../interface';
 import { getDeviceDetails } from '../utils/listAndObjectUtils';
-import { APIStatus } from '../interface';
+import { AnalyticsEvents, APIStatus } from '../interface';
+import callUIAnalytics from './callUIAnalytics';
 
 interface EmiPostPayload {
   cardNumber?: string;
@@ -110,10 +111,15 @@ const emiPostRequest = async (
     },
     deviceDetails: deviceDetails,
   };
+
+  callUIAnalytics(AnalyticsEvents.PAYMENT_CATEGORY_SELECTED,"EMI Post Request",``)
+  callUIAnalytics(AnalyticsEvents.PAYMENT_INITIATED,"EMI Post Request",``)
+  
   try {
-    const response = await axios.post("/", requestBody);
+    const response = await api.post("/", requestBody);
     return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
+    callUIAnalytics(AnalyticsEvents.PAYMENT_INITIATED,"EMI Post Request",`${error}`)
     return { apiStatus : APIStatus.Failed, data : {status: { reasonCode: 'API_FAILED', reason: `${error}` }} };
   }
 };

@@ -1,46 +1,55 @@
 import { router } from 'expo-router';
+import callUIAnalytics from './postRequest/callUIAnalytics';
+import { AnalyticsEvents } from './interface';
 
 
 export const navigateToEmiScreen = () => {
-    router.push({
-        pathname: '/sdk/screens/emiScreen',
-    });
+  callUIAnalytics(AnalyticsEvents.PAYMENT_METHOD_SELECTED,"Navigate to EMI Screen","")
+  router.push({
+      pathname: '/screens/emiScreen',
+  });
 };
 
 export const navigateToUpiTimerModal = (upiId: string) => {
-    router.push({
-      pathname: '/sdk/screens/upiTimerScreen',
-      params: {
-        upiId: upiId,
-      },
-    });
+  callUIAnalytics(AnalyticsEvents.PAYMENT_METHOD_SELECTED,"Navigate to UPI Timer Screen","")
+  router.push({
+    pathname: '/screens/upiTimerScreen',
+    params: {
+      upiId: upiId,
+    },
+  });
 };
 export const navigateToCardScreen = () => {
-    router.push({
-      pathname: '/sdk/screens/cardScreen',
-    });
+  callUIAnalytics(AnalyticsEvents.PAYMENT_METHOD_SELECTED,"Navigate to Cards Screen","")
+  router.push({
+    pathname: '/screens/cardScreen',
+  });
 };
 
 export const navigateToWalletScreen = () => {
-    router.push({
-        pathname: '/sdk/screens/walletsScreen',
-    });
+  callUIAnalytics(AnalyticsEvents.PAYMENT_METHOD_SELECTED,"Navigate to Wallet Screen","")
+  router.push({
+      pathname: '/screens/walletsScreen',
+  });
 };
 
 export const navigateToNetBankingScreen = () => {
-    router.push({
-        pathname: '/sdk/screens/netBankingScreen',
-    });
+  callUIAnalytics(AnalyticsEvents.PAYMENT_METHOD_SELECTED,"Navigate to NetBanking Screen","")
+  router.push({
+      pathname: '/screens/netBankingScreen',
+  });
 };
 
 export const navigateToBNPLScreen = () => {
-    router.push({
-      pathname: '/sdk/screens/bnplScreen',
-    });
+  callUIAnalytics(AnalyticsEvents.PAYMENT_METHOD_SELECTED,"Navigate to BNPL Screen","")
+  router.push({
+    pathname: '/screens/bnplScreen',
+  });
 };
 
 export const navigateToAddressScreen = () => {
-    router.push({
-      pathname: '/sdk/screens/addressScreen',
-    });
+  callUIAnalytics(AnalyticsEvents.PAYMENT_METHOD_SELECTED,"Navigate to Address Screen","")
+  router.push({
+    pathname: '/screens/addressScreen',
+  });
 };

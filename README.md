@@ -5,18 +5,19 @@ Welcome to your Boxpay Checkout React Native SDK 👋
 ## Installation
 
 ```sh
-npm install checkout-react-native-sdk
+npm install boxpay-checkout-reactnative-sdk
 ```
 
 ## Usage
 
 ```js
-import BoxpayCheckout from 'checkout-react-native-sdk';
-import { ConfigurationOptions, PaymentResult } from 'checkout-react-native-sdk/interface';
+import BoxpayCheckout from 'boxpay-checkout-reactnative-sdk';
+import { ConfigurationOptions, PaymentResultObject } from 'boxpay-checkout-reactnative-sdk/interface';
+
 
 
 // ...
-const handlePaymentResult = (result: PaymentResult) => {
+const handlePaymentResult = (result: PaymentResultObject) => {
     alert(`Payment ${result.status} :  + ${result.transactionId}`);
 };
 
@@ -25,7 +26,8 @@ const handlePaymentResult = (result: PaymentResult) => {
     onPaymentResult={handlePaymentResult}
     configurationOptions={{
     [ConfigurationOptions.ShowBoxpaySuccessScreen]: true,
-    [ConfigurationOptions.EnableSandboxEnv]: true
+    [ConfigurationOptions.EnableSandboxEnv]: true,
+    [ConfigurationOptions.ShowUPIQROnLoad] : false
     }}
     shopperToken={shopperToken}
 />

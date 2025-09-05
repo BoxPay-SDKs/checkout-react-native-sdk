@@ -1,10 +1,11 @@
 import Constants from 'expo-constants';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
-import axios from 'axios';
+import api from '../serviceRequest'
 import { userDataHandler } from '../sharedContext/userdataHandler';
 import type { PaymentExecutedPostResponse, DeliveryAddress } from '../interface';
 import { getDeviceDetails } from '../utils/listAndObjectUtils';
-import { APIStatus } from '../interface';
+import { AnalyticsEvents, APIStatus } from '../interface';
+import callUIAnalytics from './callUIAnalytics';
 
 const methodsPostRequest = async (
   instrumentDetails: string,
@@ -71,10 +72,14 @@ const methodsPostRequest = async (
     deviceDetails: deviceDetails
   };
 
+  callUIAnalytics(AnalyticsEvents.PAYMENT_CATEGORY_SELECTED,`${paymentMethod} Post Request`,``)
+  callUIAnalytics(AnalyticsEvents.PAYMENT_INITIATED,`${paymentMethod} Post Request`,``)
+
   try {
-    const response = await axios.post("/", requestBody);
+    const response = await api.post("/", requestBody);
     return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
+    callUIAnalytics(AnalyticsEvents.PAYMENT_INITIATED,`${paymentMethod} Post Request`,`${error}`)
     return { apiStatus : APIStatus.Failed, data: {status: { reasonCode: 'API_FAILED', reason: `${error}` } }};
   }
 };

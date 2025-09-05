@@ -17,7 +17,7 @@ import cardPostRequest from '../postRequest/cardPostRequest';
 import PaymentFailed from '../components/paymentFailed';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
-import { APIStatus, type PaymentResult } from '../interface';
+import { APIStatus, type PaymentResultObject } from '../interface';
 import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CvvInfoBottomSheet from '../components/cvvInfoBottomSheet';
 import WebViewScreen from './webViewScreen';
@@ -536,7 +536,7 @@ const CardScreen = () => {
   }, [cardNumberText, cardExpiryText, cardCvvText, cardHolderNameText]);
 
   const onExitCheckout = () => {
-    const mockPaymentResult: PaymentResult = {
+    const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
     };

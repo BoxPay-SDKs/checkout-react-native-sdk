@@ -14,7 +14,7 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
-import type { PaymentClass, PaymentResult } from '../interface';
+import type { PaymentClass, PaymentResultObject } from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
@@ -181,7 +181,7 @@ const WalletScreen = () => {
   };
 
   const onExitCheckout = () => {
-    const mockPaymentResult: PaymentResult = {
+    const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
     };

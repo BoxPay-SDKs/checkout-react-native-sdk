@@ -12,7 +12,7 @@
     "lib": ["ESNext"],
     "module": "ESNext",
     "noEmit": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,

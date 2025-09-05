@@ -12,7 +12,7 @@ import { router } from 'expo-router';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
-import type { PaymentClass, PaymentResult } from '../interface';
+import type { PaymentClass, PaymentResultObject } from '../interface';
 import ShimmerView from '../components/shimmerView';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
@@ -164,7 +164,7 @@ const BNPLScreen = () => {
   };
 
   const onExitCheckout = () => {
-    const mockPaymentResult: PaymentResult = {
+    const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
     };

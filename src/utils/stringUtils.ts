@@ -1,10 +1,11 @@
 
+const TEST_API_URL = "https://test-apis.boxpay.tech"
+const PROD_API_URL = "https://apis.boxpay.in"
+const ROUTE = "/v0/checkout/sessions/"
+
 export function getEndpoint(env: string): string {
-  const testUrl = process.env.TEST_API_URL
-  const prodUrl = process.env.PROD_API_URL
-  const route = process.env.ROUTE
-  const baseUrl = env === 'test' ? testUrl : prodUrl;
-  return `${baseUrl}${route}`;
+  const baseUrl = env === 'test' ? TEST_API_URL : PROD_API_URL;
+  return `${baseUrl}${ROUTE}`;
 }
 
 export function generateRandomAlphanumericString(length: number): string {

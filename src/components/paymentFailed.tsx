@@ -3,6 +3,8 @@ import React from 'react';
 import Modal from 'react-native-modal';
 import LottieView from 'lottie-react-native';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import callUIAnalytics from '../postRequest/callUIAnalytics';
+import { AnalyticsEvents } from '../interface';
 
 interface PaymentFailedProps {
   onClick: () => void;
@@ -43,7 +45,10 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({
               styles.buttonContainer,
               { backgroundColor: checkoutDetails.brandColor },
             ]}
-            onPress={onClick}
+            onPress={()=> {
+              callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Payment Failed Screen button clicked", errorMessage)
+              onClick()
+            }}
           >
             <Text style={styles.buttonText}>Retry Payment</Text>
           </Pressable>

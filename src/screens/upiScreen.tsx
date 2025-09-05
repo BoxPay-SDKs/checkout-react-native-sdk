@@ -11,7 +11,7 @@ import { TextInput } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import type { PaymentClass } from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
-import { getInstalledUpiApps } from '../../cross_platform_sdk_react_native_plugin';
+import { getInstalledUpiApps } from '../components/getInstalledUPI';
 import styles from '../styles/screens/upiScreenStyles';
 
 interface UpiScreenProps {
@@ -42,10 +42,14 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 
   useEffect(() => {
     const checkUpiApps = async () => {
-      const installedApplications = await getInstalledUpiApps();
-      setIsPhonePeInstalled(installedApplications.includes('phonepe'));
-      setIsGpayInstalled(installedApplications.includes('gpay'));
-      setIsPaytmInstalled(installedApplications.includes('paytm'));
+      try {
+        const installedApplications = await getInstalledUpiApps();
+        setIsPhonePeInstalled(installedApplications.includes('phonepe'));
+        setIsGpayInstalled(installedApplications.includes('gpay'));
+        setIsPaytmInstalled(installedApplications.includes('paytm'));
+      } catch(error) {
+        console.log(error)
+      }
     };
 
     checkUpiApps();

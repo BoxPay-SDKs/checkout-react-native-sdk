@@ -1,4 +1,4 @@
-export interface PaymentResult {
+export interface PaymentResultObject {
   status: string;
   transactionId: string;
 }
@@ -6,12 +6,13 @@ export interface PaymentResult {
 export enum ConfigurationOptions {
   ShowBoxpaySuccessScreen = 'SHOW_BOXPAY_SUCCESS_SCREEN',
   EnableSandboxEnv = 'ENABLE_SANDBOX_ENV',
+  ShowUPIQROnLoad = 'SHOW_UPI_QR_ON_LOAD',
 }
 
 export interface BoxpayCheckoutProps {
   token: string;
-  configurationOptions?: Partial<Record<ConfigurationOptions, boolean>>;
-  onPaymentResult: (result: PaymentResult) => void;
+  configurationOptions?: Partial<Record<ConfigurationOptions, boolean>> | null;
+  onPaymentResult: (result: PaymentResultObject) => void;
   shopperToken?: string | null;
 }
 
@@ -44,6 +45,10 @@ export interface CheckoutDetails {
   isNetBankingMethodEnabled : boolean,
   isEmiMethodEnabled : boolean,
   isBnplMethodEnabled : boolean
+}
+
+interface AnalyticsResponse {
+  id : string
 }
 
 export interface CardType {
@@ -283,6 +288,16 @@ export type FetchStatusApiResponse =
   data: ErrorResponse;
 };
 
+export type AnalyticsApiResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: AnalyticsResponse;
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
 export type PaymentMethodFetchResponse = 
 | {
   apiStatus: APIStatus.Success;
@@ -437,4 +452,18 @@ interface OrderDetails {
   taxAmountLocaleFull : string | null,
   originalAmountLocaleFull : string | null,
   items : OrderItem[] | null
+}
+
+export enum AnalyticsEvents {
+  CHECKOUT_LOADED = "CHECKOUT_LOADED",
+  ADDRESS_UPDATED = "ADDRESS_UPDATED",
+  PAYMENT_CATEGORY_SELECTED = "PAYMENT_CATEGORY_SELECTED",
+  PAYMENT_METHOD_SELECTED = "PAYMENT_METHOD_SELECTED",
+  PAYMENT_INITIATED = "PAYMENT_INITIATED",
+  PAYMENT_INSTRUMENT_PROVIDED = "PAYMENT_INSTRUMENT_PROVIDED",
+  UPI_APP_NOT_FOUND = "UPI_APP_NOT_FOUND",
+  FAILED_TO_LAUNCH_UPI_INTENT = "FAILED_TO_LAUNCH_UPI_INTENT",
+  ERROR_GETTING_UPI_URL = "ERROR_GETTING_UPI_URL",
+  SDK_CRASH = "SDK_CRASH",
+  PAYMENT_RESULT_SCREEN_DISPLAYED = "PAYMENT_RESULT_SCREEN_DISPLAYED"
 }

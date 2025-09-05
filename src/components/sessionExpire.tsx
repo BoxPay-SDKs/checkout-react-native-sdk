@@ -3,6 +3,8 @@ import React from 'react';
 import Modal from 'react-native-modal';
 import LottieView from 'lottie-react-native';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import callUIAnalytics from '../postRequest/callUIAnalytics';
+import { AnalyticsEvents } from '../interface';
 
 interface SessionExpireProps {
   onClick: () => void;
@@ -43,7 +45,10 @@ const SessionExpire: React.FC<SessionExpireProps> = ({ onClick }) => {
               styles.buttonContainer,
               { backgroundColor: checkoutDetails.brandColor },
             ]}
-            onPress={onClick}
+            onPress={() => {
+              callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Session Expired button clicked", "")
+              onClick()
+            }}
           >
             <Text style={styles.buttonText}>Go back to Home</Text>
           </Pressable>

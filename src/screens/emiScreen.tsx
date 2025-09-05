@@ -14,7 +14,7 @@ import {
   type Bank,
   type ChooseEmiModel,
   type Emi,
-  type PaymentResult,
+  type PaymentResultObject,
   type PaymentMethod,
   APIStatus
 } from '../interface';
@@ -518,7 +518,7 @@ const EmiScreen = () => {
   };
 
   const onExitCheckout = () => {
-    const mockPaymentResult: PaymentResult = {
+    const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
     };

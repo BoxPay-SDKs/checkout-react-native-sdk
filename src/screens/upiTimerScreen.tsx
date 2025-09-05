@@ -15,7 +15,7 @@ import SessionExpire from '../components/sessionExpire';
 import CancelPaymentModal from '../components/cancelPaymentModal';
 import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CircularProgressBar from '../components/circularProgress';
-import type { PaymentResult } from '../interface';
+import type { PaymentResultObject } from '../interface';
 import styles from '../styles/screens/upiTimerScreenStyle';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import { handleFetchStatusResponseHandler } from '../sharedContext/handlePaymentResponseHandler';
@@ -71,7 +71,7 @@ const UpiTimerScreen = () => {
   }, [failedModalOpen, successModalOpen, sessionExpireModalOpen]);
 
   const onExitCheckout = () => {
-    const mockPaymentResult: PaymentResult = {
+    const mockPaymentResult: PaymentResultObject = {
       status: status,
       transactionId: transactionId,
     };
