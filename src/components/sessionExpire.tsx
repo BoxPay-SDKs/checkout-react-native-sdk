@@ -3,7 +3,6 @@ import React from 'react';
 import Modal from 'react-native-modal';
 import LottieView from 'lottie-react-native';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
-import callUIAnalytics from '../postRequest/callUIAnalytics';
 
 interface SessionExpireProps {
   onClick: () => void;
