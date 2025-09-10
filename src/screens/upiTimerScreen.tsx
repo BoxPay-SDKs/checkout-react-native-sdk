@@ -6,7 +6,6 @@ import {
   StatusBar,
 } from 'react-native'; // Import Modal
 import { useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
 import Header from '../components/header';
 import fetchStatus from '../postRequest/fetchStatus';
 import PaymentFailed from '../components/paymentFailed';
@@ -15,13 +14,27 @@ import SessionExpire from '../components/sessionExpire';
 import CancelPaymentModal from '../components/cancelPaymentModal';
 import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CircularProgressBar from '../components/circularProgress';
-import type { PaymentResultObject } from '../interface';
+import type { PaymentResultObject, UPITimerScreenParams } from '../interface';
 import styles from '../styles/screens/upiTimerScreenStyle';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import { handleFetchStatusResponseHandler } from '../sharedContext/handlePaymentResponseHandler';
+import type { CheckoutStackParamList } from '../navigation';
+import type {RouteProp, NavigationProp} from '@react-navigation/native'
 
-const UpiTimerScreen = () => {
-  const { upiId } = useLocalSearchParams();
+type UpiTimerScreenRouteProp = RouteProp<CheckoutStackParamList, 'UpiTimerScreen'>;
+
+// Define the screen's navigation properties
+type UpiTimercreenNavigationProp = NavigationProp<CheckoutStackParamList, 'UpiTimerScreen'>;
+
+interface Props {
+  route: UpiTimerScreenRouteProp;
+  navigation: UpiTimercreenNavigationProp;
+}
+
+const UpiTimerScreen = ({ route, navigation }: Props) => {
+  const {
+    upiId
+  } = route.params as UPITimerScreenParams || {}; 
   const { checkoutDetails } = checkoutDetailsHandler;
 
   const upiIdStr = Array.isArray(upiId) ? upiId[0] : upiId;
@@ -76,7 +89,6 @@ const UpiTimerScreen = () => {
       transactionId: transactionId,
     };
     paymentHandler.onPaymentResult(mockPaymentResult);
-    router.dismissAll();
   };
 
   const onProceedBack = () => {
@@ -85,7 +97,7 @@ const UpiTimerScreen = () => {
         clearInterval(timerInterval.current);
       }
       stopBackgroundApiTask();
-      router.back();
+      navigation.goBack()
     } else {
       setCancelClicked(true);
     }
@@ -98,17 +110,14 @@ const UpiTimerScreen = () => {
     if (timerInterval.current) {
       clearInterval(timerInterval.current);
     }
-    router.back();
+    navigation.goBack()
   };
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
+    BackHandler.addEventListener(
       'hardwareBackPress',
       onProceedBack
     );
-    return () => {
-      backHandler.remove();
-    };
   }, []);
 
   const formatTime = () => {

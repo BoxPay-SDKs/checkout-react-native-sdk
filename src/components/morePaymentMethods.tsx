@@ -2,13 +2,15 @@ import { View, Text, Pressable } from 'react-native';
 import type{ PaymentClass } from '../interface';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import MorePaymentContainer from './morePaymentContainer';
-import { navigateToBNPLScreen, navigateToCardScreen, navigateToEmiScreen, navigateToNetBankingScreen, navigateToWalletScreen } from '../navigation';
+import type { CheckoutStackParamList } from '../navigation';
+import { useNavigation, type NavigationProp } from "@react-navigation/native";
 
 interface MorePaymentMethodsArgs{
     savedCards : PaymentClass[]
 }
 
 const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
+  const navigation = useNavigation<NavigationProp<CheckoutStackParamList>>();
     const {checkoutDetails} = checkoutDetailsHandler
     const {
         isCardMethodEnabled: isCardVisible,
@@ -69,7 +71,9 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                       {isCardVisible && savedCards.length == 0 && (
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
-                          onPress={navigateToCardScreen}
+                          onPress= {() => {
+                            navigation.navigate("CardScreen", {})
+                          }}
                         >
                           <MorePaymentContainer
                             title="Cards"
@@ -94,7 +98,9 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                       {isWalletVisible && (
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
-                          onPress={navigateToWalletScreen}
+                          onPress={() => {
+                            navigation.navigate("WalletScreen", {})
+                          }}
                         >
                           <MorePaymentContainer
                             title="Wallet"
@@ -118,7 +124,9 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                       {isNetBankingVisible && (
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
-                          onPress={navigateToNetBankingScreen}
+                          onPress={() => {
+                            navigation.navigate("NetBankingScreen", {})
+                          }}
                         >
                           <MorePaymentContainer
                             title="Netbanking"
@@ -140,7 +148,9 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                       {isEmiVisible && (
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
-                          onPress={navigateToEmiScreen}
+                          onPress={() => {
+                            navigation.navigate("EmiScreen", {})
+                          }}
                         >
                           <MorePaymentContainer
                             title="EMI"
@@ -162,7 +172,9 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                       {isBNPLVisible && (
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
-                          onPress={navigateToBNPLScreen}
+                          onPress={() => {
+                            navigation.navigate("BNPLScreen", {})
+                          }}
                         >
                           <MorePaymentContainer
                             title="Pay Later"

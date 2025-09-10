@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
@@ -18,8 +17,17 @@ import {
   userDataHandler,
 } from '../sharedContext/userdataHandler';
 import styles from '../styles/screens/addressScreenStyles.';
+import type { CheckoutStackParamList } from '../navigation';
+import type { NavigationProp } from '@react-navigation/native';
+import { extractNames } from '../utils/stringUtils';
 
-const AddressScreen = () => {
+type AddressScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'AddressScreen'>;
+
+interface Props {
+  navigation: AddressScreenNavigationProp;
+}
+
+const AddressScreen = ({ navigation }: Props) => {
   const { userData } = userDataHandler;
   const { checkoutDetails } = checkoutDetailsHandler;
   const [selectedCountryCode, /*setSelectedCountryCode*/] = useState('');
@@ -73,19 +81,17 @@ const AddressScreen = () => {
   const [isMainAddressValid, setIsMainAddressValid] = useState(false);
 
   const onProceedBack = () => {
-    router.back();
+    navigation.goBack()
     return true;
   };
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
+   BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
         return onProceedBack(); // Allow back navigation if not loading
       }
     );
-
-    return () => backHandler.remove();
   });
 
   const onChangeFullName = (updatedText: string) => {
@@ -100,25 +106,6 @@ const AddressScreen = () => {
       setIsFullNameValid(false);
     }
   };
-
-  function extractNames(fullName: string): {
-    firstName: string;
-    lastName: string;
-  } {
-    const components = fullName
-      .trim()
-      .split(' ')
-      .filter((part) => part !== '');
-
-    if (components.length === 0) {
-      return { firstName: '', lastName: '' };
-    }
-
-    const firstName = components[0] || '';
-    const lastName = components.slice(1).join(' ') || '';
-
-    return { firstName, lastName };
-  }
 
   const onChangeEmailId = (updatedText: string) => {
     setEmailTextField(updatedText);

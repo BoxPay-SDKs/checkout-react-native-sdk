@@ -8,7 +8,6 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { router } from 'expo-router';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
@@ -24,8 +23,16 @@ import WebViewScreen from './webViewScreen';
 import PaymentSelectorView from '../components/paymentSelector';
 import styles from '../styles/screens/bnplScreenStyles';
 import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
+import type { CheckoutStackParamList } from '../navigation';
+import type { NavigationProp } from '@react-navigation/native';
 
-const BNPLScreen = () => {
+type BNPLScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'BNPLScreen'>;
+
+interface Props {
+  navigation: BNPLScreenNavigationProp;
+}
+
+const BNPLScreen = ({ navigation }: Props) => {
   const [bnplList, setBnplList] = useState<PaymentClass[]>([]);
   const { checkoutDetails } = checkoutDetailsHandler;
   const [loading, setLoading] = useState(false);
@@ -51,14 +58,14 @@ const BNPLScreen = () => {
 
   const onProceedBack = () => {
     if (!loading) {
-      router.back();
+      navigation.goBack();
       return true;
     }
     return false;
   };
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
+    BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
         if (showWebView) {
@@ -74,8 +81,6 @@ const BNPLScreen = () => {
         return onProceedBack(); // Allow back navigation if not loading
       }
     );
-
-    return () => backHandler.remove();
   });
 
   useEffect(() => {
@@ -169,7 +174,6 @@ const BNPLScreen = () => {
       transactionId: transactionId || '',
     };
     paymentHandler.onPaymentResult(mockPaymentResult);
-    router.dismissAll();
   };
 
   useEffect(() => {

@@ -9,7 +9,6 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { router } from 'expo-router';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
@@ -26,8 +25,16 @@ import WebViewScreen from './webViewScreen';
 import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import ShimmerView from '../components/shimmerView';
 import styles from '../styles/screens/walletScreenStyles';
+import type { CheckoutStackParamList } from '../navigation';
+import type { NavigationProp } from '@react-navigation/native';
 
-const WalletScreen = () => {
+type WalletScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'WalletScreen'>;
+
+interface Props {
+  navigation: WalletScreenNavigationProp;
+}
+
+const WalletScreen = ({ navigation }: Props) => {
   const [walletList, setWalletList] = useState<PaymentClass[]>([]);
   const screenHeight = Dimensions.get('window').height;
   const [defaultWalletList, setDefaultWalletList] = useState<PaymentClass[]>(
@@ -63,7 +70,7 @@ const WalletScreen = () => {
 
   const onProceedBack = () => {
     if (!loading) {
-      router.back();
+      navigation.goBack()
       return true;
     }
     return false;
@@ -91,7 +98,11 @@ const WalletScreen = () => {
       }
     );
 
-    return () => backHandler.remove();
+    return () => {
+      if (backHandler) {
+        backHandler.remove();
+      }
+    };
   });
 
   useEffect(() => {
@@ -186,7 +197,6 @@ const WalletScreen = () => {
       transactionId: transactionId || '',
     };
     paymentHandler.onPaymentResult(mockPaymentResult);
-    router.dismissAll();
   };
 
   useEffect(() => {

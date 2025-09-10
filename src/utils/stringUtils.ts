@@ -1,3 +1,4 @@
+import type { DeliveryAddress } from "../interface";
 
 const TEST_API_URL = "https://test-apis.boxpay.tech"
 const PROD_API_URL = "https://apis.boxpay.in"
@@ -21,4 +22,37 @@ export function generateRandomAlphanumericString(length: number): string {
   }
 
   return result;
+}
+
+
+export function getBaseURL(env: string): string {
+  const baseUrl = env === 'test' ? TEST_API_URL : PROD_API_URL;
+  return `${baseUrl}/v0`;
+}
+
+export function formatAddress(deliveryAddress : DeliveryAddress) : string {
+  if (deliveryAddress.address2 == null || deliveryAddress.address2 == '') {
+    return `${deliveryAddress.address1}, ${deliveryAddress.city}, ${deliveryAddress.state}, ${deliveryAddress.postalCode}`
+  } else {
+    return `${deliveryAddress.address1}, ${deliveryAddress.address2}, ${deliveryAddress.city}, ${deliveryAddress.state}, ${deliveryAddress.postalCode}`
+  }
+}
+
+export function extractNames(fullName: string): {
+  firstName: string;
+  lastName: string;
+} {
+  const components = fullName
+    .trim()
+    .split(' ')
+    .filter((part) => part !== '');
+
+  if (components.length === 0) {
+    return { firstName: '', lastName: '' };
+  }
+
+  const firstName = components[0] || '';
+  const lastName = components.slice(1).join(' ') || '';
+
+  return { firstName, lastName };
 }
