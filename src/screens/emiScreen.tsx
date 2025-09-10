@@ -9,7 +9,6 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { router } from 'expo-router';
 import {
   type Bank,
   type ChooseEmiModel,
@@ -37,8 +36,16 @@ import PaymentSelectorView from '../components/paymentSelector';
 import Toast from 'react-native-toast-message'
 import styles from '../styles/screens/emiScreenStyles';
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
+import type { CheckoutStackParamList } from '../navigation';
+import type { NavigationProp } from '@react-navigation/native';
 
-const EmiScreen = () => {
+type EmiScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'EmiScreen'>;
+
+interface Props {
+  navigation: EmiScreenNavigationProp;
+}
+
+const EmiScreen = ({ navigation }: Props) => {
   const [emiBankList, setEmiBankList] = useState<ChooseEmiModel>({ cards: [] });
   const [defaultEmiBankList, setDefaultEmiBankList] = useState<ChooseEmiModel>({
     cards: [],
@@ -364,11 +371,11 @@ const EmiScreen = () => {
   };
 
   const onProceedBack = () => {
-    router.back();
+    navigation.goBack()
     return true;
   };
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
+    BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
         if (showWebView) {
@@ -387,8 +394,6 @@ const EmiScreen = () => {
         return onProceedBack(); // Allow back navigation if not loading
       }
     );
-
-    return () => backHandler.remove();
   });
 
   const navigateToCardScreen = (
@@ -399,19 +404,16 @@ const EmiScreen = () => {
     amount: string,
     percent: number
   ) => {
-    router.push({
-      pathname: '/sdk/screens/cardScreen',
-      params: {
-        duration: duration,
-        bankName: bankName,
-        bankUrl: bankUrl,
-        offerCode: offerCode,
-        amount: amount,
-        percent: percent,
-        cardType: selectedCard,
-        issuerBrand: selectedBank?.issuerBrand,
-      },
-    });
+    navigation.navigate("CardScreen", {
+      duration: duration,
+      bankName: bankName,
+      bankUrl: bankUrl,
+      offerCode: offerCode,
+      amount: amount,
+      percent: percent,
+      cardType: selectedCard,
+      issuerBrand: selectedBank?.issuerBrand,
+    })
   };
 
   useEffect(() => {
@@ -523,9 +525,6 @@ const EmiScreen = () => {
       transactionId: transactionId || '',
     };
     paymentHandler.onPaymentResult(mockPaymentResult);
-    while (router.canGoBack()) {
-      router.back();
-    }
   };
 
   return (

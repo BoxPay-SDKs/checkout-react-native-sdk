@@ -1,6 +1,6 @@
 {
   "name": "boxpay-checkout-reactnative-sdk",
-  "version": "1.0.0-beta16",
+  "version": "1.0.0-beta31",
   "description": "Boxpay Payment Gateway",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -76,12 +76,8 @@
   "peerDependencies": {
     "react": "19.0.0",
     "react-native": "0.79.6",
-    "expo-router": ">=5.0.0",
-    "lottie-react-native": ">=7.0.0",
-    "react-native-modal": ">=13.0.0",
     "react-native-paper": ">=5.0.0",
     "react-native-shimmer-placeholder": ">=2.0.0",
-    "react-native-svg": ">=15.0.0",
     "react-native-toast-message": ">=2.0.0",
     "react-native-webview": ">=13.0.0"
   },
@@ -141,9 +137,16 @@
     "version": "0.52.0"
   },
   "dependencies": {
+    "@react-navigation/native": "^7.1.17",
+    "@react-navigation/native-stack": "^7.3.26",
     "axios": "^1.11.0",
     "base-64": "^1.0.0",
-    "currency-symbol-map": "^5.1.0"
+    "currency-symbol-map": "^5.1.0",
+    "expo-constants": "^17.1.7",
+    "expo-font": "^13.3.2",
+    "lottie-react-native": "^7.3.4",
+    "react-native-modal": "^14.0.0-rc.1",
+    "react-native-svg": ">=15.0.0"
   },
   "module": "lib/module/index.js"
 }

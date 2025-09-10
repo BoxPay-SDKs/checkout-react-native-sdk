@@ -9,7 +9,6 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { router } from 'expo-router';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
@@ -26,8 +25,16 @@ import WebViewScreen from './webViewScreen';
 import PaymentSelectorView from '../components/paymentSelector';
 import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import styles from '../styles/screens/netBankingScreenStyles';
+import type { CheckoutStackParamList } from '../navigation';
+import type { NavigationProp } from '@react-navigation/native';
 
-const NetBankingScreen = () => {
+type NetBankingScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'NetBankingScreen'>;
+
+interface Props {
+  navigation: NetBankingScreenNavigationProp;
+}
+
+const NetBankingScreen = ({ navigation }: Props) => {
   const [netBankingList, setNetBankingList] = useState<PaymentClass[]>([]);
   const [defaultNetBankingList, setDefaultNetBankingList] = useState<
     PaymentClass[]
@@ -75,7 +82,7 @@ const NetBankingScreen = () => {
 
   const onProceedBack = () => {
     if (!loading) {
-      router.back();
+      navigation.goBack()
       return true;
     }
     return false;
@@ -86,7 +93,7 @@ const NetBankingScreen = () => {
   };
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
+    BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
         if (showWebView) {
@@ -102,8 +109,6 @@ const NetBankingScreen = () => {
         return onProceedBack(); // Allow back navigation if not loading
       }
     );
-
-    return () => backHandler.remove();
   });
 
   useEffect(() => {
@@ -224,7 +229,6 @@ const NetBankingScreen = () => {
       transactionId: transactionId || '',
     };
     paymentHandler.onPaymentResult(mockPaymentResult);
-    router.dismissAll();
   };
 
   useEffect(() => {

@@ -7,8 +7,8 @@ import {
   StatusBar,
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
 import Header from '../components/header';
+import type { RouteProp, NavigationProp } from '@react-navigation/native';
 import { Checkbox, TextInput } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
 import fetchCardDetails from '../postRequest/fetchCardDetails';
@@ -17,7 +17,7 @@ import cardPostRequest from '../postRequest/cardPostRequest';
 import PaymentFailed from '../components/paymentFailed';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
-import { APIStatus, type PaymentResultObject } from '../interface';
+import { APIStatus, type PaymentResultObject , type CardScreenParams} from '../interface';
 import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CvvInfoBottomSheet from '../components/cvvInfoBottomSheet';
 import WebViewScreen from './webViewScreen';
@@ -30,8 +30,19 @@ import KnowMoreBottomSheet from '../components/knowMoreBottomSheet';
 import styles from '../styles/screens/cardScreenStyles';
 import Toast from 'react-native-toast-message'
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
+import type { CheckoutStackParamList } from '../navigation';
 
-const CardScreen = () => {
+type CardScreenRouteProp = RouteProp<CheckoutStackParamList, 'CardScreen'>;
+
+// Define the screen's navigation properties
+type CardScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'CardScreen'>;
+
+interface Props {
+  route: CardScreenRouteProp;
+  navigation: CardScreenNavigationProp;
+}
+
+const CardScreen = ({ route, navigation }: Props) => {
   const {
     duration,
     bankName,
@@ -41,7 +52,7 @@ const CardScreen = () => {
     percent,
     cardType,
     issuerBrand,
-  } = useLocalSearchParams();
+  } = route.params as CardScreenParams || {}; 
   const durationNumber = Array.isArray(duration) ? duration[0] : duration;
   const bankNameStr = Array.isArray(bankName) ? bankName[0] : bankName;
   const bankUrlStr = Array.isArray(bankUrl) ? bankUrl[0] : bankUrl;
@@ -440,7 +451,7 @@ const CardScreen = () => {
   };
 
   const onProceedBack = () => {
-    router.back();
+    navigation.goBack()
     return true;
   };
 
@@ -511,7 +522,7 @@ const CardScreen = () => {
   };
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener(
+    BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
         if (showWebView) {
@@ -527,8 +538,6 @@ const CardScreen = () => {
         return onProceedBack(); // Allow back navigation if not loading
       }
     );
-
-    return () => backHandler.remove();
   });
 
   useEffect(() => {
@@ -541,9 +550,6 @@ const CardScreen = () => {
       transactionId: transactionId || '',
     };
     paymentHandler.onPaymentResult(mockPaymentResult);
-    while (router.canGoBack()) {
-      router.back();
-    }
   };
 
   useEffect(() => {

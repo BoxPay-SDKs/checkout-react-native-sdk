@@ -99,8 +99,7 @@ export function handlePaymentResponse({
                 }
         
                 default:
-                   { onShowFailedModal();
-                    setLoading(false);
+                   { 
                     break;}
             }
         }
@@ -172,10 +171,9 @@ export function handleFetchStatusResponseHandler({
                     break;}
         
                 default:
-                    {onShowFailedModal();
-                    setLoading?.(false);
-                    stopBackgroundApiTask?.();
-                    break;}
+                    {
+                    break;
+                }
             }
         }
         break;

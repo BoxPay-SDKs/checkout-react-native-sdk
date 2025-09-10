@@ -1,9 +1,10 @@
 import Constants from 'expo-constants';
-import api from '../serviceRequest'
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import type { AnalyticsApiResponse } from '../interface';
 import { getDeviceDetails } from '../utils/listAndObjectUtils';
 import { APIStatus } from '../interface';
+import axios from 'axios';
+import { getBaseURL } from '../utils/stringUtils';
 
 const callUIAnalytics = async (
     uiEvent: string,
@@ -42,7 +43,8 @@ const callUIAnalytics = async (
       };
 
       try {
-        const response = await api.post("/", requestBody);
+        const API_URL = `${getBaseURL(checkoutDetails.env)}/ui-analytics`
+        const response = await axios.post(API_URL, requestBody);
         return {apiStatus : APIStatus.Success, data : response.data};
       } catch (error) {
         return { apiStatus : APIStatus.Failed , data : {status: { reasonCode: 'API_FAILED', reason: `${error}` }} };

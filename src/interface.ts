@@ -467,3 +467,18 @@ export enum AnalyticsEvents {
   SDK_CRASH = "SDK_CRASH",
   PAYMENT_RESULT_SCREEN_DISPLAYED = "PAYMENT_RESULT_SCREEN_DISPLAYED"
 }
+
+export interface CardScreenParams {
+  duration?: number;
+  bankName?: string;
+  bankUrl?: string;
+  offerCode?: string;
+  amount?: string; 
+  percent?: number; 
+  cardType?: string;
+  issuerBrand?: string;
+}
+
+export interface UPITimerScreenParams {
+  upiId : string
+}
