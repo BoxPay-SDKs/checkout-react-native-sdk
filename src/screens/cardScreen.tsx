@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   BackHandler,
   Pressable,
@@ -18,7 +17,7 @@ import cardPostRequest from '../postRequest/cardPostRequest';
 import PaymentFailed from '../components/paymentFailed';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
-import type { PaymentResult } from '../interface';
+import { APIStatus, type PaymentResultObject } from '../interface';
 import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CvvInfoBottomSheet from '../components/cvvInfoBottomSheet';
 import WebViewScreen from './webViewScreen';
@@ -28,6 +27,8 @@ import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import emiPostRequest from '../postRequest/emiPostRequest';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import KnowMoreBottomSheet from '../components/knowMoreBottomSheet';
+import styles from '../styles/screens/cardScreenStyles';
+import Toast from 'react-native-toast-message'
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 
 const CardScreen = () => {
@@ -60,7 +61,7 @@ const CardScreen = () => {
   const [cardNickNameText, setCardNickNameText] = useState<string | null>(null);
 
   const [cardSelectedIcon, setCardSelectedIcon] = useState(
-    require('../assets/images/ic_default_card.png')
+    require('../../assets/images/ic_default_card.png')
   );
   const [maxCvvLength, setMaxCvvLength] = useState(4);
   const [maxCardNumberLength, setMaxCardNumberLength] = useState(19);
@@ -143,44 +144,61 @@ const CardScreen = () => {
         }
         await fetchCardDetails(
           formatted.replace(/ /g, '')
-        ).then((data) => {
-          if('paymentMethod' in data) {
-            if (durationNumber != undefined && durationNumber != '') {
-              setEmiIssuerExist(data.issuerName != '' && data.issuerName != null);
-              setEmiIssuer(data.issuerName ?? "");
+        ).then((response) => {
+          switch (response.apiStatus) {
+            case APIStatus.Success : {
+              const data = response.data
+              if('paymentMethod' in data) {
+                if (durationNumber != undefined && durationNumber != '') {
+                  setEmiIssuerExist(data.issuerName != '' && data.issuerName != null);
+                  setEmiIssuer(data.issuerName ?? "");
+                }
+                setMethodEnabled(data.methodEnabled);
+                if (data.paymentMethod.brand == 'VISA') {
+                  setCardSelectedIcon(require('../../assets/images/ic_visa.png'));
+                  setMaxCvvLength(3);
+                  setMaxCardNumberLength(19);
+                } else if (data.paymentMethod.brand == 'Mastercard') {
+                  setCardSelectedIcon(require('../../assets/images/ic_masterCard.png'));
+                  setMaxCvvLength(3);
+                  setMaxCardNumberLength(19);
+                } else if (data.paymentMethod.brand == 'RUPAY') {
+                  setCardSelectedIcon(require('../../assets/images/ic_rupay.png'));
+                  setMaxCvvLength(3);
+                  setMaxCardNumberLength(19);
+                } else if (data.paymentMethod.brand == 'AmericanExpress') {
+                  setCardSelectedIcon(require('../../assets/images/ic_amex.png'));
+                  setMaxCvvLength(4);
+                  setMaxCardNumberLength(18);
+                } else if (data.paymentMethod.brand == 'Maestro') {
+                  setCardSelectedIcon(require('../../assets/images/ic_maestro.png'));
+                  setMaxCvvLength(3);
+                  setMaxCardNumberLength(19);
+                } else {
+                  setCardSelectedIcon(
+                    require('../../assets/images/ic_default_card.png')
+                  );
+                  setMaxCvvLength(3);
+                  setMaxCardNumberLength(19);
+                }
+              }
+              break
             }
-            setMethodEnabled(data.methodEnabled);
-            if (data.paymentMethod.brand == 'VISA') {
-              setCardSelectedIcon(require('../assets/images/ic_visa.png'));
-              setMaxCvvLength(3);
-              setMaxCardNumberLength(19);
-            } else if (data.paymentMethod.brand == 'Mastercard') {
-              setCardSelectedIcon(require('../assets/images/ic_masterCard.png'));
-              setMaxCvvLength(3);
-              setMaxCardNumberLength(19);
-            } else if (data.paymentMethod.brand == 'RUPAY') {
-              setCardSelectedIcon(require('../assets/images/ic_rupay.png'));
-              setMaxCvvLength(3);
-              setMaxCardNumberLength(19);
-            } else if (data.paymentMethod.brand == 'AmericanExpress') {
-              setCardSelectedIcon(require('../assets/images/ic_amex.png'));
-              setMaxCvvLength(4);
-              setMaxCardNumberLength(18);
-            } else if (data.paymentMethod.brand == 'Maestro') {
-              setCardSelectedIcon(require('../assets/images/ic_maestro.png'));
-              setMaxCvvLength(3);
-              setMaxCardNumberLength(19);
-            } else {
-              setCardSelectedIcon(
-                require('../assets/images/ic_default_card.png')
-              );
-              setMaxCvvLength(3);
-              setMaxCardNumberLength(19);
+            case APIStatus.Failed : {
+              Toast.show({
+                type: 'error',
+                text1: 'Oops!',
+                text2: 'Something went wrong. Please try again.',
+            });
+              break 
+            }
+            default : {
+              break
             }
           }
         });
       } else {
-        setCardSelectedIcon(require('../assets/images/ic_default_card.png'));
+        setCardSelectedIcon(require('../../assets/images/ic_default_card.png'));
         setMaxCvvLength(3);
         setMaxCardNumberLength(19);
       }
@@ -518,7 +536,7 @@ const CardScreen = () => {
   }, [cardNumberText, cardExpiryText, cardCvvText, cardHolderNameText]);
 
   const onExitCheckout = () => {
-    const mockPaymentResult: PaymentResult = {
+    const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
     };
@@ -535,22 +553,22 @@ const CardScreen = () => {
   }, [paymentHtml]);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={styles.screenView}>
       <StatusBar barStyle="dark-content" />
       {loading ? (
         <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          style={styles.loadingContainer}
         >
           <LottieView
-            source={require('../../../assets/animations/boxpayLogo.json')}
+            source={require('../../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
-            style={{ width: 80, height: 80 }}
+            style={styles.lottieStyle}
           />
           <Text>Loading...</Text>
         </View>
       ) : (
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={styles.screenView}>
           <Header
             onBackPress={onProceedBack}
             showDesc={true}
@@ -558,34 +576,15 @@ const CardScreen = () => {
             text="Pay via Card"
           />
           <View
-            style={{
-              flexDirection: 'row',
-              height: 1,
-              backgroundColor: '#ECECED',
-            }}
+            style={styles.divider}
           />
           {bankNameStr != '' && bankName != undefined && (
             <View
-              style={{
-                borderColor: '#E6E6E6',
-                borderWidth: 1,
-                borderRadius: 8,
-                padding: 12,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginHorizontal: 16,
-                marginTop: 8,
-              }}
+              style={styles.container}
             >
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View
-                  style={{
-                    width: 32,
-                    height: 32,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
+                  style={styles.imageContainer}
                 >
                   {imageLoad && !imageError && (
                     <ShimmerPlaceHolder
@@ -607,45 +606,26 @@ const CardScreen = () => {
                     />
                   ) : (
                     <Image
-                      source={require('../assets/images/ic_netbanking_semi_bold.png')}
+                      source={require('../../assets/images/ic_netbanking_semi_bold.png')}
                       style={{ transform: [{ scale: 0.4 }] }}
                     />
                   )}
                 </View>
                 <Text
-                  style={{
-                    paddingStart: 8,
-                    fontFamily: 'Poppins-SemiBold',
-                    fontSize: 14,
-                  }}
+                  style={styles.nameText}
                 >
                   {bankNameStr}
                 </Text>
               </View>
               <View
-                style={{
-                  borderWidth: 1.5,
-                  borderStartColor: '#E6E6E6',
-                  borderTopColor: 'white',
-                  borderEndColor: 'white',
-                  borderBottomColor: 'white',
-                  paddingStart: 8,
-                }}
+                style={styles.thickBorder}
               >
                 <Text
-                  style={{
-                    fontFamily: 'Poppins-SemiBold',
-                    fontSize: 12,
-                    color: '#2D2B32',
-                  }}
+                  style={styles.durationText}
                 >
                   {duration} months x
                   <Text
-                    style={{
-                      fontFamily: 'Inter-SemiBold',
-                      fontSize: 12,
-                      color: '#2D2B32',
-                    }}
+                    style={styles.currencyText}
                   >
                     {' '}
                     {checkoutDetails.currencySymbol}
@@ -653,11 +633,7 @@ const CardScreen = () => {
                   {amountStr}
                 </Text>
                 <Text
-                  style={{
-                    fontFamily: 'Poppins-Regular',
-                    fontSize: 12,
-                    color: '#2D2B32',
-                  }}
+                  style={styles.percentText}
                 >
                   @{percentNumber}% p.a.
                 </Text>
@@ -668,15 +644,13 @@ const CardScreen = () => {
             mode="outlined"
             label={
               <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Regular',
+                style={[styles.textFieldLabel,{
                   color: cardNumberFocused
                     ? '#2D2B32'
                     : cardNumberText != '' && cardNumberText != null
                       ? '#2D2B32'
                       : '#ADACB0',
-                }}
+                }]}
               >
                 Card Number
               </Text>
@@ -698,7 +672,7 @@ const CardScreen = () => {
                 <TextInput.Icon
                   icon={() => (
                     <Image
-                      source={require('../assets/images/ic_upi_error.png')}
+                      source={require('../../assets/images/ic_upi_error.png')}
                       style={{ width: 24, height: 24 }}
                     />
                   )}
@@ -728,39 +702,26 @@ const CardScreen = () => {
           />
           {cardNumberError && (
             <Text
-              style={{
-                color: '#B3261E',
-                fontSize: 12,
-                fontFamily: 'Poppins-Regular',
-                marginHorizontal: 16,
-                marginTop: 4,
-              }}
+              style={styles.errorText}
             >
               {cardNumberErrorText}
             </Text>
           )}
           <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginHorizontal: 16,
-              marginTop: 16,
-            }}
+            style={styles.expiryCvvContainer}
           >
             <View style={{ flex: 1, flexDirection: 'column' }}>
               <TextInput
                 mode="outlined"
                 label={
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
+                    style={[styles.textFieldLabel,{
                       color: cardExpiryFocused
                         ? '#2D2B32'
                         : cardExpiryText != '' && cardExpiryText != null
                           ? '#2D2B32'
                           : '#ADACB0',
-                    }}
+                    }]}
                   >
                     Expiry (MM/YY)
                   </Text>
@@ -782,7 +743,7 @@ const CardScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/ic_upi_error.png')}
+                          source={require('../../assets/images/ic_upi_error.png')}
                           style={{ width: 24, height: 24 }}
                         />
                       )}
@@ -803,12 +764,7 @@ const CardScreen = () => {
               />
               {cardExpiryError && (
                 <Text
-                  style={{
-                    color: '#B3261E',
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    marginTop: 4,
-                  }}
+                  style={styles.errorText}
                 >
                   {cardExpiryErrorText}
                 </Text>
@@ -819,15 +775,13 @@ const CardScreen = () => {
                 mode="outlined"
                 label={
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
+                    style={[styles.textFieldLabel,{
                       color: cardCvvFocused
                         ? '#2D2B32'
                         : cardCvvText != '' && cardCvvText != null
                           ? '#2D2B32'
                           : '#ADACB0',
-                    }}
+                    }]}
                   >
                     CVV
                   </Text>
@@ -849,7 +803,7 @@ const CardScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/ic_upi_error.png')}
+                          source={require('../../assets/images/ic_upi_error.png')}
                           style={{ width: 24, height: 24 }}
                         />
                       )}
@@ -858,7 +812,7 @@ const CardScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/ic_cvv_info.png')}
+                          source={require('../../assets/images/ic_cvv_info.png')}
                           style={{ width: 24, height: 24 }}
                         />
                       )}
@@ -883,12 +837,7 @@ const CardScreen = () => {
               />
               {cardCvvError && (
                 <Text
-                  style={{
-                    color: '#B3261E',
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    marginTop: 4,
-                  }}
+                  style={styles.errorText}
                 >
                   {cardCvvErrorText}
                 </Text>
@@ -899,15 +848,13 @@ const CardScreen = () => {
             mode="outlined"
             label={
               <Text
-                style={{
-                  fontSize: 16,
-                  fontFamily: 'Poppins-Regular',
+                style={[styles.textFieldLabel,{
                   color: cardHolderNameFocused
                     ? '#2D2B32'
                     : cardHolderNameText != '' && cardHolderNameText != null
                       ? '#2D2B32'
                       : '#ADACB0',
-                }}
+                }]}
               >
                 Name on the Card
               </Text>
@@ -929,7 +876,7 @@ const CardScreen = () => {
                 <TextInput.Icon
                   icon={() => (
                     <Image
-                      source={require('../assets/images/ic_upi_error.png')}
+                      source={require('../../assets/images/ic_upi_error.png')}
                       style={{ width: 24, height: 24 }}
                     />
                   )}
@@ -948,13 +895,7 @@ const CardScreen = () => {
           />
           {cardHolderNameError && (
             <Text
-              style={{
-                color: '#B3261E',
-                fontSize: 12,
-                fontFamily: 'Poppins-Regular',
-                marginHorizontal: 16,
-                marginTop: 4,
-              }}
+              style={styles.errorText}
             >
               {cardHolderNameErrorText}
             </Text>
@@ -964,15 +905,13 @@ const CardScreen = () => {
               mode="outlined"
               label={
                 <Text
-                  style={{
-                    fontSize: 16,
-                    fontFamily: 'Poppins-Regular',
+                  style={[styles.textFieldLabel,{
                     color: cardNickNameFocused
                       ? '#2D2B32'
                       : cardNickNameText != '' && cardNickNameText != null
                         ? '#2D2B32'
                         : '#ADACB0',
-                  }}
+                  }]}
                 >
                   Card NickName (for easy identification)
                 </Text>
@@ -1005,27 +944,14 @@ const CardScreen = () => {
           )}
           {
             <View
-              style={{
-                flexDirection: 'row',
-                marginHorizontal: 16,
-                marginTop: 16,
-                backgroundColor: '#E8F6F1',
-                borderRadius: 4,
-                padding: 4,
-                alignItems: 'center',
-              }}
+              style={styles.infoContainer}
             >
               <Image
-                source={require('../assets/images/ic_info.png')}
-                style={{ width: 20, height: 20, tintColor: '#2D2B32' }}
+                source={require('../../assets/images/ic_info.png')}
+                style={styles.infoIcon}
               />
               <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: 'Poppins-Regular',
-                  color: '#2D2B32',
-                  marginStart: 8,
-                }}
+                style={styles.infoText}
               >
                 CVV will not be stored
               </Text>
@@ -1033,12 +959,7 @@ const CardScreen = () => {
           }
           {shopperToken != null && shopperToken != '' && (
             <View
-              style={{
-                flexDirection: 'row',
-                marginTop: 10,
-                alignItems: 'center',
-                paddingLeft: 10,
-              }}
+              style={styles.checkBoxContainer}
             >
               <Checkbox
                 status={isSavedCardCheckBoxClicked ? 'checked' : 'unchecked'}
@@ -1048,12 +969,7 @@ const CardScreen = () => {
                 color={checkoutDetails.brandColor}
               />
               <Text
-                style={{
-                  color: '#2D2B32',
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Regular',
-                  marginLeft: 8,
-                }}
+                style={styles.checkBoxText}
               >
                 Save this card as per RBI guidelines.
               </Text>
@@ -1064,12 +980,9 @@ const CardScreen = () => {
                 style={{ marginLeft: 4 }}
               >
                 <Text
-                  style={{
+                  style={[styles.clickableText,{
                     color: checkoutDetails.brandColor,
-                    fontSize: 12,
-                    fontFamily: 'Poppins-SemiBold',
-                    textDecorationLine: 'underline',
-                  }}
+                  }]}
                 >
                   Know more
                 </Text>
@@ -1077,13 +990,7 @@ const CardScreen = () => {
             </View>
           )}
           <View
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              paddingBottom: 16,
-            }}
+            style={styles.pressableContainer}
           >
             {cardValid ? (
               <Pressable
@@ -1145,14 +1052,7 @@ const CardScreen = () => {
 
       {showWebView && (
         <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'white',
-          }}
+          style={styles.pressableContainer}
         >
           <WebViewScreen
             url={paymentUrl}
@@ -1171,27 +1071,3 @@ const CardScreen = () => {
 };
 
 export default CardScreen;
-
-const styles = StyleSheet.create({
-  textInput: {
-    backgroundColor: 'white',
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
-    color: '#0A090B',
-    height: 60,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    borderRadius: 8,
-    justifyContent: 'center',
-    marginTop: 20,
-    marginHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 12,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
-  },
-});

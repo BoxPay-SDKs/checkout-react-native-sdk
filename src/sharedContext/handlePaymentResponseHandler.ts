@@ -1,7 +1,8 @@
-import { type HandleFetchStatusOptions, type HandlePaymentOptions, type PaymentClass, APIStatus, TransactionStatus } from "../interface";
+import { type HandleFetchStatusOptions, type HandlePaymentOptions, type PaymentClass, type RecommendedInstruments, APIStatus, TransactionStatus } from "../interface";
 import { transformAndFilterList } from '../utils/listAndObjectUtils';
 import Toast from 'react-native-toast-message'
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
+import fetchRecommendedInstruments from "../postRequest/fetchRecommendedInstruments";
 
 export function handlePaymentResponse({
     response,
@@ -30,7 +31,7 @@ export function handlePaymentResponse({
             onSetTransactionId(apidata.transactionId);
         
             switch (txnStatus) {
-                case TransactionStatus.RequiresAction:
+                case TransactionStatus.RequiresAction: {
                     if (actionsArray.length > 0) {
                         const action = actionsArray[0];
             
@@ -63,9 +64,9 @@ export function handlePaymentResponse({
                         }
                     }
                     break;
-        
+                }
                 case TransactionStatus.Failed:
-                case TransactionStatus.Rejected:
+                case TransactionStatus.Rejected: {
                     const fallback = checkoutDetailsErrorMessage;
                     const errorMessage =
                         reasonCode?.startsWith('UF')
@@ -80,24 +81,27 @@ export function handlePaymentResponse({
                     setLoading(false);
                     break;
         
+                }
                 case TransactionStatus.Approved:
                 case TransactionStatus.Success:
-                case TransactionStatus.Paid:
+                case TransactionStatus.Paid: {
                     onSetStatus(TransactionStatus.Success);
                     onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
                     setLoading(false);
                     break;
+                }
         
-                case TransactionStatus.Expired:
+                case TransactionStatus.Expired:{
                     onSetStatus(TransactionStatus.Expired);
                     onShowSessionExpiredModal();
                     setLoading(false);
                     break;
+                }
         
                 default:
-                    onShowFailedModal();
+                   { onShowFailedModal();
                     setLoading(false);
-                    break;
+                    break;}
             }
         }
         break;
@@ -136,7 +140,7 @@ export function handleFetchStatusResponseHandler({
             switch (txnStatus) {
                 case TransactionStatus.Failed:
                 case TransactionStatus.Rejected:
-                    const fallback = checkoutDetailsErrorMessage;
+                    {const fallback = checkoutDetailsErrorMessage;
                     const errorMessage =
                         reasonCode?.startsWith('UF')
                         ? reason?.includes(':')
@@ -149,29 +153,29 @@ export function handleFetchStatusResponseHandler({
                     onShowFailedModal();
                     stopBackgroundApiTask?.();
                     setLoading?.(false);
-                    break;
+                    break;}
         
                 case TransactionStatus.Approved:
                 case TransactionStatus.Success:
                 case TransactionStatus.Paid:
-                    onSetStatus(TransactionStatus.Success);
+                    {onSetStatus(TransactionStatus.Success);
                     onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
                     stopBackgroundApiTask?.();
                     setLoading?.(false);
-                    break;
+                    break;}
         
                 case TransactionStatus.Expired:
-                    onSetStatus(TransactionStatus.Expired);
+                    {onSetStatus(TransactionStatus.Expired);
                     onShowSessionExpiredModal();
                     stopBackgroundApiTask?.();
                     setLoading?.(false);
-                    break;
+                    break;}
         
                 default:
-                    onShowFailedModal();
+                    {onShowFailedModal();
                     setLoading?.(false);
                     stopBackgroundApiTask?.();
-                    break;
+                    break;}
             }
         }
         break;
@@ -214,4 +218,53 @@ export async function fetchPaymentMethodHandler({
         default:
           break;
       }
+}
+
+interface fetchSavedInstrumentsArgs {
+    setRecommendedList : (list:PaymentClass[]) => void,
+    setUpiInstrumentList : (list : PaymentClass[]) => void,
+    setCardInstrumentList : (list : PaymentClass[]) => void
+}
+
+
+export async function fetchSavedInstrumentsHandler({setRecommendedList, setUpiInstrumentList, setCardInstrumentList} : fetchSavedInstrumentsArgs) {
+    const response = await fetchRecommendedInstruments()
+    switch(response.apiStatus) {
+        case APIStatus.Success : {
+            const instrumentList = response.data
+            const upiList : PaymentClass[] = []
+            const cardList : PaymentClass[] = []
+            instrumentList.forEach((instrument: RecommendedInstruments) => {
+                const item: PaymentClass = {
+                  type: instrument.type,
+                  id: instrument.instrumentRef,
+                  displayName: instrument.cardNickName ? instrument.cardNickName : '',
+                  displayValue: instrument.displayValue,
+                  iconUrl: instrument.logoUrl ? instrument.logoUrl : '///',
+                  instrumentTypeValue: instrument.instrumentRef,
+                  isSelected: false,
+                };
+              
+                if (instrument.type.toLowerCase() === 'upi') {
+                  upiList.push(item);
+                } else if (instrument.type.toLowerCase() === 'card') {
+                  cardList.push(item);
+                }
+            });
+            setRecommendedList(upiList.slice(0, 2));
+            setUpiInstrumentList(upiList)
+            setCardInstrumentList(cardList)
+            break
+        }
+        case APIStatus.Failed: {
+            Toast.show({
+                type: 'error',
+                text1: 'Oops!',
+                text2: 'Something went wrong. Please try again.',
+            });
+            break;
+        }
+        default:
+          break;
+    }
 }

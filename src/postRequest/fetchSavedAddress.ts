@@ -1,0 +1,16 @@
+import api from '../serviceRequest';
+import { APIStatus, type FetchSavedAddressResponse } from '../interface';
+import { userDataHandler } from '../sharedContext/userdataHandler';
+
+const fetchSavedAddress = async () : Promise<FetchSavedAddressResponse>=> {
+    const { userData } = userDataHandler;
+    const API_URL = `/shoppers/${userData.uniqueId}/addresses`;
+    try {
+    const response = await api.get(API_URL);
+    return {apiStatus : APIStatus.Success, data : response.data}
+    } catch (error) {
+    return {apiStatus : APIStatus.Failed, data : { status: { reasonCode: 'API_FAILED', reason: `${error}` } }}
+    }
+};
+
+export default fetchSavedAddress;

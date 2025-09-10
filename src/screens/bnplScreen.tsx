@@ -12,8 +12,8 @@ import { router } from 'expo-router';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
-import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
-import type { PaymentClass, PaymentResult } from '../interface';
+import type { PaymentClass, PaymentResultObject } from '../interface';
+import ShimmerView from '../components/shimmerView';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
 import PaymentFailed from '../components/paymentFailed';
@@ -22,6 +22,7 @@ import methodsPostRequest from '../postRequest/methodsPostRequest';
 import fetchStatus from '../postRequest/fetchStatus';
 import WebViewScreen from './webViewScreen';
 import PaymentSelectorView from '../components/paymentSelector';
+import styles from '../styles/screens/bnplScreenStyles';
 import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 
 const BNPLScreen = () => {
@@ -163,7 +164,7 @@ const BNPLScreen = () => {
   };
 
   const onExitCheckout = () => {
-    const mockPaymentResult: PaymentResult = {
+    const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
     };
@@ -178,97 +179,22 @@ const BNPLScreen = () => {
   }, [bnplList]);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={styles.screenView}>
       <StatusBar barStyle="dark-content" />
       {loading ? (
         <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          style={styles.loaderView}
         >
           <LottieView
-            source={require('../../../assets/animations/boxpayLogo.json')}
+            source={require('../../assets/animations/boxpayLogo.json')}
             autoPlay
             loop
-            style={{ width: 80, height: 80 }}
+            style={styles.lottieStyle}
           />
           <Text>Loading...</Text>
         </View>
       ) : isFirstLoad ? (
-        <View
-          style={{ flex: 1, backgroundColor: 'white', marginHorizontal: 16 }}
-        >
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 30,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-          <ShimmerPlaceHolder
-            visible={false}
-            style={{
-              width: '100%',
-              height: 50,
-              borderRadius: 10,
-              marginTop: 25,
-            }}
-          />
-        </View>
+        <ShimmerView />
       ) : (
         <View style={{ flex: 1, backgroundColor: '#F5F6FB' }}>
           <Header
@@ -278,11 +204,7 @@ const BNPLScreen = () => {
             text="Select BNPL"
           />
           <View
-            style={{
-              flexDirection: 'row',
-              height: 1,
-              backgroundColor: '#ECECED',
-            }}
+            style={styles.divider}
           />
           <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
@@ -290,19 +212,12 @@ const BNPLScreen = () => {
           >
             {bnplList.length > 0 ? (
               <View
-                style={{
-                  marginHorizontal: 16,
-                  backgroundColor: 'white',
-                  borderColor: '#F1F1F1',
-                  borderWidth: 1,
-                  borderRadius: 12,
-                  marginVertical: 16,
-                }}
+                style={styles.listContainer}
               >
                 <PaymentSelectorView
                   providerList={bnplList}
                   onProceedForward={onProceedForward}
-                  errorImage={require('../assets/images/ic_bnpl_semi_bold.png')}
+                  errorImage={require('../../assets/images/ic_bnpl_semi_bold.png')}
                   onClickRadio={(selectedInstrumentValue) =>
                     onClickRadioButton(selectedInstrumentValue)
                   }
@@ -310,39 +225,19 @@ const BNPLScreen = () => {
               </View>
             ) : (
               <View
-                style={{
-                  marginHorizontal: 16,
-                  backgroundColor: 'white',
-                  borderColor: '#F1F1F1',
-                  borderWidth: 1,
-                  borderRadius: 12,
-                  marginBottom: 32,
-                  height: 300,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                style={styles.emptyListContainer}
               >
                 <Image
-                  source={require('../assets/images/no_results_found.png')}
-                  style={{ width: 100, height: 100 }}
+                  source={require('../../assets/images/no_results_found.png')}
+                  style={styles.imageStyle}
                 />
                 <Text
-                  style={{
-                    fontFamily: 'Poppins-SemiBold',
-                    fontSize: 16,
-                    color: '#212426',
-                    marginTop: 16,
-                  }}
+                  style={styles.headingText}
                 >
                   Oops!! No result found
                 </Text>
                 <Text
-                  style={{
-                    fontFamily: 'Poppins-Regular',
-                    fontSize: 14,
-                    color: '#4F4D55',
-                    marginTop: -4,
-                  }}
+                  style={styles.subHeadingText}
                 >
                   Please try another search
                 </Text>
@@ -350,26 +245,16 @@ const BNPLScreen = () => {
             )}
           </ScrollView>
           <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'flex-end',
-              backgroundColor: '#F5F6FB',
-              flexDirection: 'row',
-            }}
+            style={styles.bottomContainer}
           >
             <Text
-              style={{
-                fontSize: 12,
-                color: '#888888',
-                marginBottom: 15,
-                fontFamily: 'Poppins-Medium',
-              }}
+              style={styles.bottomText}
             >
               Secured by
             </Text>
             <Image
-              source={require('../assets/images/splash-icon.png')}
-              style={{ height: 50, width: 50 }}
+              source={require('../../assets/images/splash-icon.png')}
+              style={styles.bottomImage}
             />
           </View>
         </View>
@@ -394,14 +279,7 @@ const BNPLScreen = () => {
 
       {showWebView && (
         <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'white',
-          }}
+          style={styles.webViewContainer}
         >
           <WebViewScreen
             url={paymentUrl}

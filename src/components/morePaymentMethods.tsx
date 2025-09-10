@@ -73,7 +73,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         >
                           <MorePaymentContainer
                             title="Cards"
-                            image={require('./assets/images/ic_card.png')}
+                            image={require('../../assets/images/ic_card.png')}
                           />
                           {(isWalletVisible ||
                             isNetBankingVisible ||
@@ -98,7 +98,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         >
                           <MorePaymentContainer
                             title="Wallet"
-                            image={require('./assets/images/ic_wallet.png')}
+                            image={require('../../assets/images/ic_wallet.png')}
                           />
                           {(isNetBankingVisible ||
                             isEmiVisible ||
@@ -122,7 +122,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         >
                           <MorePaymentContainer
                             title="Netbanking"
-                            image={require('./assets/images/ic_netbanking.png')}
+                            image={require('../../assets/images/ic_netbanking.png')}
                           />
                           {(isEmiVisible || isBNPLVisible) && (
                             <View
@@ -144,7 +144,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         >
                           <MorePaymentContainer
                             title="EMI"
-                            image={require('./assets/images/ic_emi.png')}
+                            image={require('../../assets/images/ic_emi.png')}
                           />
                           {isBNPLVisible && (
                             <View
@@ -166,7 +166,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         >
                           <MorePaymentContainer
                             title="Pay Later"
-                            image={require('./assets/images/ic_bnpl.png')}
+                            image={require('../../assets/images/ic_bnpl.png')}
                           />
                         </Pressable>
                       )}

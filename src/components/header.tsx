@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({
           }}
         >
           <Image
-            source={require('../assets/images/arrow-left.png')}
+            source={require('../../assets/images/arrow-left.png')}
             style={styles.backArrow}
           />
         </Pressable>
@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({
           <View style={styles.btnContainer}>
             <View style={styles.headerSecure}>
               <Image
-                source={require('../assets/images/Lock.png')}
+                source={require('../../assets/images/Lock.png')}
                 style={styles.lockIcon}
               />
               <Text style={styles.secureText}>100% Secure</Text>

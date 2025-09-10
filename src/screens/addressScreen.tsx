@@ -7,46 +7,28 @@ import {
   SafeAreaView,
   ScrollView,
   StatusBar,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import countryData from '../assets/json/countryCodes.json';
 import Header from '../components/header';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import {
   setUserDataHandler,
   userDataHandler,
 } from '../sharedContext/userdataHandler';
+import styles from '../styles/screens/addressScreenStyles.';
 
 const AddressScreen = () => {
   const { userData } = userDataHandler;
   const { checkoutDetails } = checkoutDetailsHandler;
-  const [countryNameDropdownData, setCountryNameDropdownData] = useState<
-    { key: string; value: string }[]
-  >([]);
-  const [
-    duplicateCountryNameDropdownData,
-    setDuplicateCountryNameDropdownData,
-  ] = useState<{ key: string; value: string }[]>([]);
-  const [phoneCodeDropDownData, setPhoneCodeDropDownData] = useState<
-    { key: string; value: string }[]
-  >([]);
-  const [duplicatePhoneCodeDropdownData, setDuplicatePhoneCodeDropdownData] =
-    useState<{ key: string; value: string }[]>([]);
-  const [selectedCountryCode, setSelectedCountryCode] = useState('');
+  const [selectedCountryCode, /*setSelectedCountryCode*/] = useState('');
   const selectedPhoneCodeRef = useRef('');
-  const [countryNameDropdownDataVisible, setCountryNameDropdownVisible] =
-    useState(false);
-  const [phoneCodeDropdownDataVisible, setPhoneCodeDropdownDataVisible] =
-    useState(false);
 
   const isShippingEnabled = checkoutDetails.isShippingAddressEnabled;
   const isFullNameEnabled = checkoutDetails.isFullNameEnabled;
   const isPhoneNumberEnabled = checkoutDetails.isPhoneEnabled;
   const isEmailEnabled = checkoutDetails.isEmailEnabled;
-  const mobileRegex = /^[0-9]+$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const [countryTextFieldFocused] = useState(false);
@@ -63,9 +45,9 @@ const AddressScreen = () => {
     setSecondaryAddressTextFieldFocused,
   ] = useState(false);
 
-  const [countryTextField, setCountryTextField] = useState<string>('');
+  const [countryTextField, /*setCountryTextField*/] = useState<string>('');
   const [fullNameTextField, setFullNameTextField] = useState<string>('');
-  const [phoneNumberTextField, setPhoneNumberTextField] = useState<string>('');
+  const [phoneNumberTextField, /*setPhoneNumberTextField*/] = useState<string>('');
   const [emailTextField, setEmailTextField] = useState<string>('');
   const [pinTextField, setPinTextField] = useState<string>('');
   const [cityTextField, setCityTextField] = useState<string>('');
@@ -75,7 +57,7 @@ const AddressScreen = () => {
     useState<string>('');
 
   const [fullNameErrorText, setFullNameErrorText] = useState('');
-  const [mobileNumberErrorText, setMobileNumberErrorText] = useState('');
+  const [mobileNumberErrorText, /*setMobileNumberErrorText*/] = useState('');
   const [emailIdErrorText, setEmailIdErrorText] = useState('');
   const [pinCodeErrorText, setPinCodeErrorText] = useState('');
   const [cityErrorText, setCityErrorText] = useState('');
@@ -83,41 +65,17 @@ const AddressScreen = () => {
   const [mainAddressErrorText, setMainAddressErrorText] = useState('');
 
   const [isFullNameValid, setIsFullNameValid] = useState(false);
-  const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(false);
+  const [isPhoneNumberValid, /*setIsPhoneNumberValid*/] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isPinValid, setIsPinValid] = useState(false);
   const [isCityValid, setIsCityValid] = useState(false);
   const [isStateValid, setIsStateValid] = useState(false);
   const [isMainAddressValid, setIsMainAddressValid] = useState(false);
 
-  const [minPhoneNumberLength, setMinPhoneNumberLength] = useState(10);
-  const [maxPhoneNumberLength, setMaxPhoneNumberLength] = useState(10);
-
   const onProceedBack = () => {
     router.back();
     return true;
   };
-
-  useEffect(() => {
-    const selectedCountry =
-      countryData[selectedCountryCode as keyof typeof countryData];
-    if (selectedCountry) {
-      setCountryTextField(selectedCountry.fullName);
-      selectedPhoneCodeRef.current = selectedCountry.isdCode || '+91';
-
-      if (Array.isArray(selectedCountry.phoneNumberLength)) {
-        const lengths = selectedCountry.phoneNumberLength;
-        const min = Math.min(...lengths);
-        const max = Math.max(...lengths);
-        setMinPhoneNumberLength(min);
-        setMaxPhoneNumberLength(max);
-      } else {
-        // Fallback if phoneNumberLength is not an array
-        setMinPhoneNumberLength(10);
-        setMaxPhoneNumberLength(10);
-      }
-    }
-  }, [selectedCountryCode]);
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -130,13 +88,6 @@ const AddressScreen = () => {
     return () => backHandler.remove();
   });
 
-  const handleCountrySelect = (key: string) => {
-    const selectedCountry = countryData[key as keyof typeof countryData];
-    setCountryTextField(selectedCountry.fullName);
-    setSelectedCountryCode(key);
-    selectedPhoneCodeRef.current = selectedCountry.isdCode;
-  };
-
   const onChangeFullName = (updatedText: string) => {
     setFullNameTextField(updatedText);
     const trimmedText = updatedText.trim();
@@ -147,35 +98,6 @@ const AddressScreen = () => {
     } else {
       setFullNameErrorText('');
       setIsFullNameValid(false);
-    }
-  };
-
-  const onChangeMobileNumber = (updatedText: string) => {
-    setPhoneNumberTextField(updatedText);
-    const trimmedText = updatedText.trim();
-    const mobileNumberRegex = new RegExp(mobileRegex);
-
-    if (trimmedText === '') {
-      setMobileNumberErrorText('Required');
-      setIsPhoneNumberValid(true);
-    } else if (
-      trimmedText.length < minPhoneNumberLength ||
-      trimmedText.length > maxPhoneNumberLength ||
-      !mobileNumberRegex.test(trimmedText)
-    ) {
-      let lengthMsg = '';
-
-      if (minPhoneNumberLength !== maxPhoneNumberLength) {
-        lengthMsg = `Mobile number must be between ${minPhoneNumberLength} and ${maxPhoneNumberLength} digits`;
-      } else {
-        lengthMsg = `Mobile number must be ${maxPhoneNumberLength} digits`;
-      }
-
-      setMobileNumberErrorText(lengthMsg);
-      setIsPhoneNumberValid(true);
-    } else {
-      setMobileNumberErrorText('');
-      setIsPhoneNumberValid(false);
     }
   };
 
@@ -247,38 +169,6 @@ const AddressScreen = () => {
     }
   };
 
-  const onChangeCountryTextField = (updatedText: string) => {
-    setCountryTextField(updatedText);
-    const trimmedText = updatedText.trim();
-
-    if (trimmedText === '') {
-      setCountryNameDropdownData(duplicateCountryNameDropdownData);
-    } else {
-      const filtered = duplicateCountryNameDropdownData
-        .filter((key) =>
-          key.value.toLowerCase().includes(trimmedText.toLowerCase())
-        )
-        .sort();
-      setCountryNameDropdownData(filtered);
-    }
-  };
-
-  const onChangeCountryCodeTextField = (updatedText: string) => {
-    selectedPhoneCodeRef.current = updatedText;
-    const trimmedText = updatedText.trim();
-
-    if (trimmedText === '') {
-      setPhoneCodeDropDownData(duplicatePhoneCodeDropdownData);
-    } else {
-      const filtered = duplicatePhoneCodeDropdownData
-        .filter((key) =>
-          key.value.toLowerCase().includes(trimmedText.toLowerCase())
-        )
-        .sort();
-      setPhoneCodeDropDownData(filtered);
-    }
-  };
-
   const onChangeState = (updatedText: string) => {
     setStateTextField(updatedText);
     const trimmedText = updatedText.trim();
@@ -317,19 +207,6 @@ const AddressScreen = () => {
     const fullNameValid = fullNameTrimmed !== '' && isFullNameEnabled;
     if (!fullNameValid) {
       onChangeFullName(fullNameTextField);
-      isAllValid = false;
-    }
-
-    // Mobile Number
-    const mobileTrimmed = safeTrim(phoneNumberTextField); // Replace with your numberRegex if different
-    const mobileValid =
-      mobileTrimmed !== '' &&
-      mobileTrimmed.length >= minPhoneNumberLength &&
-      mobileTrimmed.length <= maxPhoneNumberLength &&
-      mobileRegex.test(mobileTrimmed) &&
-      isPhoneNumberEnabled;
-    if (!mobileValid) {
-      onChangeMobileNumber(phoneNumberTextField);
       isAllValid = false;
     }
 
@@ -385,66 +262,8 @@ const AddressScreen = () => {
     return isAllValid;
   };
 
-  useEffect(() => {
-    // Transform, deduplicate and sort country names
-    const initialCountryCode = userData.country ? userData.country : 'IN';
-    setSelectedCountryCode(initialCountryCode);
-    const selectedCountry =
-      countryData[initialCountryCode as keyof typeof countryData];
-    if (selectedCountry) {
-      selectedPhoneCodeRef.current = selectedCountry.isdCode || '+91';
-    }
-    const transformed = Array.from(
-      new Map(
-        Object.entries(countryData).map(([key, value]) => [
-          value.fullName,
-          { key, value: value.fullName },
-        ])
-      ).values()
-    ).sort((a, b) => a.value.localeCompare(b.value)); // ascending alphabetical sort
-
-    setCountryNameDropdownData(transformed);
-    setDuplicateCountryNameDropdownData(transformed);
-
-    // Transform, deduplicate and sort phone codes
-    const phoneCodeTransformed = Array.from(
-      new Map(
-        Object.entries(countryData).map(([key, value]) => [
-          value.isdCode,
-          { key, value: value.isdCode },
-        ])
-      ).values()
-    ).sort((a, b) => a.value.localeCompare(b.value)); // sort by ISD code as strings
-
-    setPhoneCodeDropDownData(phoneCodeTransformed);
-    setDuplicatePhoneCodeDropdownData(phoneCodeTransformed);
-
-    const firstName = userData.firstName;
-    const lastName = userData.lastName;
-    const fullName = `${firstName} ${lastName}`.trim();
-    setFullNameTextField(fullName);
-
-    setEmailTextField(userData.email ? userData.email : '');
-    setPinTextField(userData.pincode ? userData.pincode : '');
-    setCityTextField(userData.city ? userData.city : '');
-    setStateTextField(userData.state ? userData.state : '');
-    setMainAddressTextField(userData.address1 ? userData.address1 : '');
-    setSecondaryAddressTextField(userData.address2 ? userData.address2 : '');
-
-    const storedPhoneNumber = userData.phone;
-    if (
-      storedPhoneNumber &&
-      storedPhoneNumber.startsWith(selectedPhoneCodeRef.current)
-    ) {
-      const slicedNumber = storedPhoneNumber.slice(
-        selectedPhoneCodeRef.current.length
-      );
-      setPhoneNumberTextField(slicedNumber);
-    }
-  }, []);
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={styles.screenView}>
       <StatusBar barStyle="dark-content" />
       <Header
         onBackPress={onProceedBack}
@@ -453,32 +272,28 @@ const AddressScreen = () => {
         text={isShippingEnabled ? 'Add Address' : 'Add Personal Details'}
       />
       <View
-        style={{ flexDirection: 'row', height: 1, backgroundColor: '#ECECED' }}
+        style={styles.divider}
       />
       <ScrollView>
         <View>
           {isShippingEnabled && (
             <>
               <Pressable
-                onPress={() => {
-                  setCountryNameDropdownVisible(true);
-                }}
+                onPress={() => {}}
               >
                 <TextInput
                   mode="outlined"
                   label={
                     <Text
-                      style={{
-                        fontSize: 16,
-                        fontFamily: 'Poppins-Regular',
+                      style={[styles.textFieldLable,{
                         color: countryTextFieldFocused ? '#2D2B32' : '#ADACB0',
-                      }}
+                      }]}
                     >
                       Country*
                     </Text>
                   }
                   value={countryTextField || ''}
-                  onChangeText={(it) => onChangeCountryTextField(it)}
+                  onChangeText={(_) => {}}
                   editable={false} // disables keyboard input
                   theme={{
                     colors: {
@@ -498,69 +313,14 @@ const AddressScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/chervon-down.png')}
-                          style={{
-                            alignSelf: 'center',
-                            height: 6,
-                            width: 14,
-                            marginEnd: 8,
-                          }}
+                          source={require('../../assets/images/chervon-down.png')}
+                          style={styles.imageStyle}
                         />
                       )}
                     />
                   }
                 />
               </Pressable>
-
-              {countryNameDropdownDataVisible && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: 100, // You may still need to fine-tune
-                    left: 16,
-                    right: 16,
-                    zIndex: 999,
-                    backgroundColor: 'white',
-                    borderWidth: 1,
-                    borderColor: '#E6E6E6',
-                    borderRadius: 8,
-                    maxHeight: 200,
-                    elevation: 5,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 4,
-                  }}
-                >
-                  <ScrollView>
-                    {countryNameDropdownData.map((item) => (
-                      <Pressable
-                        key={item.key}
-                        onPress={() => {
-                          handleCountrySelect(item.key);
-                          setCountryNameDropdownVisible(false);
-                        }}
-                        style={{
-                          paddingVertical: 12,
-                          paddingHorizontal: 16,
-                          borderBottomWidth: 1,
-                          borderBottomColor: '#F0F0F0',
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 16,
-                            fontFamily: 'Poppins-Regular',
-                            color: '#2D2B32',
-                          }}
-                        >
-                          {item.value}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </ScrollView>
-                </View>
-              )}
             </>
           )}
 
@@ -570,11 +330,9 @@ const AddressScreen = () => {
                 mode="outlined"
                 label={
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
+                    style={[styles.textFieldLable,{
                       color: nameTextFieldFocused ? '#2D2B32' : '#ADACB0',
-                    }}
+                    }]}
                   >
                     Full Name*
                   </Text>
@@ -607,12 +365,7 @@ const AddressScreen = () => {
               />
               {isFullNameValid && (
                 <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#E12121',
-                    marginHorizontal: 16,
-                  }}
+                  style={styles.errorText}
                 >
                   {fullNameErrorText}
                 </Text>
@@ -622,18 +375,14 @@ const AddressScreen = () => {
           {(isShippingEnabled || isPhoneNumberEnabled) && (
             <>
               <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  marginTop: 20,
-                  marginHorizontal: 16,
+                style={[styles.container, {
                   alignItems: 'center',
-                }}
+                }]}
               >
                 <TextInput
                   mode="outlined"
                   value={selectedPhoneCodeRef.current || ''}
-                  onChangeText={(it) => onChangeCountryCodeTextField(it)}
+                  onChangeText={(_) => {}}
                   theme={{
                     colors: {
                       primary: '#2D2B32',
@@ -652,13 +401,8 @@ const AddressScreen = () => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../assets/images/chervon-down.png')}
-                          style={{
-                            alignSelf: 'center',
-                            height: 6,
-                            width: 14,
-                            marginLeft: 'auto',
-                          }}
+                          source={require('../../assets/images/chervon-down.png')}
+                          style={styles.imageStyle}
                         />
                       )}
                     />
@@ -666,7 +410,6 @@ const AddressScreen = () => {
                   keyboardType="number-pad"
                   onFocus={() => {
                     setPhoneTextFieldFocused(true);
-                    setPhoneCodeDropdownDataVisible(true);
                   }}
                   onBlur={() => {
                     setPhoneTextFieldFocused(false);
@@ -676,17 +419,15 @@ const AddressScreen = () => {
                   mode="outlined"
                   label={
                     <Text
-                      style={{
-                        fontSize: 16,
-                        fontFamily: 'Poppins-Regular',
+                      style={[styles.textFieldLable,{
                         color: phoneTextFieldFocused ? '#2D2B32' : '#ADACB0',
-                      }}
+                      }]}
                     >
                       Mobile Number*
                     </Text>
                   }
                   value={phoneNumberTextField || ''}
-                  onChangeText={(it) => onChangeMobileNumber(it)}
+                  onChangeText={(_) => {}}
                   theme={{
                     colors: {
                       primary: '#2D2B32',
@@ -708,64 +449,10 @@ const AddressScreen = () => {
               </View>
               {isPhoneNumberValid && (
                 <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#E12121',
-                    marginHorizontal: 16,
-                  }}
+                  style={styles.errorText}
                 >
                   {mobileNumberErrorText}
                 </Text>
-              )}
-              {phoneCodeDropdownDataVisible && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: isShippingEnabled ? 270 : 170, // You might need to fine-tune this based on your layout
-                    left: 16,
-                    right: 16,
-                    zIndex: 999,
-                    backgroundColor: 'white',
-                    borderWidth: 1,
-                    borderColor: '#E6E6E6',
-                    borderRadius: 8,
-                    maxHeight: 200,
-                    elevation: 5, // For Android shadow
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 4,
-                  }}
-                >
-                  <ScrollView>
-                    {phoneCodeDropDownData.map((item) => (
-                      <Pressable
-                        key={item.key}
-                        onPress={() => {
-                          handleCountrySelect(item.key);
-                          setPhoneCodeDropdownDataVisible(false);
-                        }}
-                        style={{
-                          paddingVertical: 12,
-                          paddingHorizontal: 16,
-                          borderBottomWidth: 1,
-                          borderBottomColor: '#F0F0F0',
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 16,
-                            fontFamily: 'Poppins-Regular',
-                            color: '#2D2B32',
-                          }}
-                        >
-                          {item.value}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </ScrollView>
-                </View>
               )}
             </>
           )}
@@ -775,11 +462,9 @@ const AddressScreen = () => {
                 mode="outlined"
                 label={
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
+                    style={[styles.textFieldLable,{
                       color: emailTextFieldFocused ? '#2D2B32' : '#ADACB0',
-                    }}
+                    }]}
                   >
                     Email ID*
                   </Text>
@@ -812,12 +497,7 @@ const AddressScreen = () => {
               />
               {isEmailValid && (
                 <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#E12121',
-                    marginHorizontal: 16,
-                  }}
+                  style={styles.errorText}
                 >
                   {emailIdErrorText}
                 </Text>
@@ -827,26 +507,20 @@ const AddressScreen = () => {
           {isShippingEnabled && (
             <>
               <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  marginTop: 20,
-                  marginHorizontal: 16,
+                style={[styles.container,{
                   alignItems: 'flex-start',
-                }}
+                }]}
               >
                 <View style={{ flex: 1 }}>
                   <TextInput
                     mode="outlined"
                     label={
                       <Text
-                        style={{
-                          fontSize: 16,
-                          fontFamily: 'Poppins-Regular',
+                        style={[styles.textFieldLable,{
                           color: pincodeTextFieldFocused
                             ? '#2D2B32'
                             : '#ADACB0',
-                        }}
+                        }]}
                       >
                         ZIP/Postal code*
                       </Text>
@@ -877,12 +551,7 @@ const AddressScreen = () => {
                   />
                   {isPinValid && (
                     <Text
-                      style={{
-                        fontSize: 12,
-                        fontFamily: 'Poppins-Regular',
-                        color: '#E12121',
-                        alignSelf: 'flex-start',
-                      }}
+                      style={styles.errorText}
                     >
                       {pinCodeErrorText}
                     </Text>
@@ -893,11 +562,9 @@ const AddressScreen = () => {
                     mode="outlined"
                     label={
                       <Text
-                        style={{
-                          fontSize: 16,
-                          fontFamily: 'Poppins-Regular',
+                        style={[styles.textFieldLable,{
                           color: cityTextFieldFocused ? '#2D2B32' : '#ADACB0',
-                        }}
+                        }]}
                       >
                         City*
                       </Text>
@@ -927,12 +594,7 @@ const AddressScreen = () => {
                   />
                   {isCityValid && (
                     <Text
-                      style={{
-                        fontSize: 12,
-                        fontFamily: 'Poppins-Regular',
-                        color: '#E12121',
-                        alignSelf: 'flex-start',
-                      }}
+                      style={styles.errorText}
                     >
                       {cityErrorText}
                     </Text>
@@ -943,11 +605,9 @@ const AddressScreen = () => {
                 mode="outlined"
                 label={
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
+                    style={[styles.textFieldLable,{
                       color: stateTextFieldFocused ? '#2D2B32' : '#ADACB0',
-                    }}
+                    }]}
                   >
                     State*
                   </Text>
@@ -980,11 +640,7 @@ const AddressScreen = () => {
               />
               {isStateValid && (
                 <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#E12121',
-                  }}
+                  style={styles.errorText}
                 >
                   {stateErrorText}
                 </Text>
@@ -993,13 +649,11 @@ const AddressScreen = () => {
                 mode="outlined"
                 label={
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
+                    style={[styles.textFieldLable,{
                       color: mainAddressTextFieldFocused
                         ? '#2D2B32'
                         : '#ADACB0',
-                    }}
+                    }]}
                   >
                     House number, Apartment*
                   </Text>
@@ -1032,11 +686,7 @@ const AddressScreen = () => {
               />
               {isMainAddressValid && (
                 <Text
-                  style={{
-                    fontSize: 12,
-                    fontFamily: 'Poppins-Regular',
-                    color: '#E12121',
-                  }}
+                  style={styles.errorText}
                 >
                   {mainAddressErrorText}
                 </Text>
@@ -1045,13 +695,11 @@ const AddressScreen = () => {
                 mode="outlined"
                 label={
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Regular',
+                    style={[styles.textFieldLable,{
                       color: secondaryAddressTextFieldFocused
                         ? '#2D2B32'
                         : '#ADACB0',
-                    }}
+                    }]}
                   >
                     Area,Colony,Street, Sector
                   </Text>
@@ -1086,13 +734,7 @@ const AddressScreen = () => {
         </View>
       </ScrollView>
       <View
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          paddingBottom: 16,
-        }}
+        style={styles.bottomContainer}
       >
         <Pressable
           style={[
@@ -1134,29 +776,5 @@ const AddressScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  textInput: {
-    backgroundColor: 'white',
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
-    color: '#0A090B',
-    height: 56,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    borderRadius: 8,
-    justifyContent: 'center',
-    marginTop: 20,
-    marginHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 12,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
-  },
-});
 
 export default AddressScreen;

@@ -1,4 +1,4 @@
-export interface PaymentResult {
+export interface PaymentResultObject {
   status: string;
   transactionId: string;
 }
@@ -6,12 +6,13 @@ export interface PaymentResult {
 export enum ConfigurationOptions {
   ShowBoxpaySuccessScreen = 'SHOW_BOXPAY_SUCCESS_SCREEN',
   EnableSandboxEnv = 'ENABLE_SANDBOX_ENV',
+  ShowUPIQROnLoad = 'SHOW_UPI_QR_ON_LOAD',
 }
 
 export interface BoxpayCheckoutProps {
   token: string;
-  configurationOptions?: Partial<Record<ConfigurationOptions, boolean>>;
-  onPaymentResult: (result: PaymentResult) => void;
+  configurationOptions?: Partial<Record<ConfigurationOptions, boolean>> | null;
+  onPaymentResult: (result: PaymentResultObject) => void;
   shopperToken?: string | null;
 }
 
@@ -44,6 +45,10 @@ export interface CheckoutDetails {
   isNetBankingMethodEnabled : boolean,
   isEmiMethodEnabled : boolean,
   isBnplMethodEnabled : boolean
+}
+
+interface AnalyticsResponse {
+  id : string
 }
 
 export interface CardType {
@@ -197,6 +202,7 @@ export interface OrderItem {
   quantity: number;
   imageUrl: string;
   amountWithoutTaxLocaleFull: string;
+  description : string | null,
 }
 
 export interface ErrorResponse {
@@ -232,7 +238,7 @@ interface PaymentActions {
   htmlPageString : string
 }
 
-export interface FetchCardDetailsResponse {
+export interface FetchCardDetails {
   paymentMethod : {
     id : string,
     type : string,
@@ -282,6 +288,16 @@ export type FetchStatusApiResponse =
   data: ErrorResponse;
 };
 
+export type AnalyticsApiResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: AnalyticsResponse;
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
 export type PaymentMethodFetchResponse = 
 | {
   apiStatus: APIStatus.Success;
@@ -291,6 +307,57 @@ export type PaymentMethodFetchResponse =
   apiStatus: APIStatus.Failed;
   data: ErrorResponse;
 };
+
+export type SavedInstrumentFetchResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: RecommendedInstruments[];
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+
+export type FetchCardDetailsResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: FetchCardDetails
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+export type DeleteSavedAddressResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: FetchSavedAddress
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+export type FetchSavedAddressResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: FetchSavedAddress[]
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};
+
+export type FetchSessionDetailsResponse = 
+| {
+  apiStatus : APIStatus.Success,
+  data : SessionDetails
+}
+| {
+  apiStatus : APIStatus.Failed,
+  data : ErrorResponse
+}
 
 export interface HandleFetchStatusOptions {
   response: FetchStatusApiResponse;
@@ -318,4 +385,85 @@ export enum TransactionStatus {
 export enum APIStatus {
   Success = 'SUCCESS',
   Failed = 'FAILED',
+}
+
+export interface FetchSavedAddress {
+  address1 : string,
+  address2 : string | null,
+  city : string,
+  state : string,
+  countryCode : string,
+  postalCode : string,
+  shopperRef : string,
+  addressRef : string,
+  labelType : string,
+  labelName : string | null,
+  name : string,
+  email : string,
+  phoneNumber : string
+}
+
+export interface SessionDetails {
+  configs : {
+    paymentMethods : PaymentMethod[],
+    enabledFields : EnabledFields[]
+  },
+  paymentDetails : {
+    context : {
+      countryCode : string,
+      localeCode : string,
+    },
+    money : {
+      amountLocaleFull : string,
+      currencySymbol : string,
+      currencyCode : string
+    },
+    shopper : {
+      firstName : string | null,
+      lastName : string | null,
+      phoneNumber : string | null,
+      email : string | null,
+      uniqueReference : string,
+      deliveryAddress : DeliveryAddress | null,
+      dateOfBirth : string | null,
+      panNumber : string | null
+    },
+    order : OrderDetails | null
+  },
+  merchantDetails : {
+    checkoutTheme : {
+      primaryButtonColor : string,
+      buttonTextColor : string
+    }
+  },
+  sessionExpiryTimestamp : string,
+  status : string,
+  lastPaidAtTimestamp : string,
+  lastTransactionId : string
+}
+
+interface EnabledFields {
+  field : string,
+  editable : boolean,
+  mandatory : boolean
+}
+interface OrderDetails {
+  shippingAmountLocaleFull : string | null,
+  taxAmountLocaleFull : string | null,
+  originalAmountLocaleFull : string | null,
+  items : OrderItem[] | null
+}
+
+export enum AnalyticsEvents {
+  CHECKOUT_LOADED = "CHECKOUT_LOADED",
+  ADDRESS_UPDATED = "ADDRESS_UPDATED",
+  PAYMENT_CATEGORY_SELECTED = "PAYMENT_CATEGORY_SELECTED",
+  PAYMENT_METHOD_SELECTED = "PAYMENT_METHOD_SELECTED",
+  PAYMENT_INITIATED = "PAYMENT_INITIATED",
+  PAYMENT_INSTRUMENT_PROVIDED = "PAYMENT_INSTRUMENT_PROVIDED",
+  UPI_APP_NOT_FOUND = "UPI_APP_NOT_FOUND",
+  FAILED_TO_LAUNCH_UPI_INTENT = "FAILED_TO_LAUNCH_UPI_INTENT",
+  ERROR_GETTING_UPI_URL = "ERROR_GETTING_UPI_URL",
+  SDK_CRASH = "SDK_CRASH",
+  PAYMENT_RESULT_SCREEN_DISPLAYED = "PAYMENT_RESULT_SCREEN_DISPLAYED"
 }

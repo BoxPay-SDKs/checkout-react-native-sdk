@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import Modal from 'react-native-modal';
 import LottieView from 'lottie-react-native';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import callUIAnalytics from '../postRequest/callUIAnalytics';
+import { AnalyticsEvents } from '../interface';
 
 interface PaymentSuccessProps {
   onClick: () => void;
@@ -61,7 +63,11 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
       setDate(formattedDate);
       setTime(formattedTime);
     };
-
+    
+    if(!checkoutDetails.isSuccessScreenVisible) {
+      callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Success Screen skipped because merchant does not require", "")
+      onClick()
+    }
     formatTransactionTimestamp();
   });
   return (
@@ -69,7 +75,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
       <Modal isVisible={true} style={styles.modal}>
         <View style={styles.sheet}>
           <LottieView
-            source={require('../assets/animations/payment_successful.json')}
+            source={require('../../assets/animations/payment_successful.json')}
             autoPlay
             loop={false}
             speed={0.6}
@@ -206,7 +212,10 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               styles.buttonContainer,
               { backgroundColor: checkoutDetails.brandColor },
             ]}
-            onPress={onClick}
+            onPress={() => {
+              callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Success Screen button clicked", "")
+              onClick()
+            }}
           >
             <Text style={styles.buttonText}>Done</Text>
           </Pressable>

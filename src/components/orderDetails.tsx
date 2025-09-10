@@ -93,7 +93,7 @@ const OrderDetails = ({
                 Price Details
               </Text>
               <Image
-                source={require('../assets/images/chervon-down.png')}
+                source={require('../../assets/images/chervon-down.png')}
                 style={{
                   height: 6,
                   width: 14,
@@ -424,7 +424,7 @@ const OrderDetails = ({
               {/* Arrow Icon */}
 
               <Image
-                source={require('../assets/images/chervon-down.png')}
+                source={require('../../assets/images/chervon-down.png')}
                 style={{
                   height: 6,
                   width: 14,
