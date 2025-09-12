@@ -1,6 +1,7 @@
 import type { PaymentMethod, PaymentClass, DeliveryAddress } from '../interface';
 import { Dimensions, Platform } from 'react-native';
 import { userDataHandler } from '../sharedContext/userdataHandler';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 export function transformAndFilterList(
   data: PaymentMethod[],
@@ -81,3 +82,31 @@ export function getShopperDetails() {
 }
 
 export const { height, width } = Dimensions.get("window");
+
+export const useCountdown = (initialSeconds: number) => {
+  const [timeRemaining, setTimeRemaining] = useState(initialSeconds);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const stop = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+  const start = useCallback(() => {
+    stop();
+    setTimeRemaining(initialSeconds);
+    timerRef.current = setInterval(() => {
+      setTimeRemaining(prevTime => {
+        if (prevTime <= 1) {
+          stop();
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+  }, [initialSeconds]);
+  useEffect(() => {
+    return stop;
+  }, [stop]);
+  return { timeRemaining, start, stop };
+};

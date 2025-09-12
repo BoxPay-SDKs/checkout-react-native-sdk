@@ -3,6 +3,7 @@ import type { PaymentExecutedPostResponse } from '../interface';
 import { getBrowserData, getDeviceDetails, getShopperDetails } from '../utils/listAndObjectUtils';
 import { AnalyticsEvents, APIStatus } from '../interface';
 import callUIAnalytics from './callUIAnalytics';
+import { formatExpiry } from '../utils/stringUtils';
 
 interface EmiPostPayload {
   cardNumber?: string;
@@ -28,10 +29,6 @@ const emiPostRequest = async (
   const deviceDetails = getDeviceDetails()
   const browserData = getBrowserData()
   const shopperData = getShopperDetails()
-  const formatExpiry = (input: string) => {
-    const [month, year] = input.split('/');
-    return `20${year}-${month}`;
-  };
   const instrumentType = cardType
     ? cardType.includes('Credit')
       ? 'emi/cc'

@@ -376,8 +376,7 @@ export interface HandleFetchStatusOptions {
   onShowFailedModal: () => void;
   onShowSuccessModal: (timestamp: string) => void;
   onShowSessionExpiredModal: () => void;
-  setLoading?: (loading: boolean) => void;
-  stopBackgroundApiTask? : () => void
+  setLoading?: (loading: boolean) => void
 }
 
 export enum TransactionStatus {

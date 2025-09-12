@@ -57,8 +57,26 @@ export function extractNames(fullName: string): {
   return { firstName, lastName };
 }
 
-export const formattedTime = (timeRemaining: number): string => {
+export const formatTime = (timeRemaining : number) => {
   const minutes = Math.floor(timeRemaining / 60);
   const seconds = timeRemaining % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+};
+
+export const formatExpiry = (input: string): string => {
+  const parts = input.split('/');
+  if (parts.length !== 2 || parts[0]?.length !== 2 || parts[1]?.length !== 2) {
+    return ''; // Return for any invalid format.
+  }
+  const [month, twoDigitYearStr] = parts;
+  const twoDigitYear = parseInt(twoDigitYearStr, 10);
+  const currentYear = new Date().getFullYear();
+  const century = Math.floor(currentYear / 100) * 100;
+  let fullYear = century + twoDigitYear;
+
+  if (fullYear < currentYear - 1) {
+    fullYear += 100;
+  }
+
+  return `${fullYear}-${month}`;
 };

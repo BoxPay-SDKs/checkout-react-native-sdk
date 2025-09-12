@@ -139,8 +139,7 @@ export function handleFetchStatusResponseHandler({
     onShowFailedModal,
     onShowSuccessModal,
     onShowSessionExpiredModal,
-    setLoading,
-    stopBackgroundApiTask
+    setLoading
 } : HandleFetchStatusOptions) {
     switch(response.apiStatus) {
         case APIStatus.Success: {
@@ -167,7 +166,6 @@ export function handleFetchStatusResponseHandler({
                     onSetFailedMessage(errorMessage);
                     onSetStatus(TransactionStatus.Failed);
                     onShowFailedModal();
-                    stopBackgroundApiTask?.();
                     setLoading?.(false);
                     break;}
         
@@ -176,14 +174,12 @@ export function handleFetchStatusResponseHandler({
                 case TransactionStatus.Paid:
                     {onSetStatus(TransactionStatus.Success);
                     onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
-                    stopBackgroundApiTask?.();
                     setLoading?.(false);
                     break;}
         
                 case TransactionStatus.Expired:
                     {onSetStatus(TransactionStatus.Expired);
                     onShowSessionExpiredModal();
-                    stopBackgroundApiTask?.();
                     setLoading?.(false);
                     break;}
         

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, BackHandler, AppState, Image, ScrollView, StatusBar, Alert } from 'react-native'; // Added ScrollView
 import Header from '../components/header';
 import upiPostRequest from '../postRequest/upiPostRequest';
@@ -32,6 +32,7 @@ import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
 import { formatAddress } from '../utils/stringUtils';
+import { useCountdown } from '../utils/listAndObjectUtils';
 
 type MainScreenRouteProp = RouteProp<CheckoutStackParamList, 'MainScreen'>;
 
@@ -80,11 +81,13 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const [recommendedInstrumentsArray, setRecommendedInstruments] = useState<PaymentClass[]>([]);
   const [savedCardArray, setSavedCardArray] = useState<PaymentClass[]>([]);
   const [savedUpiArray, setSavedUpiArray] = useState<PaymentClass[]>([]);
-  const qrTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [timerValue, setTimerValue] = useState(5 * 60);
+  const { 
+    timeRemaining: qrTimerValue, 
+    start: startQRTimer, 
+    stop: stopQRTimer 
+  } = useCountdown(300)
 
   let isFirstTimeLoadRef = useRef(true);
-  let qrIsExpired = useRef(false)
 
   const handlePaymentIntent = async (selectedIntent: string) => {
     setLoadingState(true);
@@ -178,6 +181,14 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     refreshData();
   }, [isScreenFocused]);
 
+  useEffect(() => {
+    const isQRTimerRunning = qrTimerValue < 300
+
+    if(isQRTimerRunning && qrTimerValue > 0 && qrTimerValue % 4 === 0) {
+      callFetchStatusApi()
+    }
+  }, [qrTimerValue])
+
   const urlToBase64 = (base64String: string) => {
     try {
       const decodedString = atob(base64String);
@@ -205,39 +216,6 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     }
   }, [paymentUrl, paymentHtml]);
 
-  const startQRTimer = useCallback(() => {
-    qrIsExpired.current = false
-     // Final confirmation log
-    if (qrTimerRef.current) {
-      clearInterval(qrTimerRef.current);
-    }
-    setTimerValue(5 * 60); 
-
-    qrTimerRef.current = setInterval(() => {
-      setTimerValue((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(qrTimerRef.current!);
-          qrIsExpired.current = true;
-          return 0;
-        }
-
-        const newTime = prevTime - 1;
-
-        if (newTime % 4 === 0) {
-          callFetchStatusApi();
-        }
-
-        return newTime;
-      });
-    }, 1000);
-  }, []); // Dependency on the memoized fetch function
-
-  // Also wrap the stop function for consistency and best practice.
-  const stopQRTimer = useCallback(() => {
-    if (qrTimerRef.current) {
-      clearInterval(qrTimerRef.current);
-    }
-  }, []);
   const openUPIIntent = async (url: string) => {
     try {
       await Linking.openURL(url); // Open the UPI app
@@ -694,8 +672,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 }
                 savedUpiArray={savedUpiArray}
                 onClickRadio={handleSavedUpiSectionClick}
-                qrIsExpired = {qrIsExpired.current}
-                timeRemaining={timerValue}
+                qrIsExpired = {qrTimerValue === 0}
+                timeRemaining={qrTimerValue}
                 stopTimer = {stopQRTimer}
                 setLoading={setLoadingState}
                 setStatus={setStatus}

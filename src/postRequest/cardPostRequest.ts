@@ -4,6 +4,7 @@ import type { PaymentExecutedPostResponse } from '../interface';
 import { getBrowserData, getDeviceDetails, getShopperDetails } from '../utils/listAndObjectUtils';
 import { AnalyticsEvents, APIStatus } from '../interface';
 import callUIAnalytics from './callUIAnalytics';
+import { formatExpiry } from '../utils/stringUtils';
 
 const cardPostRequest = async (
   cardNumber: string,
@@ -17,11 +18,6 @@ const cardPostRequest = async (
   const deviceDetails = getDeviceDetails()
   const browserData = getBrowserData()
   const shopperData = getShopperDetails()
-
-  const formatExpiry = (input: string) => {
-    const [month, year] = input.split('/');
-    return `20${year}-${month}`;
-  };
 
   const requestBody = {
     browserData: browserData,
