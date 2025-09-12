@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingTop: 14,
+        paddingTop: 24,
     },
     textInput: {
         marginHorizontal: 16,
@@ -104,6 +104,71 @@ const styles = StyleSheet.create({
     labelText : {
         fontSize: 14,
         fontFamily: 'Poppins-Regular',
+    },
+    container: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 12,
+        paddingTop: 12,
+    },
+    qrContainer: {
+        position: "relative",
+        width: 300,
+        height: 300,
+        marginRight: 12,
+    },
+    qrImage: {
+        width: 300,
+        height: 300,
+        resizeMode: "cover",
+        borderRadius: 8,
+    },
+    retryButton: {
+        position: "absolute",
+        top: "40%",
+        left: "30%",
+        backgroundColor: "#fff",
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 12,
+    },
+    retryText: {
+        fontSize: 20,
+        fontWeight: "600",
+    },
+    textContainer: {
+        flexDirection: "column",
+        justifyContent: "center",
+        marginLeft: 16,
+    },
+    label: {
+        fontSize: 12,
+        fontWeight: "500",
+        color: "#2D2B32",
+    },
+    timer: {
+        fontSize: 20,
+        fontWeight: "600",
+    },
+    imageStyle : {
+        height: 14,
+        width: 14,
+    },
+    subHeaderText : {
+        fontSize: 14,
+        paddingStart: 10,
+        fontFamily: 'Poppins-SemiBold',
+    },
+    animatedIcon : {
+        alignSelf: 'center',
+        height: 6,
+        width: 14,
+    },
+    subContainerDivider : {
+        flexDirection: 'row',
+        height: 1,
+        backgroundColor: '#F1F1F1',
+        marginTop: 20,
     }
 })
 

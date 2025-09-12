@@ -20,6 +20,7 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 import { handleFetchStatusResponseHandler } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
 import type {RouteProp, NavigationProp} from '@react-navigation/native'
+import { useCountdown , formatTime} from '../utility';
 
 type UpiTimerScreenRouteProp = RouteProp<CheckoutStackParamList, 'UpiTimerScreen'>;
 
@@ -39,7 +40,6 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
 
   const upiIdStr = Array.isArray(upiId) ? upiId[0] : upiId;
 
-  const [timerValue, setTimerValue] = useState(5 * 60);
   const [cancelClicked, setCancelClicked] = useState(false);
   const [failedModalOpen, setFailedModalState] = useState(false);
   const [successModalOpen, setSuccessModalState] = useState(false);
@@ -50,36 +50,24 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
   const [status, setStatus] = useState('');
   const [transactionId, setTransactionId] = useState('');
-  const [isTimerRunning, setIsTimerRunning] = useState(true);
-  const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
-  const timerInterval = useRef<NodeJS.Timeout | null>(null);
+  const { 
+    timeRemaining: upiCollectTimerValue, 
+    start: startCollectTimer, 
+    stop: stopCollectTimer 
+  } = useCountdown(300)
 
   useEffect(() => {
-    if (isTimerRunning) {
-      timerInterval.current = setInterval(() => {
-        setTimerValue((prevTime) => {
-          if (prevTime <= 1) {
-            clearInterval(timerInterval.current!);
-            stopBackgroundApiTask();
-            setFailedModalState(true);
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
+    const isUPICollectTimerRunning = upiCollectTimerValue < 300
+    if(isUPICollectTimerRunning && upiCollectTimerValue > 0 && upiCollectTimerValue %4 === 0) {
+      callFetchStatusApi();
     }
-    return () => {
-      if (timerInterval.current) {
-        clearInterval(timerInterval.current);
-      }
-    };
-  }, [isTimerRunning]);
+  },[upiCollectTimerValue]);
 
   useEffect(() => {
     if (failedModalOpen || successModalOpen || sessionExpireModalOpen) {
-      setIsTimerRunning(false);
+      stopCollectTimer()
     } else {
-      setIsTimerRunning(true);
+      startCollectTimer()
     }
   }, [failedModalOpen, successModalOpen, sessionExpireModalOpen]);
 
@@ -93,10 +81,7 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
 
   const onProceedBack = () => {
     if (cancelClicked) {
-      if (timerInterval.current) {
-        clearInterval(timerInterval.current);
-      }
-      stopBackgroundApiTask();
+      stopCollectTimer()
       navigation.goBack()
     } else {
       setCancelClicked(true);
@@ -106,10 +91,7 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
 
   const onPaymentFailed = () => {
     setFailedModalState(true);
-    stopBackgroundApiTask();
-    if (timerInterval.current) {
-      clearInterval(timerInterval.current);
-    }
+    stopCollectTimer()
     navigation.goBack()
   };
 
@@ -119,27 +101,6 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
       onProceedBack
     );
   }, []);
-
-  const formatTime = () => {
-    const minutes = Math.floor(timerValue / 60);
-    const seconds = timerValue % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  };
-
-  useEffect(() => {
-    const startBackgroundApiTask = () => {
-      backgroundApiInterval.current = setInterval(() => {
-        callFetchStatusApi();
-      }, 4000);
-    };
-    startBackgroundApiTask();
-  }, []);
-
-  const stopBackgroundApiTask = () => {
-    if (backgroundApiInterval.current) {
-      clearInterval(backgroundApiInterval.current);
-    }
-  };
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
@@ -160,8 +121,7 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
       },
       onShowSessionExpiredModal: () => {
         setSessionExppireModalState(true)
-      },
-      stopBackgroundApiTask: stopBackgroundApiTask
+      }
     });
   };
 
@@ -212,12 +172,12 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
             size={150}
             strokeWidth={10}
             progressColor={
-              timerValue <= 30 ? '#FAA4A4' : checkoutDetails.brandColor
+              upiCollectTimerValue <= 30 ? '#FAA4A4' : checkoutDetails.brandColor
             }
-            progress={timerValue}
-            formatTime={formatTime()}
+            progress={upiCollectTimerValue}
+            formatTime={formatTime(upiCollectTimerValue)}
             textColor={
-              timerValue <= 30 ? '#F53535' : checkoutDetails.brandColor
+              upiCollectTimerValue <= 30 ? '#F53535' : checkoutDetails.brandColor
             }
           />
         </View>

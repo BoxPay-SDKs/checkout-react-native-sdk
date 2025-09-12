@@ -31,7 +31,7 @@ import fetchSessionDetails from '../postRequest/fetchSessionDetails';
 import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
-import { formatAddress } from '../utils/stringUtils';
+import { formatAddress, useCountdown } from '../utility';
 
 type MainScreenRouteProp = RouteProp<CheckoutStackParamList, 'MainScreen'>;
 
@@ -80,6 +80,11 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const [recommendedInstrumentsArray, setRecommendedInstruments] = useState<PaymentClass[]>([]);
   const [savedCardArray, setSavedCardArray] = useState<PaymentClass[]>([]);
   const [savedUpiArray, setSavedUpiArray] = useState<PaymentClass[]>([]);
+  const { 
+    timeRemaining: qrTimerValue, 
+    start: startQRTimer, 
+    stop: stopQRTimer 
+  } = useCountdown(300)
 
   let isFirstTimeLoadRef = useRef(true);
 
@@ -174,6 +179,14 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
 
     refreshData();
   }, [isScreenFocused]);
+
+  useEffect(() => {
+    const isQRTimerRunning = qrTimerValue < 300
+
+    if(isQRTimerRunning && qrTimerValue > 0 && qrTimerValue % 4 === 0) {
+      callFetchStatusApi()
+    }
+  }, [qrTimerValue])
 
   const urlToBase64 = (base64String: string) => {
     try {
@@ -304,6 +317,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 const methodFlags = {
                   isUPIIntentVisible: false,
                   isUPICollectVisible: false,
+                  isUPIQRVisible : false,
                   isCardsVisible: false,
                   isWalletVisible: false,
                   isNetbankingVisible: false,
@@ -317,6 +331,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                       methodFlags.isUPIIntentVisible = true;
                     } else if (method.brand === 'UpiCollect') {
                       methodFlags.isUPICollectVisible = true;
+                    } else if(method.brand === 'UpiQr') {
+                      methodFlags.isUPIQRVisible = true
                     }
                   } else if (method.type === 'Card') {
                     methodFlags.isCardsVisible = true;
@@ -471,6 +487,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     isDOBEditable: isFieldEditable('SHOPPER_DOB'),
                     isUpiIntentMethodEnabled : methodFlags.isUPIIntentVisible,
                     isUpiCollectMethodEnabled : methodFlags.isUPICollectVisible,
+                    isUpiQRMethodEnabled : methodFlags.isUPIQRVisible,
                     isCardMethodEnabled : methodFlags.isCardsVisible,
                     isWalletMethodEnabled : methodFlags.isWalletVisible,
                     isNetBankingMethodEnabled : methodFlags.isNetbankingVisible,
@@ -591,18 +608,6 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
       <StatusBar barStyle="dark-content" />
       {isFirstLoading ? (
         <ShimmerView />
-      ) : loadingState ? (
-        <View
-          style={styles.loadingContainer}
-        >
-          <LottieView
-            source={require('../../assets/animations/boxpayLogo.json')}
-            autoPlay
-            loop
-            style={styles.lottieStyle}
-          />
-          <Text>Loading...</Text>
-        </View>
       ) : (
         <View style={styles.screenView}>
           <ScrollView 
@@ -666,6 +671,15 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 }
                 savedUpiArray={savedUpiArray}
                 onClickRadio={handleSavedUpiSectionClick}
+                qrIsExpired = {qrTimerValue === 0}
+                timeRemaining={qrTimerValue}
+                stopTimer = {stopQRTimer}
+                setLoading={setLoadingState}
+                setStatus={setStatus}
+                setTransaction={setTransactionId}
+                onStartQRTimer={startQRTimer}
+                setFailedModal={setFailedModalState}
+                setFailedModalMessage={(msg) => (paymentFailedMessage.current = msg)}
               />
 
               {savedCardArray.length != 0 && (
@@ -685,14 +699,16 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                       }}
                       errorImage={require('../../assets/images/ic_card.png')}
                       onClickAddCard={() => navigation.navigate("CardScreen", {})}
-                      onClickRadio={(selectedInstrumentRef) =>
+                      onClickRadio={(selectedInstrumentRef) =>{
+                        stopQRTimer()
                         handleSavedCardSectionClick(selectedInstrumentRef)
+                      }
                       }
                     />
                   </View>
                 </View>
               )}
-              <MorePaymentMethods savedCards={savedCardArray}/>
+              <MorePaymentMethods savedCards={savedCardArray} stopTimer={stopQRTimer}/>
               <View>
                 <Text
                   style={styles.headingText}
@@ -725,6 +741,20 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
               </View>
             </View>
           </ScrollView>
+        </View>
+      )}
+
+      {loadingState && (
+        <View
+          style={styles.loadingContainer}
+        >
+          <LottieView
+            source={require('../../assets/animations/boxpayLogo.json')}
+            autoPlay
+            loop
+            style={styles.lottieStyle}
+          />
+          <Text>Loading...</Text>
         </View>
       )}
 

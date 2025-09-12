@@ -1,6 +1,6 @@
 import type { FetchSavedAddress } from "../interface"
 import { View, Text, Pressable, Image, TouchableOpacity } from 'react-native';
-import { formatAddress } from "../utils/stringUtils";
+import { formatAddress } from '../utility';
 import styles from "../styles/components/savedAddressCardStyles";
 import { userDataHandler } from "../sharedContext/userdataHandler";
 

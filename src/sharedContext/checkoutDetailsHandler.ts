@@ -28,6 +28,7 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
     isDOBEnabled: false,
     isDOBEditable: false,
     isUpiIntentMethodEnabled : false,
+    isUpiQRMethodEnabled:false,
     isUpiCollectMethodEnabled : false,
     isCardMethodEnabled : false,
     isWalletMethodEnabled : false,

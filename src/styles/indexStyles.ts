@@ -2,7 +2,17 @@ import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
     screenView : { flex: 1, backgroundColor: '#F5F6FB' },
-    loadingContainer : { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    loadingContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5F6FB',
+        zIndex: 999,
+    },
     lottieStyle : { width: 80, height: 80 },
     container : {
         flex: 1,

@@ -23,7 +23,7 @@ import SavedAddressComponent from '../components/savedAddressCard';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import SavedAddressBottomSheet from '../components/savedAddressBottomSheet';
 import { setUserDataHandler, userDataHandler } from '../sharedContext/userdataHandler';
-import { extractNames, formatAddress } from '../utils/stringUtils';
+import { extractNames, formatAddress } from '../utility';
 import DeleteAddressModal from '../components/deleteAddressModal';
 
 type AddressScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'AddressScreen'>;
@@ -63,7 +63,6 @@ const SavedAddressScreen = ({ navigation }: Props) => {
             switch(apiResponse.apiStatus) {
                 case APIStatus.Success : {
                     setSavedAddresList(apiResponse.data)
-                    console.log(apiResponse.data)
                     setIsFirstLoad(false)
                     break
                 }
@@ -253,7 +252,6 @@ const SavedAddressScreen = ({ navigation }: Props) => {
         onCancel={() => setIsDeleteConfirmationVisible(false)}
         onDelete={() => {
             setIsDeleteConfirmationVisible(false);
-            console.log("Address deleted");
             onClickDeleteAddress(selectedAddress?.addressRef ?? "")
         }}
         address={formatAddress({

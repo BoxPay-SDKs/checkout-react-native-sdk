@@ -1,5 +1,5 @@
 import { type HandleFetchStatusOptions, type HandlePaymentOptions, type PaymentClass, type RecommendedInstruments, APIStatus, TransactionStatus } from "../interface";
-import { transformAndFilterList } from '../utils/listAndObjectUtils';
+import { transformAndFilterList } from '../utility';
 import Toast from 'react-native-toast-message'
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import fetchRecommendedInstruments from "../postRequest/fetchRecommendedInstruments";
@@ -17,7 +17,8 @@ export function handlePaymentResponse({
     onShowSuccessModal,
     onShowSessionExpiredModal,
     onNavigateToTimer,
-    onOpenUpiIntent, // 👈 new
+    onOpenQr,
+    onOpenUpiIntent, 
     setLoading
   }: HandlePaymentOptions) {
     switch(response.apiStatus) {
@@ -37,13 +38,13 @@ export function handlePaymentResponse({
             
                         switch (action.type) {
                         case 'html':
-                            if (action.htmlPageString) {
-                            onSetPaymentHtml(action.htmlPageString);
+                            if (action.htmlPageString && onSetPaymentHtml) {
+                                onSetPaymentHtml(action.htmlPageString);
                             }
                             break;
             
                         case 'redirect':
-                            if (action.url) {
+                            if (action.url && onSetPaymentUrl) {
                                 onSetPaymentUrl(action.url);
                             }
                             break;
@@ -53,6 +54,13 @@ export function handlePaymentResponse({
                                 onOpenUpiIntent(action.url); // 👈 launch UPI intent
                             }
                             break;
+                            
+                        case 'qrCode' : 
+                            if(action.content && onOpenQr) {
+                                onOpenQr(action.content)
+                                setLoading(false);
+                            }
+                            break
             
                         default:
                             break;
@@ -75,25 +83,32 @@ export function handlePaymentResponse({
                             : reason ?? fallback
                         : fallback;
             
+                        if(onSetFailedMessage && onShowFailedModal) {
+                    onSetFailedMessage(errorMessage);
                     onSetFailedMessage(errorMessage);
                     onSetStatus(TransactionStatus.Failed);
-                    onShowFailedModal();
-                    setLoading(false);
-                    break;
+                            onSetFailedMessage(errorMessage);
+                    onSetStatus(TransactionStatus.Failed);
+                            onShowFailedModal();
+                        }
+                        setLoading(false);
+                        break;
         
                 }
                 case TransactionStatus.Approved:
                 case TransactionStatus.Success:
                 case TransactionStatus.Paid: {
-                    onSetStatus(TransactionStatus.Success);
-                    onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
+                    if(onShowSuccessModal) {
+                        onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
+                    }
                     setLoading(false);
                     break;
                 }
         
                 case TransactionStatus.Expired:{
-                    onSetStatus(TransactionStatus.Expired);
-                    onShowSessionExpiredModal();
+                    if(onShowSessionExpiredModal) {
+                        onShowSessionExpiredModal();
+                    }
                     setLoading(false);
                     break;
                 }
@@ -105,9 +120,11 @@ export function handlePaymentResponse({
         }
         break;
         case APIStatus.Failed : {
-            onSetFailedMessage(response.data.status.reason);
+            if(onSetFailedMessage && onShowFailedModal) {
+                onSetFailedMessage(response.data.status.reason);
+                onShowFailedModal();
+            }
             onSetStatus(TransactionStatus.Failed);
-            onShowFailedModal();
             setLoading(false);
         }
     }

@@ -6,10 +6,11 @@ import type { CheckoutStackParamList } from '../navigation';
 import { useNavigation, type NavigationProp } from "@react-navigation/native";
 
 interface MorePaymentMethodsArgs{
-    savedCards : PaymentClass[]
+    savedCards : PaymentClass[],
+    stopTimer : () => void
 }
 
-const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
+const MorePaymentMethods = ({savedCards, stopTimer}:MorePaymentMethodsArgs) => {
   const navigation = useNavigation<NavigationProp<CheckoutStackParamList>>();
     const {checkoutDetails} = checkoutDetailsHandler
     const {
@@ -72,6 +73,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress= {() => {
+                            stopTimer()
                             navigation.navigate("CardScreen", {})
                           }}
                         >
@@ -99,6 +101,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress={() => {
+                            stopTimer()
                             navigation.navigate("WalletScreen", {})
                           }}
                         >
@@ -125,6 +128,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress={() => {
+                            stopTimer()
                             navigation.navigate("NetBankingScreen", {})
                           }}
                         >
@@ -149,6 +153,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress={() => {
+                            stopTimer()
                             navigation.navigate("EmiScreen", {})
                           }}
                         >
@@ -173,6 +178,7 @@ const MorePaymentMethods = ({savedCards}:MorePaymentMethodsArgs) => {
                         <Pressable
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress={() => {
+                            stopTimer()
                             navigation.navigate("BNPLScreen", {})
                           }}
                         >
