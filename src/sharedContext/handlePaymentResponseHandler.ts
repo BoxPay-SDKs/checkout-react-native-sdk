@@ -1,5 +1,5 @@
 import { type HandleFetchStatusOptions, type HandlePaymentOptions, type PaymentClass, type RecommendedInstruments, APIStatus, TransactionStatus } from "../interface";
-import { transformAndFilterList } from '../utils/listAndObjectUtils';
+import { transformAndFilterList } from '../utility';
 import Toast from 'react-native-toast-message'
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import fetchRecommendedInstruments from "../postRequest/fetchRecommendedInstruments";

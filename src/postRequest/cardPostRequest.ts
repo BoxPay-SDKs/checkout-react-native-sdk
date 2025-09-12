@@ -1,10 +1,9 @@
 import api from '../serviceRequest'
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import type { PaymentExecutedPostResponse } from '../interface';
-import { getBrowserData, getDeviceDetails, getShopperDetails } from '../utils/listAndObjectUtils';
+import { getBrowserData, getDeviceDetails, getShopperDetails, formatExpiry } from '../utility';
 import { AnalyticsEvents, APIStatus } from '../interface';
 import callUIAnalytics from './callUIAnalytics';
-import { formatExpiry } from '../utils/stringUtils';
 
 const cardPostRequest = async (
   cardNumber: string,

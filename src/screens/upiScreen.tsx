@@ -14,8 +14,7 @@ import { AnalyticsEvents, type InstrumentDetails, type PaymentClass } from '../i
 import PaymentSelectorView from '../components/paymentSelector';
 import { getInstalledUpiApps } from '../components/getInstalledUPI';
 import styles from '../styles/screens/upiScreenStyles';
-import { formatTime } from '../utils/stringUtils';
-import { height, width } from '../utils/listAndObjectUtils';
+import { formatTime, height, width } from '../utility';
 import upiPostRequest from '../postRequest/upiPostRequest';
 import { handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';

@@ -20,8 +20,7 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 import { handleFetchStatusResponseHandler } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
 import type {RouteProp, NavigationProp} from '@react-navigation/native'
-import { useCountdown } from '../utils/listAndObjectUtils';
-import { formatTime } from '../utils/stringUtils';
+import { useCountdown , formatTime} from '../utility';
 
 type UpiTimerScreenRouteProp = RouteProp<CheckoutStackParamList, 'UpiTimerScreen'>;
 

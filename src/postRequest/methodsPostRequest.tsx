@@ -1,7 +1,7 @@
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import api from '../serviceRequest'
 import type { PaymentExecutedPostResponse } from '../interface';
-import { getBrowserData, getDeviceDetails, getShopperDetails } from '../utils/listAndObjectUtils';
+import { getBrowserData, getDeviceDetails, getShopperDetails } from '../utility';
 import { AnalyticsEvents, APIStatus } from '../interface';
 import callUIAnalytics from './callUIAnalytics';
 

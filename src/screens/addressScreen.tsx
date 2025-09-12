@@ -19,7 +19,7 @@ import {
 import styles from '../styles/screens/addressScreenStyles.';
 import type { CheckoutStackParamList } from '../navigation';
 import type { NavigationProp } from '@react-navigation/native';
-import { extractNames } from '../utils/stringUtils';
+import { extractNames } from '../utility';
 
 type AddressScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'AddressScreen'>;
 

@@ -1,9 +1,8 @@
 import api from '../serviceRequest'
 import type { PaymentExecutedPostResponse } from '../interface';
-import { getBrowserData, getDeviceDetails, getShopperDetails } from '../utils/listAndObjectUtils';
+import { getBrowserData, getDeviceDetails, getShopperDetails, formatExpiry } from '../utility';
 import { AnalyticsEvents, APIStatus } from '../interface';
 import callUIAnalytics from './callUIAnalytics';
-import { formatExpiry } from '../utils/stringUtils';
 
 interface EmiPostPayload {
   cardNumber?: string;

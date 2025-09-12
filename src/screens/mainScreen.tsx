@@ -31,8 +31,7 @@ import fetchSessionDetails from '../postRequest/fetchSessionDetails';
 import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
-import { formatAddress } from '../utils/stringUtils';
-import { useCountdown } from '../utils/listAndObjectUtils';
+import { formatAddress, useCountdown } from '../utility';
 
 type MainScreenRouteProp = RouteProp<CheckoutStackParamList, 'MainScreen'>;
 

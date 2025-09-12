@@ -1,9 +1,8 @@
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import type { AnalyticsApiResponse } from '../interface';
-import { getBrowserData, getDeviceDetails } from '../utils/listAndObjectUtils';
+import { getBrowserData, getDeviceDetails, getBaseURL } from '../utility'
 import { APIStatus } from '../interface';
 import axios from 'axios';
-import { getBaseURL } from '../utils/stringUtils';
 
 const callUIAnalytics = async (
     uiEvent: string,

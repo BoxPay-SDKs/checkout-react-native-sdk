@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { generateRandomAlphanumericString, getEndpoint } from './utils/stringUtils'; // adjust path accordingly
+import { generateRandomAlphanumericString, getEndpoint } from './utility'; // adjust path accordingly
 import { checkoutDetailsHandler } from './sharedContext/checkoutDetailsHandler';
 import sdkVersion from './sdk-version.json'
 
