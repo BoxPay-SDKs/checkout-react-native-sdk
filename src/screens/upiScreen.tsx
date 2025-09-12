@@ -14,7 +14,7 @@ import { AnalyticsEvents, type InstrumentDetails, type PaymentClass } from '../i
 import PaymentSelectorView from '../components/paymentSelector';
 import { getInstalledUpiApps } from '../components/getInstalledUPI';
 import styles from '../styles/screens/upiScreenStyles';
-import { formattedTime } from '../utils/stringUtils';
+import { formatTime } from '../utils/stringUtils';
 import { height, width } from '../utils/listAndObjectUtils';
 import upiPostRequest from '../postRequest/upiPostRequest';
 import { handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
@@ -630,7 +630,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
       <Text style={styles.label}>Scan & Pay with UPI Application</Text>
       <Text style={styles.label}>QR code will expire in</Text>
       <Text style={[styles.timer, { color: checkoutDetails.brandColor }]}>
-        {formattedTime(timeRemaining)}
+        {formatTime(timeRemaining)}
       </Text>
     </View>
   </View>
