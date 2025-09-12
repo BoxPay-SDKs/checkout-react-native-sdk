@@ -56,3 +56,9 @@ export function extractNames(fullName: string): {
 
   return { firstName, lastName };
 }
+
+export const formattedTime = (timeRemaining: number): string => {
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};

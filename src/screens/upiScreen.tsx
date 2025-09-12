@@ -5,20 +5,35 @@ import {
   Image,
   Animated,
   ImageBackground,
+  TouchableOpacity,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { TextInput } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
-import type { PaymentClass } from '../interface';
+import { AnalyticsEvents, type InstrumentDetails, type PaymentClass } from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
 import { getInstalledUpiApps } from '../components/getInstalledUPI';
 import styles from '../styles/screens/upiScreenStyles';
+import { formattedTime } from '../utils/stringUtils';
+import { height, width } from '../utils/listAndObjectUtils';
+import upiPostRequest from '../postRequest/upiPostRequest';
+import { handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
+import callUIAnalytics from '../postRequest/callUIAnalytics';
 
 interface UpiScreenProps {
   handleUpiPayment: (selectedIntent: string) => void;
   handleCollectPayment: (item: string, id: string, type: string) => void;
   savedUpiArray: PaymentClass[];
   onClickRadio: (instrumentValue: string) => void;
+  qrIsExpired : boolean,
+  timeRemaining : number,
+  stopTimer : () => void,
+  setLoading : (loading : boolean) => void,
+  setStatus:(status : string) => void
+  setTransaction:(transactionId : string) => void,
+  onStartQRTimer:()=> void
+  setFailedModal : (state : boolean) => void
+  setFailedModalMessage : (message : string) => void
 }
 
 const UpiScreen: React.FC<UpiScreenProps> = ({
@@ -26,6 +41,15 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
   handleCollectPayment,
   savedUpiArray,
   onClickRadio,
+  qrIsExpired,
+  timeRemaining,
+  stopTimer,
+  setLoading,
+  setStatus,
+  setTransaction,
+  onStartQRTimer,
+  setFailedModal,
+  setFailedModalMessage
 }) => {
   const [upiCollectError, setUpiCollectError] = useState(false);
   const [upiCollectValid, setUpiCollectValid] = useState(false);
@@ -36,9 +60,15 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
   const [isPaytmInstalled, setIsPaytmInstalled] = useState(false);
   const { checkoutDetails } = checkoutDetailsHandler;
   const [upiCollectVisible, setUpiCollectVisible] = useState(false);
+  const [upiQRVisible, setUpiQRVisible] = useState(false)
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null);
-  const isUpiCollectVisible = checkoutDetails.isUpiCollectMethodEnabled
-  const isUpiIntentVisible = checkoutDetails.isUpiIntentMethodEnabled
+  const {
+    isUpiCollectMethodEnabled: isUpiCollectVisible,
+    isUpiIntentMethodEnabled: isUpiIntentVisible,
+    isUpiQRMethodEnabled: isUpiQRVisible,
+  } = checkoutDetails;
+  const isTablet = Math.min(width, height) >= 600
+  const [qrImage, setQrImage] = useState("")
 
   useEffect(() => {
     const checkUpiApps = async () => {
@@ -48,18 +78,54 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
         setIsGpayInstalled(installedApplications.includes('gpay'));
         setIsPaytmInstalled(installedApplications.includes('paytm'));
       } catch(error) {
-        console.log(error)
+        callUIAnalytics(AnalyticsEvents.ERROR_GETTING_UPI_URL, "UPIScreen", `fetch installed applications failed due to ${error}`)
+        throw new Error(`${error}`);
       }
     };
 
     checkUpiApps();
   }, []);
 
-  const handleUpiChevronClick = () => {
+  const handleUpiQRPayment = async() => {
+    const requestPayload: InstrumentDetails ={
+      type: 'upi/qr',
+    }
+    setLoading(true);
+    const response = await upiPostRequest(requestPayload);
+    handlePaymentResponse({
+      response: response,
+      checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
+      onSetStatus : setStatus,
+      onSetTransactionId:setTransaction,
+      onShowFailedModal : () => setFailedModal(true),
+      onSetFailedMessage : setFailedModalMessage,
+      onOpenQr: (url:string)=> {
+        setQrImage(url)
+        onStartQRTimer()
+        setSelectedIntent(null);
+        setUpiCollectVisible(false);
+        setUpiQRVisible(true)
+        setDefaultStateOfSavedUpiArray();
+      },
+      setLoading: setLoading
+    });
+  }
+
+  const handleUpiCollectChevronClick = () => {
     setSelectedIntent(null);
     setUpiCollectVisible(!upiCollectVisible);
+    setUpiQRVisible(false)
     setDefaultStateOfSavedUpiArray();
+    stopTimer()
   };
+
+  const handleUpiQRChevronClick = () => {
+    if(upiQRVisible) {
+      setUpiQRVisible(false)
+    } else {
+      handleUpiQRPayment()
+    }
+  }
 
   const handleTextChange = (text: string) => {
     setUpiCollectTextInput(text);
@@ -89,7 +155,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 
   return (
     <View>
-      {(isUpiIntentVisible || isUpiCollectVisible) && (
+      {(isUpiIntentVisible || isUpiCollectVisible || (isUpiQRVisible && isTablet)) && (
         <View style={styles.headingContainer}>
           <Text style={styles.headingText}>Pay by any UPI</Text>
         </View>
@@ -103,6 +169,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
           errorImage={require('../../assets/images/ic_upi.png')}
           isLastUsed={false}
           onClickRadio={(selectedValue) => {
+            setUpiQRVisible(false);
+            stopTimer()
             setSelectedIntent(null);
             setUpiCollectVisible(false);
             onClickRadio(selectedValue);
@@ -129,6 +197,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                       setUpiCollectError(false);
                       setSelectedIntent('GPay');
                       setDefaultStateOfSavedUpiArray();
+                      stopTimer()
                     }}
                   >
                     <Image
@@ -164,6 +233,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                       setUpiCollectError(false);
                       setSelectedIntent('PhonePe');
                       setDefaultStateOfSavedUpiArray();
+                      stopTimer()
                     }}
                   >
                     <Image
@@ -200,6 +270,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                       setUpiCollectError(false);
                       setSelectedIntent('PayTm');
                       setDefaultStateOfSavedUpiArray();
+                      stopTimer()
                     }}
                   >
                     <Image
@@ -229,6 +300,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                     setSelectedIntent('');
                     setDefaultStateOfSavedUpiArray();
                     handleUpiPayment('');
+                    stopTimer()
                   }}
                 >
                   <Image
@@ -273,25 +345,20 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
               >
                 <Pressable
                   style={styles.pressableCollectContainer}
-                  onPress={() => handleUpiChevronClick()}
+                  onPress={() => handleUpiCollectChevronClick()}
                 >
                   {/* Icon and Text Wrapper */}
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Image
                       source={require('../../assets/images/add_icon.png')}
-                      style={{
-                        height: 14,
-                        width: 14,
+                      style={[styles.imageStyle,{
                         tintColor: checkoutDetails.brandColor,
-                      }}
+                      }]}
                     />
                     <Text
-                      style={{
-                        fontSize: 14,
+                      style={[styles.subHeaderText,{
                         color: checkoutDetails.brandColor,
-                        paddingStart: 10,
-                        fontFamily: 'Poppins-SemiBold',
-                      }}
+                      }]}
                     >
                       Add new UPI Id
                     </Text>
@@ -299,52 +366,39 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 
                   <Animated.Image
                     source={require('../../assets/images/chervon-down.png')}
-                    style={{
-                      alignSelf: 'center',
-                      height: 6,
-                      width: 14,
+                    style={[styles.animatedIcon,{
                       transform: [
                         {
                           rotate: upiCollectVisible ? '180deg' : '0deg',
                         },
                       ],
-                    }}
+                    }]}
                   />
                 </Pressable>
               </ImageBackground>
             ) : (
-              <View style={{ paddingBottom: isUpiCollectVisible ? 16 : 0 }}>
+              <View style={{ paddingBottom: isUpiCollectVisible && (!isUpiQRVisible && !isTablet) ? 16 : 0 }}>
                 {isUpiIntentVisible && (
                   <View
-                    style={{
-                      flexDirection: 'row',
-                      height: 1,
-                      backgroundColor: '#F1F1F1',
-                      marginTop: 20,
-                    }}
+                    style={styles.subContainerDivider}
                   />
                 )}
                 <Pressable
                   style={styles.pressableCollectContainer}
-                  onPress={() => handleUpiChevronClick()}
+                  onPress={() => handleUpiCollectChevronClick()}
                 >
                   {/* Icon and Text Wrapper */}
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Image
                       source={require('../../assets/images/add_icon.png')}
-                      style={{
-                        height: 14,
-                        width: 14,
+                      style={[styles.imageStyle,{
                         tintColor: checkoutDetails.brandColor,
-                      }}
+                      }]}
                     />
                     <Text
-                      style={{
-                        fontSize: 14,
-                        color: checkoutDetails.brandColor,
-                        paddingStart: 10,
-                        fontFamily: 'Poppins-SemiBold',
-                      }}
+                      style={[styles.subHeaderText,{
+                        color: checkoutDetails.brandColor
+                      }]}
                     >
                       Add new UPI Id
                     </Text>
@@ -352,16 +406,13 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 
                   <Animated.Image
                     source={require('../../assets/images/chervon-down.png')}
-                    style={{
-                      alignSelf: 'center',
-                      height: 6,
-                      width: 14,
+                    style={[styles.animatedIcon,{
                       transform: [
                         {
                           rotate: upiCollectVisible ? '180deg' : '0deg',
                         },
                       ],
-                    }}
+                    }]}
                   />
                 </Pressable>
               </View>
@@ -370,7 +421,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
         )}
 
         {upiCollectVisible && (
-          <View style={{ paddingBottom: isUpiCollectVisible ? 16 : 0 }}>
+          <View style={{ paddingBottom: isUpiCollectVisible && (!isUpiQRVisible && !isTablet) ? 16 : 0 }}>
             <TextInput
               mode="outlined"
               label={
@@ -457,6 +508,134 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
             )}
           </View>
         )}
+
+        {(isUpiQRVisible && isTablet) && (
+          <View>
+          {upiQRVisible ? (
+            <ImageBackground
+              source={require('../../assets/images/add_upi_id_background.png')} // Replace with your background image
+              resizeMode="cover"
+              style={{
+                paddingBottom: 34,
+                marginTop: isUpiIntentVisible || isUpiCollectVisible ? 24 : 0,
+              }}
+            >
+              <Pressable
+                style={styles.pressableCollectContainer}
+                onPress={() => handleUpiQRChevronClick()}
+              >
+                {/* Icon and Text Wrapper */}
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Image
+                    source={require('../../assets/images/ic_qr.png')}
+                    style={[styles.imageStyle,{
+                      tintColor: checkoutDetails.brandColor,
+                    }]}
+                  />
+                  <Text
+                    style={[styles.subHeaderText,{
+                      color: checkoutDetails.brandColor
+                    }]}
+                  >
+                    Pay Using QR
+                  </Text>
+                </View>
+
+                <Animated.Image
+                  source={require('../../assets/images/chervon-down.png')}
+                  style={[styles.animatedIcon,{
+                    transform: [
+                      {
+                        rotate: upiQRVisible ? '180deg' : '0deg',
+                      },
+                    ],
+                  }]}
+                />
+              </Pressable>
+            </ImageBackground>
+          ) : (
+            <View style={{ paddingBottom: isUpiCollectVisible || isUpiIntentVisible ? 16 : 0 }}>
+              {(isUpiIntentVisible || isUpiCollectVisible) && (
+                <View
+                  style={styles.subContainerDivider}
+                />
+              )}
+              <Pressable
+                style={styles.pressableCollectContainer}
+                onPress={() => handleUpiQRChevronClick()}
+              >
+                {/* Icon and Text Wrapper */}
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Image
+                    source={require('../../assets/images/ic_qr.png')}
+                    style={[styles.imageStyle,{
+                      tintColor: checkoutDetails.brandColor,
+                    }]}
+                  />
+                  <Text
+                    style={[styles.subHeaderText,{
+                      color: checkoutDetails.brandColor
+                    }]}
+                  >
+                   Pay Using QR
+                  </Text>
+                </View>
+
+                <Animated.Image
+                  source={require('../../assets/images/chervon-down.png')}
+                  style={[styles.animatedIcon,{
+                    transform: [
+                      {
+                        rotate: upiQRVisible ? '180deg' : '0deg',
+                      },
+                    ],
+                  }]}
+                />
+              </Pressable>
+            </View>
+          )}
+        </View>
+        )}
+
+{upiQRVisible && (
+  <View
+    style={{
+      paddingBottom: isUpiCollectVisible || isUpiIntentVisible ? 16 : 0,
+      flexDirection: "row", // ✅ Arrange QR + text in a row
+      alignItems: "center", // ✅ Align vertically in the center
+    }}
+  >
+    {qrImage != "" && (
+      <View style={styles.qrContainer}>
+        <Image
+          source={{ uri: `data:image/png;base64,${qrImage}` }}
+          style={[
+            styles.qrImage,
+            { opacity: qrIsExpired ? 0.2 : 1 },
+          ]}
+        />
+
+        {qrIsExpired && (
+          <TouchableOpacity style={styles.retryButton} onPress={handleUpiQRPayment}>
+            <Text style={[styles.retryText, { color: checkoutDetails.brandColor }]}>
+              ↻ Retry
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    )}
+
+    {/* ✅ This will be placed to the right of QR */}
+    <View style={styles.textContainer}>
+      <Text style={styles.label}>Scan & Pay with UPI Application</Text>
+      <Text style={styles.label}>QR code will expire in</Text>
+      <Text style={[styles.timer, { color: checkoutDetails.brandColor }]}>
+        {formattedTime(timeRemaining)}
+      </Text>
+    </View>
+  </View>
+)}
+
       </View>
     </View>
   );

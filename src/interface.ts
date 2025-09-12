@@ -40,6 +40,7 @@ export interface CheckoutDetails {
   isDOBEditable: boolean;
   isUpiIntentMethodEnabled : boolean,
   isUpiCollectMethodEnabled : boolean,
+  isUpiQRMethodEnabled : boolean,
   isCardMethodEnabled : boolean,
   isWalletMethodEnabled : boolean,
   isNetBankingMethodEnabled : boolean,
@@ -139,6 +140,10 @@ interface CardTokenPayload {
   };
 }
 
+interface UPIQRPayload {
+  type : 'upi/qr'
+}
+
 interface UPICollectPayload {
   type: 'upi/collect';
   upi?: {
@@ -150,7 +155,8 @@ interface UPICollectPayload {
 export type InstrumentDetails =
   | UPIIntentPayload
   | CardTokenPayload
-  | UPICollectPayload;
+  | UPICollectPayload
+  | UPIQRPayload
 
 export interface PaymentMethod {
   id: string;
@@ -235,7 +241,8 @@ interface PaymentActions {
   method : string,
   url : string,
   type : string,
-  htmlPageString : string
+  htmlPageString : string,
+  content : string
 }
 
 export interface FetchCardDetails {
@@ -257,13 +264,14 @@ export interface HandlePaymentOptions {
   checkoutDetailsErrorMessage: string;
   onSetStatus: (status: string) => void;
   onSetTransactionId: (txnId: string) => void;
-  onSetPaymentUrl: (url: string) => void;
-  onSetPaymentHtml: (html: string) => void;
-  onSetFailedMessage: (message: string) => void;
-  onShowFailedModal: () => void;
-  onShowSuccessModal: (timestamp: string) => void;
-  onShowSessionExpiredModal: () => void;
+  onSetPaymentUrl?: (url: string) => void;
+  onSetPaymentHtml?: (html: string) => void;
+  onSetFailedMessage?: (message: string) => void;
+  onShowFailedModal?: () => void;
+  onShowSuccessModal?: (timestamp: string) => void;
+  onShowSessionExpiredModal?: () => void;
   onNavigateToTimer?: (upiId: string) => void;
+  onOpenQr? : (qrImage : string) => void
   onOpenUpiIntent?: (url: string) => void; 
   setLoading: (loading: boolean) => void;
 }

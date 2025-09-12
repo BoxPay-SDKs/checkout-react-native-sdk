@@ -20,12 +20,10 @@ export const getInstalledUpiApps = async () => {
   } catch (error) {
     // Re-throw the error so the calling code knows something went wrong
     if (error instanceof Error) {
-      console.log('Full error stack trace:', error.stack);
       throw new Error(
         `Failed during the native call to get installed apps : ${error.message}`
       );
     } else {
-      console.log('Unknown error:', error);
       throw new Error(
         `Failed during the native call to get installed apps : ${String(error)}`
       );

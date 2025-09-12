@@ -1,5 +1,6 @@
-import type { PaymentMethod, PaymentClass } from '../interface';
-import { Platform } from 'react-native';
+import type { PaymentMethod, PaymentClass, DeliveryAddress } from '../interface';
+import { Dimensions, Platform } from 'react-native';
+import { userDataHandler } from '../sharedContext/userdataHandler';
 
 export function transformAndFilterList(
   data: PaymentMethod[],
@@ -31,3 +32,52 @@ export function getDeviceDetails() {
     deviceBrandName: Platform.OS === 'ios' ? 'Apple' : 'Android'
   };
 }
+
+export function getBrowserData() {
+  return {
+    screenHeight: height,
+    screenWidth: width,
+    acceptHeader: 'application/json',
+    userAgentHeader: 'Expo App',
+    browserLanguage: 'en_US',
+    ipAddress: 'null',
+    colorDepth: 24,
+    javaEnabled: true,
+    timeZoneOffSet: new Date().getTimezoneOffset(),
+    packageId: 'com.boxpay.checkout.sdk',
+  }
+}
+
+export function getShopperDetails() {
+  const { userData } = userDataHandler;
+  const isDeliveryAddressEmpty = (address: DeliveryAddress): boolean => {
+    return Object.values(address).every(
+      (value) => value === null || value === undefined || value === ''
+    );
+  };
+  const deliveryAddress = {
+    address1: userData.address1,
+    address2: userData.address2,
+    city: userData.city,
+    state: userData.state,
+    countryCode: userData.country,
+    postalCode: userData.pincode,
+    labelType: userData.labelType,
+    labelName: userData.labelName,
+  };
+  return {
+    email: userData.email,
+    firstName: userData.firstName,
+    gender: null,
+    lastName: userData.lastName,
+    phoneNumber: userData.phone,
+    uniqueReference: userData.uniqueId,
+    dateOfBirth: userData.dob,
+    panNumber: userData.pan,
+    deliveryAddress: isDeliveryAddressEmpty(deliveryAddress)
+      ? null
+      : deliveryAddress,
+  }
+}
+
+export const { height, width } = Dimensions.get("window");

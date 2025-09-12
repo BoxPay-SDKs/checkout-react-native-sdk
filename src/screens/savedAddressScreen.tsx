@@ -63,7 +63,6 @@ const SavedAddressScreen = ({ navigation }: Props) => {
             switch(apiResponse.apiStatus) {
                 case APIStatus.Success : {
                     setSavedAddresList(apiResponse.data)
-                    console.log(apiResponse.data)
                     setIsFirstLoad(false)
                     break
                 }
@@ -253,7 +252,6 @@ const SavedAddressScreen = ({ navigation }: Props) => {
         onCancel={() => setIsDeleteConfirmationVisible(false)}
         onDelete={() => {
             setIsDeleteConfirmationVisible(false);
-            console.log("Address deleted");
             onClickDeleteAddress(selectedAddress?.addressRef ?? "")
         }}
         address={formatAddress({
