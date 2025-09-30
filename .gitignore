@@ -86,7 +86,7 @@ android/generated
 nitrogen/
 
 package-lock.json
-tsconfig.build.json
+# tsconfig.build.json
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 .editorconfig
