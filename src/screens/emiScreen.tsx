@@ -221,7 +221,8 @@ const EmiScreen = ({ navigation }: Props) => {
         setSessionExppireModalOpen(true)
       },
       setLoading: setLoading,
-      stopBackgroundApiTask: stopBackgroundApiTask
+      stopBackgroundApiTask: stopBackgroundApiTask,
+      isFromUPIIntentFlow : false
     });
   };
 

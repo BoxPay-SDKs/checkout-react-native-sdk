@@ -476,7 +476,8 @@ const CardScreen = ({ route, navigation }: Props) => {
         setSessionExppireModalState(true)
       },
       setLoading: setLoading,
-      stopBackgroundApiTask: stopBackgroundApiTask
+      stopBackgroundApiTask: stopBackgroundApiTask,
+      isFromUPIIntentFlow : false
     });
   };
 

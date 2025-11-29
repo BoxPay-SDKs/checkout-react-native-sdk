@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, BackHandler, AppState, Image, ScrollView, StatusBar, Alert } from 'react-native'; // Added ScrollView
+import { View, Text, BackHandler, AppState, Image, ScrollView, StatusBar, Alert, type AppStateStatus } from 'react-native'; // Added ScrollView
 import Header from '../components/header';
 import upiPostRequest from '../postRequest/upiPostRequest';
 import { decode as atob } from 'base-64';
@@ -217,22 +217,32 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
 
   const openUPIIntent = async (url: string) => {
     try {
-      await Linking.openURL(url); // Open the UPI app
+      appStateListenerRef.current?.remove?.();
       appStateListenerRef.current = AppState.addEventListener(
-        'change',
+        "change",
         handleAppStateChange
       );
+  
       isUpiOpeningRef.current = true;
+  
+      await Linking.openURL(url);
+  
     } catch (error) {
       isUpiOpeningRef.current = false;
-      callUIAnalytics(AnalyticsEvents.FAILED_TO_LAUNCH_UPI_INTENT,"Index Screen open UPI Intent failed",`${error}`)
+      callUIAnalytics(
+        AnalyticsEvents.FAILED_TO_LAUNCH_UPI_INTENT,
+        "Index Screen open UPI Intent failed",
+        `${error}`
+      );
       setFailedModalState(true);
       setLoadingState(false);
     }
   };
 
-  const handleAppStateChange = () => {
-    if (AppState.currentState === 'active' && isUpiOpeningRef.current) {
+  const handleAppStateChange = (nextState: AppStateStatus) => {
+    console.log(nextState, isUpiOpeningRef.current);
+  
+    if (nextState === "active" && isUpiOpeningRef.current) {
       callFetchStatusApi();
     }
   };
@@ -245,6 +255,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
+    console.log(`${response} ===fetchs statur response`)
     handleFetchStatusResponseHandler({
         response: response,
         checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
@@ -257,7 +268,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
           setSuccessModalState(true);
         },
         onShowSessionExpiredModal: () => setSessionExppireModalState(true),
-        setLoading: setLoadingState
+        setLoading: setLoadingState,
+        isFromUPIIntentFlow : isUpiOpeningRef.current
       });
       appStateListenerRef.current?.remove();
       isUpiOpeningRef.current = false;
@@ -500,6 +512,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 });
                 if(shopperToken != null && shopperToken != "") {
                   getRecommendedInstruments()
+                } else {
+                  setIsFirstLoading(false)
                 }
                 callUIAnalytics(AnalyticsEvents.CHECKOUT_LOADED,"Index Screen Session Loaded","")
               break;

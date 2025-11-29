@@ -378,6 +378,7 @@ export interface HandleFetchStatusOptions {
   onShowSessionExpiredModal: () => void;
   setLoading?: (loading: boolean) => void;
   stopBackgroundApiTask? : () => void
+  isFromUPIIntentFlow : boolean
 }
 
 export enum TransactionStatus {
