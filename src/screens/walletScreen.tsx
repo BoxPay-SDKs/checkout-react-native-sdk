@@ -140,7 +140,8 @@ const WalletScreen = ({ navigation }: Props) => {
         setSessionExppireModalState(true)
       },
       setLoading: setLoading,
-      stopBackgroundApiTask: stopBackgroundApiTask
+      stopBackgroundApiTask: stopBackgroundApiTask,
+      isFromUPIIntentFlow : false
     });
   };
 
@@ -157,10 +158,10 @@ const WalletScreen = ({ navigation }: Props) => {
   };
 
   useEffect(() => {
-    if (paymentUrl) {
+    if (paymentUrl || paymentHtml) {
       setShowWebView(true);
     }
-  }, [paymentUrl]);
+  }, [paymentUrl, paymentHtml]);
 
   const onProceedForward = async (_: string, instrumentType: string) => {
     setLoading(true);

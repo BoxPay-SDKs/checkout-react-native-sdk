@@ -387,7 +387,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   onPress={() => handleUpiCollectChevronClick()}
                 >
                   {/* Icon and Text Wrapper */}
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingBottom : 16 }}>
                     <Image
                       source={require('../../assets/images/add_icon.png')}
                       style={[styles.imageStyle,{
@@ -420,7 +420,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
         )}
 
         {upiCollectVisible && (
-          <View style={{ paddingBottom: isUpiCollectVisible && (!isUpiQRVisible && !isTablet) ? 16 : 0 }}>
+          <View style={{ paddingBottom: 16 }}>
             <TextInput
               mode="outlined"
               label={

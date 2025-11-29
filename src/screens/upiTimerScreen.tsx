@@ -121,7 +121,8 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
       },
       onShowSessionExpiredModal: () => {
         setSessionExppireModalState(true)
-      }
+      },
+      isFromUPIIntentFlow : false
     });
   };
 

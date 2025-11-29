@@ -36,8 +36,8 @@ export function getDeviceDetails() {
 
 export function getBrowserData() {
   return {
-    screenHeight: height,
-    screenWidth: width,
+    screenHeight: Math.trunc(height).toString(),
+    screenWidth: Math.trunc(width).toString(),
     acceptHeader: 'application/json',
     userAgentHeader: 'Expo App',
     browserLanguage: 'en_US',

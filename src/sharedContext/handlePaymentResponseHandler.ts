@@ -140,7 +140,8 @@ export function handleFetchStatusResponseHandler({
     onShowSuccessModal,
     onShowSessionExpiredModal,
     setLoading,
-    stopBackgroundApiTask
+    stopBackgroundApiTask,
+    isFromUPIIntentFlow
 } : HandleFetchStatusOptions) {
     switch(response.apiStatus) {
         case APIStatus.Success: {
@@ -189,8 +190,23 @@ export function handleFetchStatusResponseHandler({
         
                 default:
                     {
+                        if(isFromUPIIntentFlow) {
+                            const fallback = checkoutDetailsErrorMessage;
+                    const errorMessage =
+                        reasonCode?.startsWith('UF')
+                        ? reason?.includes(':')
+                            ? reason.split(':')[1]?.trim() ?? fallback
+                            : reason ?? fallback
+                        : fallback;
+            
+                    onSetFailedMessage(errorMessage);
+                    onSetStatus(TransactionStatus.Failed);
+                    onShowFailedModal();
+                    stopBackgroundApiTask?.();
+                    setLoading?.(false);
+                        }
                     break;
-                }
+                    }
             }
         }
         break;
