@@ -1,10 +1,8 @@
 import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
-import { useState } from 'react';
 import { RadioButton } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
-import { SvgUri } from 'react-native-svg';
-import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
+import ImageLoader from './imageLoader';
 import type { PaymentClass } from '../interface';
 
 interface SavedCardComponentViewProps {
@@ -131,8 +129,7 @@ const SavedCardRow = ({
   currencySymbol,
   amount,
 }: SavedCardRowProps) => {
-  const [error, setImageError] = useState(false);
-  const [load, setLoad] = useState(true);
+
   return (
     <View
       style={{
@@ -143,39 +140,7 @@ const SavedCardRow = ({
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View
-          style={{
-            width: 32,
-            height: 32,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          {load && !error && (
-            <ShimmerPlaceHolder
-              visible={false} // Keep shimmer until loading is done
-              style={{ width: 32, height: 32, borderRadius: 8 }}
-            />
-          )}
-          {!error ? (
-            <SvgUri
-              uri={image}
-              width="100%" // Keep original size
-              height="100%"
-              style={{ transform: [{ scale: 1 }] }}
-              onLoad={() => setLoad(false)}
-              onError={() => {
-                setImageError(true);
-                setLoad(false);
-              }}
-            />
-          ) : (
-            <Image
-              source={errorImage}
-              style={{ transform: [{ scale: 0.4 }] }}
-            />
-          )}
-        </View>
+      <ImageLoader image={image} errorImage={errorImage}/>
 
         <View style={{ paddingStart: 12, flex: 1 }}>
           <Text
