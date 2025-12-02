@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { SvgUri } from 'react-native-svg';
-import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import styles from '../styles/components/bankCardStyles';
+import ImageLoader from './imageLoader';
 
 interface BankCardProps {
   name: string;
@@ -19,41 +18,9 @@ const BankCard: React.FC<BankCardProps> = ({
   hasLowCostEmi,
   onPress,
 }) => {
-  const [error, setImageError] = useState(false);
-  const [load, setLoad] = useState(true);
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
-      {/* Bank Icon */}
-      <View
-        style={styles.imageContainer}
-      >
-        {load && !error && (
-          <ShimmerPlaceHolder
-            visible={false} // Keep shimmer until loading is done
-            style={styles.shimmer}
-          />
-        )}
-        {!error ? (
-          <SvgUri
-            uri={iconUrl}
-            width={100} // Keep original size
-            height={100}
-            style={{ transform: [{ scale: 0.4 }] }}
-            onLoad={() => setLoad(false)}
-            onError={() => {
-              setImageError(true);
-              setLoad(false);
-            }}
-          />
-        ) : (
-          <Image
-            source={require('../../assets/images/ic_netbanking_semi_bold.png')}
-            style={styles.errorImage}
-          />
-        )}
-      </View>
-
-      {/* Bank Name & Offers */}
+      <ImageLoader image={iconUrl} errorImage={require('../../assets/images/ic_netbanking_semi_bold.png')}/>
       <View style={styles.detailsContainer}>
         <Text style={styles.bankName}>{name}</Text>
         <View style={styles.tagsContainer}>
