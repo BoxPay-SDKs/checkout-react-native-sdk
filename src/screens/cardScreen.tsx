@@ -153,61 +153,63 @@ const CardScreen = ({ route, navigation }: Props) => {
             setCardNumberValid(true);
           }
         }
-        await fetchCardDetails(
-          formatted.replace(/ /g, '')
-        ).then((response) => {
-          switch (response.apiStatus) {
-            case APIStatus.Success : {
-              const data = response.data
-              if('paymentMethod' in data) {
-                if (durationNumber != undefined && durationNumber != '') {
-                  setEmiIssuerExist(data.issuerName != '' && data.issuerName != null);
-                  setEmiIssuer(data.issuerName ?? "");
+        if(formatted.length == 11) {
+          await fetchCardDetails(
+            formatted.replace(/ /g, '')
+          ).then((response) => {
+            switch (response.apiStatus) {
+              case APIStatus.Success : {
+                const data = response.data
+                if('paymentMethod' in data) {
+                  if (durationNumber != undefined && durationNumber != '') {
+                    setEmiIssuerExist(data.issuerName != '' && data.issuerName != null);
+                    setEmiIssuer(data.issuerName ?? "");
+                  }
+                  setMethodEnabled(data.methodEnabled);
+                  if (data.paymentMethod.brand == 'VISA') {
+                    setCardSelectedIcon(require('../../assets/images/ic_visa.png'));
+                    setMaxCvvLength(3);
+                    setMaxCardNumberLength(19);
+                  } else if (data.paymentMethod.brand == 'Mastercard') {
+                    setCardSelectedIcon(require('../../assets/images/ic_masterCard.png'));
+                    setMaxCvvLength(3);
+                    setMaxCardNumberLength(19);
+                  } else if (data.paymentMethod.brand == 'RUPAY') {
+                    setCardSelectedIcon(require('../../assets/images/ic_rupay.png'));
+                    setMaxCvvLength(3);
+                    setMaxCardNumberLength(19);
+                  } else if (data.paymentMethod.brand == 'AmericanExpress') {
+                    setCardSelectedIcon(require('../../assets/images/ic_amex.png'));
+                    setMaxCvvLength(4);
+                    setMaxCardNumberLength(18);
+                  } else if (data.paymentMethod.brand == 'Maestro') {
+                    setCardSelectedIcon(require('../../assets/images/ic_maestro.png'));
+                    setMaxCvvLength(3);
+                    setMaxCardNumberLength(19);
+                  } else {
+                    setCardSelectedIcon(
+                      require('../../assets/images/ic_default_card.png')
+                    );
+                    setMaxCvvLength(3);
+                    setMaxCardNumberLength(19);
+                  }
                 }
-                setMethodEnabled(data.methodEnabled);
-                if (data.paymentMethod.brand == 'VISA') {
-                  setCardSelectedIcon(require('../../assets/images/ic_visa.png'));
-                  setMaxCvvLength(3);
-                  setMaxCardNumberLength(19);
-                } else if (data.paymentMethod.brand == 'Mastercard') {
-                  setCardSelectedIcon(require('../../assets/images/ic_masterCard.png'));
-                  setMaxCvvLength(3);
-                  setMaxCardNumberLength(19);
-                } else if (data.paymentMethod.brand == 'RUPAY') {
-                  setCardSelectedIcon(require('../../assets/images/ic_rupay.png'));
-                  setMaxCvvLength(3);
-                  setMaxCardNumberLength(19);
-                } else if (data.paymentMethod.brand == 'AmericanExpress') {
-                  setCardSelectedIcon(require('../../assets/images/ic_amex.png'));
-                  setMaxCvvLength(4);
-                  setMaxCardNumberLength(18);
-                } else if (data.paymentMethod.brand == 'Maestro') {
-                  setCardSelectedIcon(require('../../assets/images/ic_maestro.png'));
-                  setMaxCvvLength(3);
-                  setMaxCardNumberLength(19);
-                } else {
-                  setCardSelectedIcon(
-                    require('../../assets/images/ic_default_card.png')
-                  );
-                  setMaxCvvLength(3);
-                  setMaxCardNumberLength(19);
-                }
+                break
               }
-              break
+              case APIStatus.Failed : {
+                Toast.show({
+                  type: 'error',
+                  text1: 'Oops!',
+                  text2: 'Something went wrong. Please try again.',
+              });
+                break 
+              }
+              default : {
+                break
+              }
             }
-            case APIStatus.Failed : {
-              Toast.show({
-                type: 'error',
-                text1: 'Oops!',
-                text2: 'Something went wrong. Please try again.',
-            });
-              break 
-            }
-            default : {
-              break
-            }
-          }
-        });
+          });
+        }
       } else {
         setCardSelectedIcon(require('../../assets/images/ic_default_card.png'));
         setMaxCvvLength(3);
@@ -1059,14 +1061,13 @@ const CardScreen = ({ route, navigation }: Props) => {
 
       {showWebView && (
         <View
-          style={styles.pressableContainer}
+          style={styles.webViewContainer}
         >
           <WebViewScreen
             url={paymentUrl}
             html={paymentHtml}
             onBackPress={() => {
               startBackgroundApiTask();
-              setLoading(true);
               setLoading(true);
               setShowWebView(false);
             }}
