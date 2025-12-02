@@ -153,10 +153,8 @@ const CardScreen = ({ route, navigation }: Props) => {
             setCardNumberValid(true);
           }
         }
-        if(formatted.length == 11) {
-          await fetchCardDetails(
-            formatted.replace(/ /g, '')
-          ).then((response) => {
+        if(cleaned.length == 9) {
+          await fetchCardDetails(cleaned).then((response) => {
             switch (response.apiStatus) {
               case APIStatus.Success : {
                 const data = response.data
