@@ -20,7 +20,7 @@ import { checkoutDetailsHandler, setCheckoutDetailsHandler } from '../sharedCont
 import WebViewScreen from '../screens/webViewScreen';
 import styles from '../styles/indexStyles';
 import getSymbolFromCurrency from 'currency-symbol-map';
-import type { ItemsProp } from '../components/orderDetails';
+import type { ItemsProp, SurchargeProp } from '../components/orderDetails';
 import OrderDetails from '../components/orderDetails';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PaymentSelectorView from '../components/paymentSelector';
@@ -32,6 +32,7 @@ import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
 import { formatAddress, useCountdown } from '../utility';
+import fetchSurCharge from '../postRequest/fetchSurcharge';
 
 type MainScreenRouteProp = RouteProp<CheckoutStackParamList, 'MainScreen'>;
 
@@ -75,6 +76,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const isUpiOpeningRef = useRef(false);
   const shippingAmountRef = useRef('');
   const taxAmountRef = useRef('');
+  const [surchargeDetails, setSurchargeDetails] = useState<SurchargeProp[]>([])
   const subTotalAmountRef = useRef('');
   const orderItemsArrayRef = useRef<ItemsProp[]>([]);
   const [recommendedInstrumentsArray, setRecommendedInstruments] = useState<PaymentClass[]>([]);
@@ -432,7 +434,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   }
                 }
                 if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
-                  setSuccessfulTimeStamp(response.data.lastPaidAtTimestamp);
+                  setSuccessfulTimeStamp(response.data.lastPaidAtTimestampLocale);
                   setTransactionId(response.data.lastTransactionId);
                   setStatus(response.data.status);
                   setSuccessModalState(true);
@@ -475,6 +477,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 setCheckoutDetailsHandler({
                   checkoutDetails: {
                     currencySymbol: symbol,
+                    currencyCode : currencyCode,
                     amount: paymentDetails.money.amountLocaleFull,
                     token: token,
                     brandColor:
@@ -512,9 +515,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 });
                 if(shopperToken != null && shopperToken != "") {
                   getRecommendedInstruments()
-                } else {
-                  setIsFirstLoading(false)
                 }
+                handleSurchargeDetails()
                 callUIAnalytics(AnalyticsEvents.CHECKOUT_LOADED,"Index Screen Session Loaded","")
               break;
             }
@@ -535,6 +537,33 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     }
     loadSession()
   }, []);
+
+  const handleSurchargeDetails = async() => {
+    const response = await fetchSurCharge()
+    switch (response.apiStatus) {
+      case APIStatus.Success : {
+        const data = response.data
+        const surcharge = data.appliedSurcharges.map(item => ({
+          title: item.surchargeDetails.title,
+          amount: item.calculatedSurchargeFee
+        }))
+        setSurchargeDetails(surcharge)
+        checkoutDetailsHandler.checkoutDetails.amount = data.finalAmountAfterSurcharge.amount.toLocaleString()
+        setAmount(data.finalAmountAfterSurcharge.amount.toLocaleString())
+        setIsFirstLoading(false)
+        break
+      }
+      case APIStatus.Failed : {
+        setIsFirstLoading(false)
+        break
+      }
+
+      default : {
+        setIsFirstLoading(false)
+        break
+      }
+    }
+  }
 
   const handleRecommendedSectionClick = (instrumentValue: string) => {
     const updatedList = recommendedInstrumentsArray.map((item) => ({
@@ -736,6 +765,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   totalAmount={amount}
                   itemsArray={orderItemsArrayRef.current}
                   taxAmount={taxAmountRef.current}
+                  surchargeDetails={surchargeDetails}
                 />
               </View>
 
