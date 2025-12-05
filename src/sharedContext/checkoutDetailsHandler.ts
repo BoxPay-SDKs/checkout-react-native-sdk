@@ -7,6 +7,7 @@ export type CheckoutDetailsHandler = {
 export let checkoutDetailsHandler: CheckoutDetailsHandler = {
   checkoutDetails: {
     currencySymbol: '',
+    currencyCode : '',
     amount: '',
     token: '',
     brandColor: '',

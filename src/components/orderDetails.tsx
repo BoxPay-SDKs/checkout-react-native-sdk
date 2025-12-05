@@ -9,6 +9,7 @@ export interface OrderDetailsProps {
   subTotalAmount: string;
   shippingAmount: string;
   taxAmount: string;
+  surchargeDetails : SurchargeProp[]
 }
 
 export interface ItemsProp {
@@ -18,12 +19,18 @@ export interface ItemsProp {
   imageAmount: string;
 }
 
+export interface SurchargeProp {
+  title : string, 
+  amount : number
+}
+
 const OrderDetails = ({
   totalAmount,
   itemsArray,
   subTotalAmount,
   shippingAmount,
   taxAmount,
+  surchargeDetails
 }: OrderDetailsProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { checkoutDetails } = checkoutDetailsHandler;
@@ -323,12 +330,53 @@ const OrderDetails = ({
                     color: '#2D2B32',
                   }}
                 >
-                  {' '}
                   {checkoutDetails.currencySymbol}
                 </Text>
                 {shippingAmount}
               </Text>
             </View>
+          )}
+          {surchargeDetails.length != 0 && (
+            surchargeDetails.map((item, index) => (
+              <View
+              key={index}
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 8,
+              paddingHorizontal: 12,
+            }}
+            >
+              <Text
+                style={{
+                  fontFamily: 'Poppins-Regular',
+                  fontSize: 14,
+                  color: '#2D2B32',
+                }}
+              >
+                {item.title}
+              </Text>
+              <Text
+                style={{
+                  fontFamily: 'Poppins-SemiBold',
+                  fontSize: 14,
+                  color: '#2D2B32',
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: 'Inter-SemiBold',
+                    fontSize: 14,
+                    color: '#2D2B32',
+                  }}
+                >
+                  {checkoutDetails.currencySymbol}
+                </Text>
+                {item.amount.toLocaleString()}
+              </Text>
+            </View>
+            ))
           )}
           <View
             style={{

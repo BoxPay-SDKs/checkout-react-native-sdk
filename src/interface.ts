@@ -18,6 +18,7 @@ export interface BoxpayCheckoutProps {
 
 export interface CheckoutDetails {
   currencySymbol: string;
+  currencyCode : string,
   amount: string;
   token: string;
   brandColor: string;
@@ -276,6 +277,35 @@ export interface HandlePaymentOptions {
   setLoading: (loading: boolean) => void;
 }
 
+export interface SurChargeResponse {
+  amountBeforeSurcharge : {
+    amount : number,
+    currencyCode : string
+  },
+  appliedSurcharges : {
+    surchargeDetails : {
+      title : string,
+      merchantId : string,
+      surchargeCode : string
+    },
+    calculatedSurchargeFee : number
+  }[],
+  finalAmountAfterSurcharge : {
+    amount : number,
+    currencyCode : string
+  }
+}
+
+export type FetchSurChargeResponse =
+| {
+    apiStatus: APIStatus.Success;
+    data: SurChargeResponse;
+  }
+| {
+    apiStatus: APIStatus.Failed;
+    data: ErrorResponse;
+  };
+
 export type PaymentExecutedPostResponse =
 | {
     apiStatus: APIStatus.Success;
@@ -447,7 +477,7 @@ export interface SessionDetails {
   },
   sessionExpiryTimestamp : string,
   status : string,
-  lastPaidAtTimestamp : string,
+  lastPaidAtTimestampLocale : string,
   lastTransactionId : string
 }
 
