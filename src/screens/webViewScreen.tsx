@@ -25,8 +25,11 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({
       {...props}
       style={{ flex: 1 }}
       javaScriptEnabled={true}
-      onNavigationStateChange={(event) => {
-        if (event.url.includes('boxpay')) {
+      domStorageEnabled={true}
+      startInLoadingState={true}
+      onLoadEnd={(syntheticEvent) => {
+        const { nativeEvent } = syntheticEvent;
+        if (nativeEvent.url.includes('boxpay')) {
           onBackPress();
         }
       }}
