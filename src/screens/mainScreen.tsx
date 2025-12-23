@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, BackHandler, AppState, Image, ScrollView, StatusBar, Alert, type AppStateStatus } from 'react-native'; // Added ScrollView
+import { View, Text, BackHandler, AppState, Image, ScrollView, Alert, type AppStateStatus } from 'react-native'; // Added ScrollView
 import Header from '../components/header';
 import upiPostRequest from '../postRequest/upiPostRequest';
 import { decode as atob } from 'base-64';
@@ -22,7 +22,6 @@ import styles from '../styles/indexStyles';
 import getSymbolFromCurrency from 'currency-symbol-map';
 import type { ItemsProp, SurchargeProp } from '../components/orderDetails';
 import OrderDetails from '../components/orderDetails';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import PaymentSelectorView from '../components/paymentSelector';
 import SavedCardComponentView from '../components/savedCardComponent';
 import ShimmerView from '../components/shimmerView';
@@ -647,13 +646,12 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   }
 
   return (
-    <SafeAreaView style={styles.screenView}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.screenView}>
+      {/* <StatusBar barStyle="dark-content" /> */}
       {isFirstLoading ? (
         <ShimmerView />
       ) : (
-        <View style={styles.screenView}>
-          <ScrollView 
+        <ScrollView 
             contentContainerStyle={{ flexGrow: 1 }} 
             keyboardShouldPersistTaps="handled" 
           >
@@ -784,8 +782,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 />
               </View>
             </View>
-          </ScrollView>
-        </View>
+        </ScrollView>
       )}
 
       {loadingState && (
@@ -835,7 +832,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
           />
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
