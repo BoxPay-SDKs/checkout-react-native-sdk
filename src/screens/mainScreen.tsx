@@ -542,13 +542,15 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     switch (response.apiStatus) {
       case APIStatus.Success : {
         const data = response.data
-        const surcharge = data.appliedSurcharges.map(item => ({
-          title: item.surchargeDetails.title,
-          amount: item.calculatedSurchargeFee
-        }))
-        setSurchargeDetails(surcharge)
-        checkoutDetailsHandler.checkoutDetails.amount = data.finalAmountAfterSurcharge.amount.toLocaleString()
-        setAmount(data.finalAmountAfterSurcharge.amount.toLocaleString())
+        if(data.appliedSurcharges.length != 0 ) {
+          const surcharge = data.appliedSurcharges.map(item => ({
+            title: item.surchargeDetails.title,
+            amount: item.calculatedSurchargeFee
+          }))
+          setSurchargeDetails(surcharge)
+          checkoutDetailsHandler.checkoutDetails.amount = data.finalAmountAfterSurcharge.amount.toLocaleString()
+          setAmount(data.finalAmountAfterSurcharge.amount.toLocaleString())
+        }
         setIsFirstLoading(false)
         break
       }
