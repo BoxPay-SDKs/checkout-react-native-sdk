@@ -279,6 +279,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const onExitCheckout = () => {
     if (!loadingState) {
       stopExpireTimerCountDown();
+      setSessionExppireModalState(false)
+      setSuccessModalState(false)
       const mockPaymentResult: PaymentResultObject = {
         status: status,
         transactionId: transactionId,

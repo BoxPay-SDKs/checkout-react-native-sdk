@@ -3,9 +3,7 @@ import {
   Text,
   BackHandler,
   Image,
-  ScrollView,
-  StatusBar,
-  SafeAreaView,
+  ScrollView
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
@@ -170,6 +168,8 @@ const BNPLScreen = ({ navigation }: Props) => {
   };
 
   const onExitCheckout = () => {
+    setSuccessModalState(false)
+    setSessionExppireModalState(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
@@ -184,8 +184,7 @@ const BNPLScreen = ({ navigation }: Props) => {
   }, [bnplList]);
 
   return (
-    <SafeAreaView style={styles.screenView}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.screenView}>
       {loading ? (
         <View
           style={styles.loaderView}
@@ -296,7 +295,7 @@ const BNPLScreen = ({ navigation }: Props) => {
           />
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -72,6 +72,8 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
   }, [failedModalOpen, successModalOpen, sessionExpireModalOpen]);
 
   const onExitCheckout = () => {
+    setSuccessModalState(false)
+    setSessionExppireModalState(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status,
       transactionId: transactionId,

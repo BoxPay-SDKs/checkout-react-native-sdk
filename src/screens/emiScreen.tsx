@@ -4,9 +4,7 @@ import {
   BackHandler,
   Dimensions,
   ScrollView,
-  Image,
-  StatusBar,
-  SafeAreaView,
+  Image
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -521,6 +519,8 @@ const EmiScreen = ({ navigation }: Props) => {
   };
 
   const onExitCheckout = () => {
+    setSuccessModalOpen(false)
+    setSessionExppireModalOpen(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
@@ -529,8 +529,7 @@ const EmiScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.screenView}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.screenView}>
       {isFirstLoad ? (
         <ShimmerView/>
       ) : loading ? (
@@ -840,7 +839,7 @@ const EmiScreen = ({ navigation }: Props) => {
           />
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

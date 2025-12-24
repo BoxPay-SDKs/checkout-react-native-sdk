@@ -1,4 +1,4 @@
-import { View, Text, Image, SafeAreaView } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { useState } from 'react';
 import type { Emi } from '../interface';
 import Header from '../components/header';
@@ -38,7 +38,7 @@ const SelectTenureScreen = ({
   const [selectedEmi, setSelectedEmi] = useState('');
   const [selectedDuration, setSelectedDuration] = useState(0);
   return (
-    <SafeAreaView style={styles.screenView}>
+    <View style={styles.screenView}>
       <Header
         onBackPress={onbackPress}
         showDesc={true}
@@ -130,7 +130,7 @@ const SelectTenureScreen = ({
           </View>
         ))}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

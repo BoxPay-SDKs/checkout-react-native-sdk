@@ -3,8 +3,7 @@ import {
   Text,
   Image,
   BackHandler,
-  Pressable,
-  StatusBar,
+  Pressable
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import Header from '../components/header';
@@ -25,7 +24,6 @@ import fetchStatus from '../postRequest/fetchStatus';
 import { SvgUri } from 'react-native-svg';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import emiPostRequest from '../postRequest/emiPostRequest';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import KnowMoreBottomSheet from '../components/knowMoreBottomSheet';
 import styles from '../styles/screens/cardScreenStyles';
 import Toast from 'react-native-toast-message'
@@ -546,6 +544,8 @@ const CardScreen = ({ route, navigation }: Props) => {
   }, [cardNumberText, cardExpiryText, cardCvvText, cardHolderNameText]);
 
   const onExitCheckout = () => {
+    setSuccessModalState(false)
+    setSessionExppireModalState(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
@@ -560,8 +560,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   }, [paymentHtml]);
 
   return (
-    <SafeAreaView style={styles.screenView}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.screenView}>
       {loading ? (
         <View
           style={styles.loadingContainer}
@@ -1072,7 +1071,7 @@ const CardScreen = ({ route, navigation }: Props) => {
           />
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

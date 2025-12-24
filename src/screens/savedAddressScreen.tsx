@@ -1,7 +1,5 @@
 import {
     View,
-    SafeAreaView,
-    StatusBar,
     Text,
     BackHandler,
     ScrollView,
@@ -151,8 +149,7 @@ const SavedAddressScreen = ({ navigation }: Props) => {
     }, [updateAddress, isEditClicked]);
 
     return (
-        <SafeAreaView style = {styles.screenView}>
-            <StatusBar barStyle="dark-content" />
+        <View style = {styles.screenView}>
             {isFirstLoad ? (
                 <ShimmerView/>
             ) : loading ? (
@@ -265,7 +262,7 @@ const SavedAddressScreen = ({ navigation }: Props) => {
             labelType : selectedAddress?.labelType ?? ""
           })}
       />
-        </SafeAreaView>
+        </View>
     )
 }
 
