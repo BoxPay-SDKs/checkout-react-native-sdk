@@ -290,23 +290,27 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   };
 
   useEffect(() => {
-    BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        if (showWebView) {
-          setShowWebView(false);
-          paymentFailedMessage.current =
-            checkoutDetailsHandler.checkoutDetails.errorMessage;
-          setStatus('Failed');
-          setFailedModalState(true);
-          setLoadingState(false);
-          return true;
-        } else if (loadingState) {
-          return true;
-        }
-        return onExitCheckout();
+
+    const backAction = () => {
+      if (showWebView) {
+        setShowWebView(false);
+        paymentFailedMessage.current =
+          checkoutDetailsHandler.checkoutDetails.errorMessage;
+        setStatus('Failed');
+        setFailedModalState(true);
+        setLoadingState(false);
+        return true;
+      } else if (loadingState) {
+        return true;
       }
+      return onExitCheckout();
+    }
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
     );
+
+    return () => backHandler.remove();
   });
 
   useEffect(() => {
