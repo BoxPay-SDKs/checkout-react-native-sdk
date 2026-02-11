@@ -92,7 +92,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const handlePaymentIntent = async (selectedIntent: string) => {
     setLoadingState(true);
     const response = await upiPostRequest({
-      type: 'upi/intent',
+      type: checkoutDetailsHandler.checkoutDetails.isUPIOtmIntentMethodEnabled ? "upiotm/intent" : 'upi/intent',
       ...(selectedIntent && { upiAppDetails: { upiApp: selectedIntent } }), // Conditionally add upiAppDetails only if upiIntent is present
     });
     handlePaymentResponse({
@@ -129,7 +129,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
             savedCard: { instrumentRef: instrumentRef },
           }
         : {
-            type: 'upi/collect',
+            type: checkoutDetailsHandler.checkoutDetails.isUPIOtmCollectMethodEnabled ? "upiotm/collect" : 'upi/collect',
             upi: instrumentRef
               ? { instrumentRef: instrumentRef }
               : { shopperVpa: upiId },
@@ -342,29 +342,63 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   isNetbankingVisible: false,
                   isEMIVisible: false,
                   isBNPLVisible: false,
+                  isUPIOtmIntentVisible : false,
+                  isUPIOtmCollectVisible :false,
+                  isUPIOtmQRVisible : false
                 };
                 
                 paymentMethods.forEach((method: PaymentMethod) => {
-                  if (method.type === 'Upi') {
-                    if (method.brand === 'UpiIntent') {
-                      methodFlags.isUPIIntentVisible = true;
-                    } else if (method.brand === 'UpiCollect') {
-                      methodFlags.isUPICollectVisible = true;
-                    } else if(method.brand === 'UpiQr') {
-                      methodFlags.isUPIQRVisible = true
-                    }
-                  } else if (method.type === 'Card') {
-                    methodFlags.isCardsVisible = true;
-                  } else if (method.type === 'Wallet') {
-                    methodFlags.isWalletVisible = true;
-                  } else if (method.type === 'NetBanking') {
-                    methodFlags.isNetbankingVisible = true;
-                  } else if (method.type === 'Emi') {
-                    methodFlags.isEMIVisible = true;
-                  } else if (method.type === 'BuyNowPayLater') {
-                    methodFlags.isBNPLVisible = true;
+                  switch (method.type) {
+                    case 'Upi':
+                      switch (method.brand) {
+                        case 'UpiIntent':
+                          methodFlags.isUPIIntentVisible = true;
+                          break;
+                        case 'UpiCollect':
+                          methodFlags.isUPICollectVisible = true;
+                          break;
+                        case 'UpiQr':
+                          methodFlags.isUPIQRVisible = true;
+                          break;
+                      }
+                      break;
+
+                    case 'UpiOneTimeMandate':
+                      switch (method.brand) {
+                        case 'UpiIntentOtm':
+                          methodFlags.isUPIOtmIntentVisible = true;
+                          break;
+                        case 'UpiCollectOtm':
+                          methodFlags.isUPIOtmCollectVisible = true;
+                          break;
+                        case 'UpiQrOtm':
+                          methodFlags.isUPIOtmQRVisible = true;
+                          break;
+                      }
+                      break;
+                
+                    case 'Card':
+                      methodFlags.isCardsVisible = true;
+                      break;
+                
+                    case 'Wallet':
+                      methodFlags.isWalletVisible = true;
+                      break;
+                
+                    case 'NetBanking':
+                      methodFlags.isNetbankingVisible = true;
+                      break;
+                
+                    case 'Emi':
+                      methodFlags.isEMIVisible = true;
+                      break;
+                
+                    case 'BuyNowPayLater':
+                      methodFlags.isBNPLVisible = true;
+                      break;
                   }
                 });
+                
             
                 setAmount(paymentDetails.money.amountLocaleFull);
                 const currencyCode: string | undefined =
@@ -512,7 +546,10 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     isWalletMethodEnabled : methodFlags.isWalletVisible,
                     isNetBankingMethodEnabled : methodFlags.isNetbankingVisible,
                     isEmiMethodEnabled : methodFlags.isEMIVisible,
-                    isBnplMethodEnabled : methodFlags.isBNPLVisible
+                    isBnplMethodEnabled : methodFlags.isBNPLVisible,
+                    isUPIOtmCollectMethodEnabled : methodFlags.isUPIOtmCollectVisible,
+                    isUPIOtmIntentMethodEnabled : methodFlags.isUPIIntentVisible,
+                    isUPIOtmQRMethodEnabled : methodFlags.isUPIOtmQRVisible
                   },
                 });
                 setPaymentHandler({
@@ -712,10 +749,10 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
               )}
 
               <UpiScreen
-                handleUpiPayment={(selectedIntent) =>
+                handleUpiPayment={(selectedIntent : string) =>
                   handlePaymentIntent(selectedIntent)
                 }
-                handleCollectPayment={(displayValue, instrumentValue, type) =>
+                handleCollectPayment={(displayValue : string, instrumentValue : string, type : string) =>
                   handleUpiCollectPayment(displayValue, instrumentValue, type)
                 }
                 savedUpiArray={savedUpiArray}
@@ -743,12 +780,12 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   >
                     <SavedCardComponentView
                       savedCards={savedCardArray}
-                      onProceedForward={(instrumentValue) => {
+                      onProceedForward={(instrumentValue : string) => {
                         handleUpiCollectPayment('', instrumentValue, 'Card');
                       }}
                       errorImage={require('../../assets/images/ic_card.png')}
                       onClickAddCard={() => navigation.navigate("CardScreen", {})}
-                      onClickRadio={(selectedInstrumentRef) =>{
+                      onClickRadio={(selectedInstrumentRef : string) =>{
                         stopQRTimer()
                         handleSavedCardSectionClick(selectedInstrumentRef)
                       }
