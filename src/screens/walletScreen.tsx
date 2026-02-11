@@ -4,9 +4,7 @@ import {
   BackHandler,
   Image,
   ScrollView,
-  Dimensions,
-  StatusBar,
-  SafeAreaView,
+  Dimensions
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
@@ -193,6 +191,8 @@ const WalletScreen = ({ navigation }: Props) => {
   };
 
   const onExitCheckout = () => {
+    setSuccessModalState(false)
+    setSessionExppireModalState(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
@@ -220,8 +220,7 @@ const WalletScreen = ({ navigation }: Props) => {
   }, [searchText]);
 
   return (
-    <SafeAreaView style={styles.screenView}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.screenView}>
       {loading ? (
         <View
           style={styles.loaderView}
@@ -392,7 +391,7 @@ const WalletScreen = ({ navigation }: Props) => {
           />
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -3,9 +3,7 @@ import {
   BackHandler,
   Image,
   Pressable,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
   Text,
   View,
 } from 'react-native';
@@ -250,8 +248,7 @@ const AddressScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.screenView}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.screenView}>
       <Header
         onBackPress={onProceedBack}
         showDesc={false}
@@ -760,7 +757,7 @@ const AddressScreen = ({ navigation }: Props) => {
           </Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

@@ -4,9 +4,7 @@ import {
   BackHandler,
   Image,
   ScrollView,
-  Dimensions,
-  StatusBar,
-  SafeAreaView,
+  Dimensions
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
@@ -225,6 +223,8 @@ const NetBankingScreen = ({ navigation }: Props) => {
   };
 
   const onExitCheckout = () => {
+    setSuccessModalState(false)
+    setSessionExppireModalState(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
@@ -252,8 +252,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
   }, [searchText]);
 
   return (
-    <SafeAreaView style={styles.screenView}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.screenView}>
       {loading ? (
         <View
           style={styles.loadingContainer}
@@ -446,7 +445,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
           />
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
