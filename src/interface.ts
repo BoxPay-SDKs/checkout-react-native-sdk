@@ -46,7 +46,10 @@ export interface CheckoutDetails {
   isWalletMethodEnabled : boolean,
   isNetBankingMethodEnabled : boolean,
   isEmiMethodEnabled : boolean,
-  isBnplMethodEnabled : boolean
+  isBnplMethodEnabled : boolean,
+  isUPIOtmIntentMethodEnabled : boolean,
+  isUPIOtmCollectMethodEnabled : boolean,
+  isUPIOtmQRMethodEnabled : boolean
 }
 
 interface AnalyticsResponse {
@@ -128,7 +131,7 @@ export interface DeliveryAddress {
 }
 
 interface UPIIntentPayload {
-  type: 'upi/intent';
+  type: 'upi/intent' | 'upiotm/intent';
   upiAppDetails?: {
     upiApp: string; // Or a more specific type for the UPI app identifier
   };
@@ -142,11 +145,11 @@ interface CardTokenPayload {
 }
 
 interface UPIQRPayload {
-  type : 'upi/qr'
+  type : 'upi/qr' | 'upiotm/qr'
 }
 
 interface UPICollectPayload {
-  type: 'upi/collect';
+  type: 'upi/collect' | 'upiotm/collect';
   upi?: {
     instrumentRef?: string;
     shopperVpa?: string;

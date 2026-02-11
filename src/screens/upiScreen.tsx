@@ -65,6 +65,9 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
     isUpiCollectMethodEnabled: isUpiCollectVisible,
     isUpiIntentMethodEnabled: isUpiIntentVisible,
     isUpiQRMethodEnabled: isUpiQRVisible,
+    isUPIOtmIntentMethodEnabled : isUPIOtmIntentVisible,
+    isUPIOtmCollectMethodEnabled : isUPIOtmCollectVisible,
+    isUPIOtmQRMethodEnabled : isUPIOtmQRVisible
   } = checkoutDetails;
   const isTablet = Math.min(width, height) >= 600
   const [qrImage, setQrImage] = useState("")
@@ -87,7 +90,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 
   const handleUpiQRPayment = async() => {
     const requestPayload: InstrumentDetails ={
-      type: 'upi/qr',
+      type: isUPIOtmQRVisible ? "upiotm/qr" : 'upi/qr',
     }
     setLoading(true);
     const response = await upiPostRequest(requestPayload);
@@ -154,7 +157,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 
   return (
     <View>
-      {(isUpiIntentVisible || isUpiCollectVisible || (isUpiQRVisible && isTablet)) && (
+      {((isUpiIntentVisible || isUpiCollectVisible || (isUpiQRVisible && isTablet)) || ((isUPIOtmIntentVisible || isUPIOtmCollectVisible || (isUPIOtmQRVisible && isTablet)))) && (
         <View style={styles.headingContainer}>
           <Text style={styles.headingText}>Pay by any UPI</Text>
         </View>
@@ -162,12 +165,12 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
       <View style={styles.intentBackground}>
         <PaymentSelectorView
           providerList={savedUpiArray}
-          onProceedForward={(displayValue, instrumentValue, type) =>
+          onProceedForward={(displayValue : string, instrumentValue : string, type : string) =>
             handleCollectPayment(displayValue, instrumentValue, type)
           }
           errorImage={require('../../assets/images/ic_upi.png')}
           isLastUsed={false}
-          onClickRadio={(selectedValue) => {
+          onClickRadio={(selectedValue : string) => {
             setUpiQRVisible(false);
             stopTimer()
             setSelectedIntent(null);
@@ -178,7 +181,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
         <View
           style={styles.divider}
         />
-        {isUpiIntentVisible && (
+        {(isUpiIntentVisible || isUPIOtmIntentVisible) && (
           <View>
             <View style={styles.upiIntentRow}>
               {isGpayInstalled && (
@@ -331,7 +334,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
           </View>
         )}
 
-        {isUpiCollectVisible && (
+        {(isUpiCollectVisible || isUPIOtmCollectVisible) && (
           <View>
             {upiCollectVisible ? (
               <ImageBackground
@@ -339,7 +342,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                 resizeMode="cover"
                 style={{
                   paddingBottom: 34,
-                  marginTop: isUpiIntentVisible ? 24 : 0,
+                  marginTop: (isUpiIntentVisible || isUPIOtmIntentVisible) ? 24 : 0,
                 }}
               >
                 <Pressable
@@ -376,8 +379,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                 </Pressable>
               </ImageBackground>
             ) : (
-              <View style={{ paddingBottom: isUpiCollectVisible && (!isUpiQRVisible && !isTablet) ? 16 : 0 }}>
-                {isUpiIntentVisible && (
+              <View style={{ paddingBottom: (isUpiCollectVisible || isUPIOtmCollectVisible) && ((!isUpiQRVisible || !isUPIOtmQRVisible) && !isTablet) ? 16 : 0 }}>
+                {(isUpiIntentVisible || isUPIOtmIntentVisible) && (
                   <View
                     style={styles.subContainerDivider}
                   />
@@ -508,7 +511,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
           </View>
         )}
 
-        {(isUpiQRVisible && isTablet) && (
+        {((isUpiQRVisible || isUPIOtmQRVisible) && isTablet) && (
           <View>
           {upiQRVisible ? (
             <ImageBackground
@@ -516,7 +519,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
               resizeMode="cover"
               style={{
                 paddingBottom: 34,
-                marginTop: isUpiIntentVisible || isUpiCollectVisible ? 24 : 0,
+                marginTop: (isUpiIntentVisible || isUPIOtmIntentVisible) || (isUpiCollectVisible || isUPIOtmCollectVisible) ? 24 : 0,
               }}
             >
               <Pressable
@@ -553,8 +556,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
               </Pressable>
             </ImageBackground>
           ) : (
-            <View style={{ paddingBottom: isUpiCollectVisible || isUpiIntentVisible ? 16 : 0 }}>
-              {(isUpiIntentVisible || isUpiCollectVisible) && (
+            <View style={{ paddingBottom: (isUpiCollectVisible || isUPIOtmCollectVisible) || (isUpiIntentVisible || isUPIOtmIntentVisible) ? 16 : 0 }}>
+              {((isUpiIntentVisible || isUPIOtmIntentVisible) || (isUpiCollectVisible || isUPIOtmCollectVisible)) && (
                 <View
                   style={styles.subContainerDivider}
                 />
@@ -599,7 +602,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 {upiQRVisible && (
   <View
     style={{
-      paddingBottom: isUpiCollectVisible || isUpiIntentVisible ? 16 : 0,
+      paddingBottom: (isUpiCollectVisible || isUPIOtmCollectVisible) || (isUpiIntentVisible || isUPIOtmIntentVisible) ? 16 : 0,
       flexDirection: "row", // ✅ Arrange QR + text in a row
       alignItems: "center", // ✅ Align vertically in the center
     }}

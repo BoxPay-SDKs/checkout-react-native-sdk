@@ -35,7 +35,10 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
     isWalletMethodEnabled : false,
     isNetBankingMethodEnabled : false,
     isEmiMethodEnabled : false,
-    isBnplMethodEnabled : false
+    isBnplMethodEnabled : false,
+    isUPIOtmIntentMethodEnabled : false,
+    isUPIOtmCollectMethodEnabled : false,
+    isUPIOtmQRMethodEnabled : false
   },
 };
 
