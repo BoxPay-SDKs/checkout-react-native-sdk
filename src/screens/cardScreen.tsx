@@ -11,7 +11,7 @@ import type { RouteProp, NavigationProp } from '@react-navigation/native';
 import { Checkbox, TextInput } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
 import fetchCardDetails from '../postRequest/fetchCardDetails';
-import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import cardPostRequest from '../postRequest/cardPostRequest';
 import PaymentFailed from '../components/paymentFailed';
 import PaymentSuccess from '../components/paymentSuccess';
@@ -29,6 +29,7 @@ import styles from '../styles/screens/cardScreenStyles';
 import Toast from 'react-native-toast-message'
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
+import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
 
 type CardScreenRouteProp = RouteProp<CheckoutStackParamList, 'CardScreen'>;
 
@@ -521,23 +522,27 @@ const CardScreen = ({ route, navigation }: Props) => {
   };
 
   useEffect(() => {
-    BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        if (showWebView) {
-          setShowWebView(false);
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-          setStatus('Failed');
-          setFailedModalState(true);
-          setLoading(false);
-          return true;
-        } else if (loading) {
-          return true; // Prevent default back action
-        }
-        return onProceedBack(); // Allow back navigation if not loading
+
+    const backAction = () => {
+      if (showWebView) {
+        setShowWebView(false);
+        paymentFailedMessage.current = checkoutDetails.errorMessage;
+        setStatus('Failed');
+        setFailedModalState(true);
+        setLoading(false);
+        return true;
+      } else if (loading) {
+        return true; // Prevent default back action
       }
+      return onProceedBack();
+    }
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
     );
-  });
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   useEffect(() => {
     checkCardValid();
@@ -550,6 +555,8 @@ const CardScreen = ({ route, navigation }: Props) => {
       status: status || '',
       transactionId: transactionId || '',
     };
+    setCheckOutDetailsHandlerToDefault()
+    setUserDataHandlerToDefault()
     paymentHandler.onPaymentResult(mockPaymentResult);
   };
 
@@ -907,6 +914,7 @@ const CardScreen = ({ route, navigation }: Props) => {
             </Text>
           )}
           {shopperToken != null && shopperToken != '' && (
+            <>
             <TextInput
               mode="outlined"
               label={
@@ -947,8 +955,6 @@ const CardScreen = ({ route, navigation }: Props) => {
                 setCardNickNameFocused(true);
               }}
             />
-          )}
-          {
             <View
               style={styles.infoContainer}
             >
@@ -961,10 +967,8 @@ const CardScreen = ({ route, navigation }: Props) => {
               >
                 CVV will not be stored
               </Text>
-            </View>
-          }
-          {shopperToken != null && shopperToken != '' && (
-            <View
+
+              <View
               style={styles.checkBoxContainer}
             >
               <Checkbox
@@ -972,7 +976,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                 onPress={() => {
                   setIsSavedCardCheckBoxClicked(!isSavedCardCheckBoxClicked);
                 }}
-                color={checkoutDetails.brandColor}
+                color={checkoutDetails.buttonColor}
               />
               <Text
                 style={styles.checkBoxText}
@@ -987,13 +991,15 @@ const CardScreen = ({ route, navigation }: Props) => {
               >
                 <Text
                   style={[styles.clickableText,{
-                    color: checkoutDetails.brandColor,
+                    color: checkoutDetails.buttonColor,
                   }]}
                 >
                   Know more
                 </Text>
               </Pressable>
             </View>
+            </View>
+            </>
           )}
           <View
             style={styles.pressableContainer}
@@ -1002,7 +1008,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               <Pressable
                 style={[
                   styles.buttonContainer,
-                  { backgroundColor: checkoutDetails.brandColor },
+                  { backgroundColor: checkoutDetails.buttonColor },
                 ]}
                 onPress={() => {
                   onProceedForward();
@@ -1014,7 +1020,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               <Pressable
                 style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' }]}
               >
-                <Text style={[styles.buttonText, { color: '#ADACB0' }]}>
+                <Text style={[styles.buttonText, { color: checkoutDetails.buttonTextColor }]}>
                   Make Payment
                 </Text>
               </Pressable>

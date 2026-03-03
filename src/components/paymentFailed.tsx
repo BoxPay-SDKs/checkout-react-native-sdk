@@ -43,7 +43,7 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.brandColor },
+              { backgroundColor: checkoutDetails.buttonColor },
             ]}
             onPress={()=> {
               callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Payment Failed Screen button clicked", errorMessage)

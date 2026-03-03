@@ -56,7 +56,7 @@ const KnowMoreBottomSheet = ({ onClick }: KnowMoreBottomSheetProps) => {
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.brandColor },
+              { backgroundColor: checkoutDetails.buttonColor },
             ]}
             onPress={onClick}
           >

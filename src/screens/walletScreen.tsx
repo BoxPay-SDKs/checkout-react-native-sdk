@@ -7,7 +7,7 @@ import {
   Dimensions
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
@@ -25,6 +25,7 @@ import ShimmerView from '../components/shimmerView';
 import styles from '../styles/screens/walletScreenStyles';
 import type { CheckoutStackParamList } from '../navigation';
 import type { NavigationProp } from '@react-navigation/native';
+import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
 
 type WalletScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'WalletScreen'>;
 
@@ -79,29 +80,28 @@ const WalletScreen = ({ navigation }: Props) => {
   };
 
   useEffect(() => {
+
+    const backAction = () => {
+      if (showWebView) {
+        setShowWebView(false);
+        paymentFailedMessage.current = checkoutDetails.errorMessage;
+        setStatus('Failed');
+        setFailedModalState(true);
+        setLoading(false);
+        return true;
+      } else if (loading) {
+        return true; // Prevent default back action
+      }
+      return onProceedBack();
+    }
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      () => {
-        if (showWebView) {
-          setShowWebView(false);
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-          setStatus('Failed');
-          setFailedModalState(true);
-          setLoading(false);
-          return true;
-        } else if (loading) {
-          return true; // Prevent default back action
-        }
-        return onProceedBack(); // Allow back navigation if not loading
-      }
+      backAction,
     );
 
-    return () => {
-      if (backHandler) {
-        backHandler.remove();
-      }
-    };
-  });
+    return () => backHandler.remove();
+  }, [navigation]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -197,6 +197,8 @@ const WalletScreen = ({ navigation }: Props) => {
       status: status || '',
       transactionId: transactionId || '',
     };
+    setUserDataHandlerToDefault()
+    setCheckOutDetailsHandlerToDefault()
     paymentHandler.onPaymentResult(mockPaymentResult);
   };
 

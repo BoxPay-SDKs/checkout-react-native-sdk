@@ -15,7 +15,7 @@ import {
   type PaymentMethod,
   APIStatus
 } from '../interface';
-import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
 import ShimmerView from '../components/shimmerView';
 import Header from '../components/header';
@@ -36,6 +36,7 @@ import styles from '../styles/screens/emiScreenStyles';
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
 import type { NavigationProp } from '@react-navigation/native';
+import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
 
 type EmiScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'EmiScreen'>;
 
@@ -373,27 +374,32 @@ const EmiScreen = ({ navigation }: Props) => {
     navigation.goBack()
     return true;
   };
+
   useEffect(() => {
-    BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        if (showWebView) {
-          setShowWebView(false);
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-          setStatus('Failed');
-          setFailedModalOpen(true);
-          setLoading(false);
-          return true;
-        } else if (loading) {
-          return true; // Prevent default back action
-        } else if (selectTenureScreen) {
-          setSelectTenureScreen(false);
-          return true;
-        }
-        return onProceedBack(); // Allow back navigation if not loading
+
+    const backAction = () => {
+      if (showWebView) {
+        setShowWebView(false);
+        paymentFailedMessage.current = checkoutDetails.errorMessage;
+        setStatus('Failed');
+        setFailedModalOpen(true);
+        setLoading(false);
+        return true;
+      } else if (loading) {
+        return true; // Prevent default back action
+      } else if (selectTenureScreen) {
+        setSelectTenureScreen(false);
+        return true;
       }
+      return onProceedBack(); 
+    }
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
     );
-  });
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   const navigateToCardScreen = (
     duration: number,
@@ -525,6 +531,8 @@ const EmiScreen = ({ navigation }: Props) => {
       status: status || '',
       transactionId: transactionId || '',
     };
+    setCheckOutDetailsHandlerToDefault()
+    setUserDataHandlerToDefault()
     paymentHandler.onPaymentResult(mockPaymentResult);
   };
 
@@ -569,7 +577,7 @@ const EmiScreen = ({ navigation }: Props) => {
                         style={[styles.cardsText,{
                           color:
                             selectedCard === item.cardType
-                              ? checkoutDetails.brandColor
+                              ? checkoutDetails.buttonColor
                               : '#01010273',
                         }]}
                         onPress={() => handleCardClick(item.cardType)}
@@ -580,7 +588,7 @@ const EmiScreen = ({ navigation }: Props) => {
                         style={[styles.highlightedDivider,{
                           backgroundColor:
                             selectedCard === item.cardType
-                              ? checkoutDetails.brandColor
+                              ? checkoutDetails.buttonColor
                               : '',
                         }]}
                       />

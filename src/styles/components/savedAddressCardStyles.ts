@@ -32,7 +32,8 @@ const styles = StyleSheet.create({
     labelName: {
       fontSize: 14,
       fontFamily: 'Poppins-SemiBold',
-      color: "#2D2B32"
+      color: "#2D2B32",
+      paddingTop : 4
     },
     selectedTag: {
       backgroundColor: "#FFF0F6",

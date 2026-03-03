@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     footerTextStyle : {
         fontSize: 12,
         color: '#888888',
-        marginBottom: 15,
+        marginBottom: 13,
         fontFamily: 'Poppins-Medium',
     },
     footerIcon : { height: 50, width: 50 },

@@ -41,7 +41,7 @@ const SessionExpire: React.FC<SessionExpireProps> = ({ onClick }) => {
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.brandColor },
+              { backgroundColor: checkoutDetails.buttonColor },
             ]}
             onPress={() => {
               onClick()

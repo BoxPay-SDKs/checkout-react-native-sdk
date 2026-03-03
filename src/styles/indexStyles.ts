@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     footerText : {
         fontSize: 12,
         color: '#888888',
-        marginBottom: 15,
+        marginBottom: 13,
         fontFamily: 'Poppins-Medium',
     },
     footerImage : { height: 50, width: 50 },

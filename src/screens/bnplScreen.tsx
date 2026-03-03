@@ -6,7 +6,7 @@ import {
   ScrollView
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
-import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
 import type { PaymentClass, PaymentResultObject } from '../interface';
@@ -23,6 +23,7 @@ import styles from '../styles/screens/bnplScreenStyles';
 import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
 import type { NavigationProp } from '@react-navigation/native';
+import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
 
 type BNPLScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'BNPLScreen'>;
 
@@ -63,23 +64,27 @@ const BNPLScreen = ({ navigation }: Props) => {
   };
 
   useEffect(() => {
-    BackHandler.addEventListener(
-      'hardwareBackPress',
-      () => {
-        if (showWebView) {
-          setShowWebView(false);
-          paymentFailedMessage.current = checkoutDetails.errorMessage;
-          setStatus('Failed');
-          setFailedModalState(true);
-          setLoading(false);
-          return true;
-        } else if (loading) {
-          return true; // Prevent default back action
-        }
-        return onProceedBack(); // Allow back navigation if not loading
+
+    const backAction = () => {
+      if (showWebView) {
+        setShowWebView(false);
+        paymentFailedMessage.current = checkoutDetails.errorMessage;
+        setStatus('Failed');
+        setFailedModalState(true);
+        setLoading(false);
+        return true;
+      } else if (loading) {
+        return true; // Prevent default back action
       }
+      return onProceedBack();
+    }
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
     );
-  });
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -174,6 +179,8 @@ const BNPLScreen = ({ navigation }: Props) => {
       status: status || '',
       transactionId: transactionId || '',
     };
+    setCheckOutDetailsHandlerToDefault()
+    setUserDataHandlerToDefault()
     paymentHandler.onPaymentResult(mockPaymentResult);
   };
 

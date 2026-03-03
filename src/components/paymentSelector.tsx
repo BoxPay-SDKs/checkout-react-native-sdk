@@ -42,7 +42,7 @@ const PaymentSelectorView = ({
             onProceedForward={(displayValue, instrumentValue) => {
               onProceedForward(displayValue, instrumentValue, provider.type);
             }}
-            brandColor={checkoutDetails.brandColor || '#1CA672'}
+            brandColor={checkoutDetails.buttonColor || '#1CA672'}
             currencySymbol={checkoutDetails.currencySymbol || '₹'}
             amount={checkoutDetails.amount}
           />

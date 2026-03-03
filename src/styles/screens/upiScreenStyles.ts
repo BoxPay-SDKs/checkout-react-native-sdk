@@ -82,7 +82,6 @@ const styles = StyleSheet.create({
         paddingVertical: 14,
     },
     buttonText: {
-        color: 'white',
         fontSize: 16,
         fontFamily: 'Poppins-SemiBold',
     },
@@ -160,9 +159,8 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-SemiBold',
     },
     animatedIcon : {
-        alignSelf: 'center',
         height: 6,
-        width: 14,
+        width: 14
     },
     subContainerDivider : {
         flexDirection: 'row',

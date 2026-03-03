@@ -21,7 +21,7 @@ import SavedAddressComponent from '../components/savedAddressCard';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import SavedAddressBottomSheet from '../components/savedAddressBottomSheet';
 import { setUserDataHandler, userDataHandler } from '../sharedContext/userdataHandler';
-import { extractNames, formatAddress } from '../utility';
+import { extractNames, formatAddress, getPhoneNumberCodeAndCountryName } from '../utility';
 import DeleteAddressModal from '../components/deleteAddressModal';
 
 type AddressScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'AddressScreen'>;
@@ -108,25 +108,33 @@ const SavedAddressScreen = ({ navigation }: Props) => {
 
 
     useEffect(() => {
-        BackHandler.addEventListener(
-          'hardwareBackPress',
-          () => {
+
+        const backAction = () => {
             if (loading) {
-              return true; 
+                return true; 
             }
-            return onProceedBack(); // Allow back navigation if not loading
-          }
+            return onProceedBack();
+        }
+        const backHandler = BackHandler.addEventListener(
+          'hardwareBackPress',
+          backAction,
         );
-      });
+    
+        return () => backHandler.remove();
+    }, [navigation]);
+
     useEffect(() => {
         if(updateAddress || isEditClicked) {
+            setIsEditClicked(false)
             const { firstName, lastName } = extractNames(selectedAddress?.name ?? "");
+            const selectedCountry = getPhoneNumberCodeAndCountryName(selectedAddress?.countryCode ?? "")
             setUserDataHandler({
                 userData: {
                   email: selectedAddress?.email ?? "",
                   firstName: firstName,
                   lastName: lastName,
-                  phone: selectedAddress?.phoneNumber ?? "",
+                  completePhoneNumber: selectedAddress?.phoneNumber ?? "",
+                  phoneCode : selectedCountry.isdCode ?? "",
                   uniqueId: userDataHandler.userData.uniqueId,
                   dob: userDataHandler.userData.dob,
                   pan: userDataHandler.userData.pan,
@@ -135,13 +143,14 @@ const SavedAddressScreen = ({ navigation }: Props) => {
                   city: selectedAddress?.city ?? "",
                   state: selectedAddress?.state ?? "",
                   pincode: selectedAddress?.postalCode ?? "",
-                  country: selectedAddress?.countryCode ?? "",
+                  countryCode: selectedAddress?.countryCode ?? "",
+                  countryName : selectedCountry.fullName ?? "",
                   labelType: selectedAddress?.labelType ?? "",
                   labelName: selectedAddress?.labelName ?? "",
                 },
             });
             if(isEditClicked) {
-                navigation.navigate("AddressScreen",{})
+                navigation.navigate("AddressScreen",{isNewAddress : false})
             } else {
                 navigation.goBack()
             }
@@ -180,21 +189,37 @@ const SavedAddressScreen = ({ navigation }: Props) => {
                     style={styles.pressableContainer}
                     onPress={() => {
                       if (checkoutDetails.isShippingAddressEditable) {
-                        navigation.navigate("AddressScreen",{})
+                        navigation.navigate("AddressScreen",{isNewAddress : true})
                       }
                     }}
                   >
                     <Image
                       source={require('../../assets/images/add_icon.png')}
-                      style={[styles.imageStyle, {tintColor:checkoutDetails.brandColor}]}
+                      style={[styles.imageStyle, {tintColor:checkoutDetails.buttonColor}]}
                     />
                     <Text
                       numberOfLines={1}
                       ellipsizeMode="tail"
-                      style={[styles.insideContainerClickableText, {color:checkoutDetails.brandColor}]}
+                      style={[styles.insideContainerClickableText, {color:checkoutDetails.buttonColor, paddingTop:4}]}
                     >
                       Add new address
                     </Text>
+                    <Image
+                      source={require('../../assets/images/chervon-down.png')}
+                      style={{
+                        alignSelf: 'center',
+                        height: 6,
+                        width: 14,
+                        marginTop : 6,
+                        marginRight :10,
+                        marginLeft: 'auto',
+                        transform: [
+                          {
+                            rotate: '270deg',
+                          },
+                        ],
+                      }}
+                    />
                   </Pressable>
                   {savedAddressList.length !== 0 && (
     <>

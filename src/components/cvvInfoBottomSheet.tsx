@@ -43,7 +43,7 @@ const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick }) => {
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.brandColor },
+              { backgroundColor: checkoutDetails.buttonColor },
             ]}
             onPress={onClick}
           >
