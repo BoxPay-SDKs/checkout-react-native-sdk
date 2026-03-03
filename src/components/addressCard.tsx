@@ -53,6 +53,23 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                         {address}
                       </Text>
                     </View>
+                    {checkoutDetails.isShippingAddressEditable && (
+                      <Image
+                      source={require('../../assets/images/chervon-down.png')}
+                      style={{
+                        alignSelf: 'center',
+                        height: 6,
+                        width: 14,
+                        marginTop : 4,
+                        marginRight :10,
+                        transform: [
+                          {
+                            rotate: '270deg',
+                          },
+                        ],
+                      }}
+                    />
+                    )}
                   </Pressable>
                 </View>
               )}
@@ -83,6 +100,24 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                     >
                       Add new address
                     </Text>
+                    {checkoutDetails.isShippingAddressEditable && (
+                      <Image
+                      source={require('../../assets/images/chervon-down.png')}
+                      style={{
+                        alignSelf: 'center',
+                        height: 6,
+                        width: 14,
+                        marginTop : 6,
+                        marginRight :10,
+                        marginLeft: 'auto',
+                        transform: [
+                          {
+                            rotate: '270deg',
+                          },
+                        ],
+                      }}
+                    />
+                    )}
                   </Pressable>
                 </View>
               )}
@@ -107,7 +142,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                         }
                       }}
                     >
-                      {(userData.firstName != '' || userData.phone != '' || userData.email != '') && (
+                      {(userData.firstName != '' || userData.completePhoneNumber != '' || userData.email != '') && (
                         <>
                           <Image
                             source={require('../../assets/images/ic_user.png')}
@@ -123,7 +158,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                               <Text
                                 style={styles.insideContainerHighlighedText}
                               >
-                                {userData.phone}
+                                {userData.completePhoneNumber}
                               </Text>
                             </Text>
                             <Text
@@ -136,7 +171,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                           </View>
                         </>
                       )}
-                      {(userData.firstName == '' || userData.phone == '' || userData.email == '') && (
+                      {(userData.firstName == '' || userData.completePhoneNumber == '' || userData.email == '') && (
                         <>
                           <Image
                             source={require('../../assets/images/add_icon.png')}
@@ -151,6 +186,27 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                           </Text>
                         </>
                       )}
+
+                      {(checkoutDetails.isFullNameEditable ||
+                            checkoutDetails.isPhoneEditable ||
+                            checkoutDetails.isEmailEditable) && (
+                      <Image
+                      source={require('../../assets/images/chervon-down.png')}
+                      style={{
+                        alignSelf: 'center',
+                        height: 6,
+                        width: 14,
+                        marginTop : 4,
+                        marginRight :4,
+                        marginLeft: 'auto',
+                        transform: [
+                          {
+                            rotate: '270deg',
+                          },
+                        ],
+                      }}
+                    />
+                    )}
                     </Pressable>
                   </View>
               )}

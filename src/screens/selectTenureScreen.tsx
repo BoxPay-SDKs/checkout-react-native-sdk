@@ -114,7 +114,7 @@ const SelectTenureScreen = ({
                 selectedEmi === item.amount &&
                 selectedDuration === item.duration
               }
-              brandColor={checkoutDetails.brandColor}
+              brandColor={checkoutDetails.buttonColor}
               onRadioClick={(duration, amount) => {
                 setSelectedDuration(duration);
                 setSelectedEmi(amount);

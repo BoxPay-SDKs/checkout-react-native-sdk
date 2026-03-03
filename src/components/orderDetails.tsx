@@ -9,7 +9,8 @@ export interface OrderDetailsProps {
   subTotalAmount: string;
   shippingAmount: string;
   taxAmount: string;
-  surchargeDetails : SurchargeProp[]
+  surchargeDetails : SurchargeProp[],
+  selectedPaymentMethod : string
 }
 
 export interface ItemsProp {
@@ -21,7 +22,8 @@ export interface ItemsProp {
 
 export interface SurchargeProp {
   title : string, 
-  amount : number
+  amount : number,
+  applicable : string
 }
 
 const OrderDetails = ({
@@ -30,7 +32,8 @@ const OrderDetails = ({
   subTotalAmount,
   shippingAmount,
   taxAmount,
-  surchargeDetails
+  surchargeDetails,
+  selectedPaymentMethod
 }: OrderDetailsProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { checkoutDetails } = checkoutDetailsHandler;
@@ -337,7 +340,16 @@ const OrderDetails = ({
             </View>
           )}
           {surchargeDetails.length != 0 && (
-            surchargeDetails.map((item, index) => (
+            surchargeDetails
+            ?.filter(item => {
+              const applicable = item?.applicable?.toLowerCase?.();
+          
+              return (
+                !applicable || // handles "", null, undefined
+                applicable === selectedPaymentMethod?.toLowerCase?.()
+              );
+            })
+            .map((item, index)  => (
               <View
               key={index}
             style={{

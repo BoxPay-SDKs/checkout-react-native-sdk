@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
         paddingBottom: 12,
     },
     buttonText: {
-        color: 'white',
         fontSize: 16,
         fontFamily: 'Poppins-SemiBold',
     },
@@ -46,6 +45,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular',
         color: '#E12121',
         marginHorizontal: 16,
+        marginTop : 2
     },
     container : {
         flex: 1,

@@ -13,10 +13,10 @@ import UpiScreen from '../screens/upiScreen';
 import { useIsFocused, type NavigationProp, type RouteProp } from "@react-navigation/native";
 import type { CheckoutStackParamList } from '../navigation';
 import { paymentHandler, setPaymentHandler } from "../sharedContext/paymentStatusHandler";
-import { loadCustomFonts, loadInterCustomFonts } from '../components/fontFamily';
-import { setUserDataHandler, userDataHandler } from '../sharedContext/userdataHandler';
-import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps } from '../interface';
-import { checkoutDetailsHandler, setCheckoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import { loadBoxpayFonts } from '../components/fontFamily';
+import { setUserDataHandler, setUserDataHandlerToDefault, userDataHandler } from '../sharedContext/userdataHandler';
+import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse } from '../interface';
+import { checkoutDetailsHandler, setCheckoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import WebViewScreen from '../screens/webViewScreen';
 import styles from '../styles/indexStyles';
 import getSymbolFromCurrency from 'currency-symbol-map';
@@ -30,8 +30,10 @@ import fetchSessionDetails from '../postRequest/fetchSessionDetails';
 import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
-import { formatAddress, useCountdown } from '../utility';
+import { formatAddress, getPhoneNumberCodeAndCountryName, useCountdown } from '../utility';
 import fetchSurCharge from '../postRequest/fetchSurcharge';
+import fetchInstantOffer from '../postRequest/fetchInstantOffer';
+import ApplyCouponCard from '../components/applyCouponCard';
 
 type MainScreenRouteProp = RouteProp<CheckoutStackParamList, 'MainScreen'>;
 
@@ -57,7 +59,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const appStateListenerRef = useRef<any>(null);
   const [loadingState, setLoadingState] = useState(false);
   const [isFirstLoading, setIsFirstLoading] = useState(true);
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(0);
   const totalItemsRef = useRef(0);
   const [address, setAddress] = useState('');
   const [failedModalOpen, setFailedModalState] = useState(false);
@@ -88,6 +90,13 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   } = useCountdown(300)
 
   let isFirstTimeLoadRef = useRef(true);
+
+  const [appliedOffer, setAppliedOffer] = useState<GetInstantOffersResponse | null>(null)
+  const [appliedSurchargeAmount, setAppliedSurchargeAmount] = useState<number>(0)
+  const [instantOfferList , setInstantOfferList] = useState<GetInstantOffersResponse[]>([])
+  const [isOfferApplied, setIsOfferApplied] = useState(false)
+
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('')
 
   const handlePaymentIntent = async (selectedIntent: string) => {
     setLoadingState(true);
@@ -171,7 +180,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         city : userDataHandler.userData.city,
         state :  userDataHandler.userData.state,
         postalCode : userDataHandler.userData.pincode,
-        countryCode: userDataHandler.userData.country,
+        countryCode: userDataHandler.userData.countryCode,
         labelName : userDataHandler.userData.labelName,
         labelType : userDataHandler.userData.labelType
       }
@@ -285,6 +294,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         status: status,
         transactionId: transactionId,
       };
+      setUserDataHandlerToDefault()
+      setCheckOutDetailsHandlerToDefault()
       paymentHandler.onPaymentResult(mockPaymentResult);
       return true;
     }
@@ -313,12 +324,11 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     );
 
     return () => backHandler.remove();
-  });
+  }, [navigation]);
 
   useEffect(() => {
     async function loadFonts() {
-      await loadCustomFonts();
-      await loadInterCustomFonts();
+      await loadBoxpayFonts()
     }
     loadFonts()
 
@@ -350,6 +360,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 paymentMethods.forEach((method: PaymentMethod) => {
                   switch (method.type) {
                     case 'Upi':
+                      setSelectedPaymentMethod('upi')
                       switch (method.brand) {
                         case 'UpiIntent':
                           methodFlags.isUPIIntentVisible = true;
@@ -400,7 +411,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 });
                 
             
-                setAmount(paymentDetails.money.amountLocaleFull);
+                setAmount(paymentDetails.money.amount);
                 const currencyCode: string | undefined =
                   paymentDetails?.money?.currencyCode;
                 const symbol = currencyCode
@@ -451,7 +462,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 let cityRef = null;
                 let stateRef = null;
                 let postalCodeRef = null;
-                let countryCodeRef = null;
+                let countryCodeRef = "IN";
                 if (paymentDetails.shopper.deliveryAddress != null) {
                   const deliveryObject = paymentDetails.shopper.deliveryAddress;
                   labelTypeRef = deliveryObject.labelType;
@@ -461,7 +472,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   cityRef = deliveryObject.city;
                   stateRef = deliveryObject.state;
                   postalCodeRef = deliveryObject.postalCode;
-                  countryCodeRef = deliveryObject.countryCode;
+                  countryCodeRef = deliveryObject.countryCode ?? "IN";
                   if (address2Ref == null || address2Ref == '') {
                     setAddress(
                       `${address1Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`
@@ -480,12 +491,15 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 } else if (['EXPIRED'].includes(response.data.status)) {
                   setSessionExppireModalState(true);
                 }
+
+                const selectedCountry = getPhoneNumberCodeAndCountryName(countryCodeRef)
                 setUserDataHandler({
                   userData: {
                     email: emailRef,
                     firstName: firstNameRef,
                     lastName: lastNameRef,
-                    phone: phoneRef,
+                    completePhoneNumber: phoneRef,
+                    phoneCode : selectedCountry?.isdCode ?? "+91",
                     uniqueId: uniqueIdRef,
                     dob: dobRef,
                     pan: panRef,
@@ -494,7 +508,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     city: cityRef,
                     state: stateRef,
                     pincode: postalCodeRef,
-                    country: countryCodeRef,
+                    countryCode: countryCodeRef,
+                    countryName : selectedCountry?.fullName ?? "India",
                     labelType: labelTypeRef,
                     labelName: labelNameRef,
                   },
@@ -519,8 +534,10 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     currencyCode : currencyCode,
                     amount: paymentDetails.money.amountLocaleFull,
                     token: token,
-                    brandColor:
-                      response.data.merchantDetails.checkoutTheme.primaryButtonColor,
+                    buttonColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
+                    buttonTextColor : response.data.merchantDetails.checkoutTheme.buttonTextColor,
+                    headerColor : response.data.merchantDetails.checkoutTheme.headerColor,
+                    headerTextColor : response.data.merchantDetails.checkoutTheme.headerTextColor,
                     env: checkoutDetailsHandler.checkoutDetails.env,
                     itemsLength: totalItemsRef.current,
                     errorMessage:
@@ -555,9 +572,6 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 setPaymentHandler({
                   onPaymentResult: onPaymentResult,
                 });
-                if(shopperToken != null && shopperToken != "") {
-                  getRecommendedInstruments()
-                }
                 handleSurchargeDetails()
                 callUIAnalytics(AnalyticsEvents.CHECKOUT_LOADED,"Index Screen Session Loaded","")
               break;
@@ -588,25 +602,75 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         if(data.appliedSurcharges.length != 0 ) {
           const surcharge = data.appliedSurcharges.map(item => ({
             title: item.surchargeDetails.title,
-            amount: item.calculatedSurchargeFee
+            amount: item.calculatedSurchargeFee,
+            applicable : item.surchargeDetails.applicableOn
           }))
+
+          let sum = 0
+          surcharge.map((item) => {
+            if (item.applicable === 'Upi' || item.applicable === '') {
+              sum += item.amount;
+            }
+          }, 0);
+          setAppliedSurchargeAmount((sum + amount))
           setSurchargeDetails(surcharge)
-          checkoutDetailsHandler.checkoutDetails.amount = data.finalAmountAfterSurcharge.amount.toLocaleString()
-          setAmount(data.finalAmountAfterSurcharge.amount.toLocaleString())
+          getInstantOfferDetails((sum + amount).toString())
         }
-        setIsFirstLoading(false)
         break
       }
       case APIStatus.Failed : {
-        setIsFirstLoading(false)
+        getInstantOfferDetails("")
         break
       }
 
       default : {
-        setIsFirstLoading(false)
+        getInstantOfferDetails("")
         break
       }
     }
+  }
+
+  const getInstantOfferDetails = async(amount : string) => {
+    const response = await fetchInstantOffer(amount)
+    switch (response.apiStatus) {
+      case APIStatus.Success : {
+        const data = response.data
+        const offer =
+          appliedOffer == null
+          ? data?.[0] ?? null
+          : data.find((it: GetInstantOffersResponse) => it.code === appliedOffer.code) ?? null;
+        setAppliedOffer(offer)
+        setInstantOfferList(data)
+        
+        callRecommendedOrStopLoding()
+        break
+      }
+      case APIStatus.Failed : {
+        callRecommendedOrStopLoding()
+        break
+      }
+
+      default : {
+        callRecommendedOrStopLoding()
+        break
+      }
+    }
+  }
+
+  const callRecommendedOrStopLoding =async() => {
+    if(shopperToken != null && shopperToken != "") {
+      getRecommendedInstruments()
+    } else {
+      setIsFirstLoading(false)
+    }
+  }
+
+
+  const onClickCoupon = (code : string) => {
+    console.log(`selected code is ${code}`)
+  }
+  const onClickRemoveCoupon = () => {
+    console.log("onclide removed coipon is clided")
   }
 
   const handleRecommendedSectionClick = (instrumentValue: string) => {
@@ -711,7 +775,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 if(checkoutDetailsHandler.checkoutDetails.shopperToken != null && checkoutDetailsHandler.checkoutDetails.shopperToken != "") {
                   navigation.navigate("SavedAddressScreen", {})
                 } else {
-                  navigation.navigate("AddressScreen", {})
+                  navigation.navigate("AddressScreen", {isNewAddress : address == ""})
                 }
               }}/>
 
@@ -794,7 +858,48 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   </View>
                 </View>
               )}
-              <MorePaymentMethods savedCards={savedCardArray} stopTimer={stopQRTimer}/>
+              <MorePaymentMethods savedCards={savedCardArray} stopTimer={stopQRTimer} setSelectedPaymentMethod={setSelectedPaymentMethod} surchargeDetails={surchargeDetails}/>
+              {instantOfferList.length != 0 && (
+                <View
+                  style={{
+                    marginVertical: 8,
+                    marginHorizontal: 16,
+                    paddingBottom: 16,
+                  }}
+                >
+                  <Text
+                  style={styles.headingText}
+                >
+                  Apply Coupon
+                </Text>
+                <ApplyCouponCard
+                selectedColor = {checkoutDetailsHandler.checkoutDetails.buttonColor}
+                code={appliedOffer?.code ?? ""}
+                description={appliedOffer?.description ?? ""}
+                discountAmount={appliedOffer?.discount?.amount?.toString() ?? ""}
+                currencySymbol={checkoutDetailsHandler.checkoutDetails.currencySymbol}
+                isCodeApplied = {isOfferApplied}
+                onClickApply={(code : string) => {
+                  const offer = instantOfferList.find((it: GetInstantOffersResponse) => it.code === code) ?? null
+                  setAppliedOffer(offer)
+                  setIsOfferApplied(true)
+                }}
+                onClickRemove={() => {
+                  setAppliedOffer(instantOfferList[0] ?? null)
+                  setIsOfferApplied(false)
+                }}
+                onClickViewAll={() => {
+                  navigation.navigate("InstantOfferScreen", {
+                    couponList : instantOfferList,
+                    selectedCouponCode : appliedOffer?.code ?? "",
+                    selectedColor : checkoutDetailsHandler.checkoutDetails.buttonColor,
+                    onClickCoupon : onClickCoupon,
+                    onClickRemoveCoupon: onClickRemoveCoupon
+                  })
+                }}
+                />
+                </View>
+              )}
               <View>
                 <Text
                   style={styles.headingText}
@@ -805,10 +910,11 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 <OrderDetails
                   subTotalAmount={subTotalAmountRef.current}
                   shippingAmount={shippingAmountRef.current}
-                  totalAmount={amount}
+                  totalAmount={appliedSurchargeAmount != 0 ? appliedSurchargeAmount.toString() : amount.toString()}
                   itemsArray={orderItemsArrayRef.current}
                   taxAmount={taxAmountRef.current}
                   surchargeDetails={surchargeDetails}
+                  selectedPaymentMethod={selectedPaymentMethod}
                 />
               </View>
 

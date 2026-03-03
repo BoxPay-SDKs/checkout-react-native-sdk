@@ -4,9 +4,11 @@ import type { ImageSourcePropType } from 'react-native';
 interface MorePaymentContainerProps {
   title: string;
   image: ImageSourcePropType;
+  surchargeFee : string,
+  currencySymbol : string
 }
 
-const MorePaymentContainer = ({ title, image }: MorePaymentContainerProps) => {
+const MorePaymentContainer = ({ title, image, surchargeFee, currencySymbol }: MorePaymentContainerProps) => {
   return (
     <View
       style={{
@@ -16,12 +18,31 @@ const MorePaymentContainer = ({ title, image }: MorePaymentContainerProps) => {
         alignItems: 'center',
       }}
     >
-      <Image source={image} style={{ width: 32, height: 32 }} />
+      <Image 
+        source={image} 
+        style={[
+          { width: 32, height: 32 }, 
+          title === 'EMI' && { transform: [{ scaleX: -1 }] }
+          ]} 
+      />
+      <View
+      style={{
+        flexDirection: 'column',
+        marginLeft: 12 
+      }}>
       <Text
-        style={{ fontSize: 14, fontFamily: 'Poppins-Medium', marginLeft: 12 }}
+        style={{ fontSize: 14, fontFamily: 'Poppins-Medium'}}
       >
         {title}
       </Text>
+      {surchargeFee != "" && (
+        <Text
+        style={{ fontSize: 14, fontFamily: 'Poppins-Medium', color : '#32CD32' }}
+      >
+        {currencySymbol}{surchargeFee} extra applied as surcharge
+      </Text>
+      )}
+      </View>
       <Image
         source={require('../../assets/images/chervon-down.png')}
         style={{

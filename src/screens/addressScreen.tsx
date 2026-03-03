@@ -16,20 +16,31 @@ import {
 } from '../sharedContext/userdataHandler';
 import styles from '../styles/screens/addressScreenStyles.';
 import type { CheckoutStackParamList } from '../navigation';
-import type { NavigationProp } from '@react-navigation/native';
-import { extractNames } from '../utility';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
+import { extractNames, getPhoneNumberCodeAndCountryName } from '../utility';
+import type { AddressScreenParams } from '../interface';
+import CountryPicker, {type Country, type CountryCode} from 'react-native-country-picker-modal'
 
+type AddressScreenRouteProp = RouteProp<CheckoutStackParamList, 'AddressScreen'>;
 type AddressScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'AddressScreen'>;
 
 interface Props {
+  route : AddressScreenRouteProp,
   navigation: AddressScreenNavigationProp;
 }
 
-const AddressScreen = ({ navigation }: Props) => {
+const AddressScreen = ({ route, navigation }: Props) => {
+  const {
+    isNewAddress
+  } = route.params as AddressScreenParams || {}; 
+
+  const isNewAddressBool = Array.isArray(isNewAddress) ? isNewAddress[0] : isNewAddress;
   const { userData } = userDataHandler;
   const { checkoutDetails } = checkoutDetailsHandler;
-  const [selectedCountryCode, /*setSelectedCountryCode*/] = useState('');
-  const selectedPhoneCodeRef = useRef('');
+  const [selectedCountryCode, setSelectedCountryCode] = useState<CountryCode>('IN');
+  const [selectedPhoneCode, setSelectedPhoneCode] = useState('');
+
+  const [showCountryPicker, setShowContryPicker] = useState(false);
 
   const isShippingEnabled = checkoutDetails.isShippingAddressEnabled;
   const isFullNameEnabled = checkoutDetails.isFullNameEnabled;
@@ -37,8 +48,9 @@ const AddressScreen = ({ navigation }: Props) => {
   const isEmailEnabled = checkoutDetails.isEmailEnabled;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const [countryTextFieldFocused] = useState(false);
+  const [countryTextFieldFocused, setCountryTextFieldFocused] = useState(false);
   const [phoneTextFieldFocused, setPhoneTextFieldFocused] = useState(false);
+  const [phoneCodeTextFieldFocused, setPhoneCodeTextFieldFocused] = useState(false);
   const [nameTextFieldFocused, setNameTextFieldFocused] = useState(false);
   const [mainAddressTextFieldFocused, setMainAddressTextFieldFocused] =
     useState(false);
@@ -51,9 +63,9 @@ const AddressScreen = ({ navigation }: Props) => {
     setSecondaryAddressTextFieldFocused,
   ] = useState(false);
 
-  const [countryTextField, /*setCountryTextField*/] = useState<string>('');
+  const [countryTextField, setCountryTextField] = useState<string>('');
   const [fullNameTextField, setFullNameTextField] = useState<string>('');
-  const [phoneNumberTextField, /*setPhoneNumberTextField*/] = useState<string>('');
+  const [phoneNumberTextField, setPhoneNumberTextField] = useState<string>('');
   const [emailTextField, setEmailTextField] = useState<string>('');
   const [pinTextField, setPinTextField] = useState<string>('');
   const [cityTextField, setCityTextField] = useState<string>('');
@@ -63,20 +75,22 @@ const AddressScreen = ({ navigation }: Props) => {
     useState<string>('');
 
   const [fullNameErrorText, setFullNameErrorText] = useState('');
-  const [mobileNumberErrorText, /*setMobileNumberErrorText*/] = useState('');
+  const [mobileNumberErrorText, setMobileNumberErrorText] = useState('');
   const [emailIdErrorText, setEmailIdErrorText] = useState('');
   const [pinCodeErrorText, setPinCodeErrorText] = useState('');
   const [cityErrorText, setCityErrorText] = useState('');
   const [stateErrorText, setStateErrorText] = useState('');
   const [mainAddressErrorText, setMainAddressErrorText] = useState('');
 
-  const [isFullNameValid, setIsFullNameValid] = useState(false);
-  const [isPhoneNumberValid, /*setIsPhoneNumberValid*/] = useState(false);
-  const [isEmailValid, setIsEmailValid] = useState(false);
-  const [isPinValid, setIsPinValid] = useState(false);
-  const [isCityValid, setIsCityValid] = useState(false);
-  const [isStateValid, setIsStateValid] = useState(false);
-  const [isMainAddressValid, setIsMainAddressValid] = useState(false);
+  const [isFullNameValid, setIsFullNameValid] = useState<boolean | null>(null);
+  const [isPhoneNumberValid, setIsPhoneNumberValid] = useState<boolean | null>(null);
+  const [isEmailValid, setIsEmailValid] = useState<boolean | null>(null);
+  const [isPinValid, setIsPinValid] = useState<boolean | null>(null);
+  const [isCityValid, setIsCityValid] = useState<boolean | null>(null);
+  const [isStateValid, setIsStateValid] = useState<boolean | null>(null);
+  const [isMainAddressValid, setIsMainAddressValid] = useState<boolean | null>(null);
+
+  const phoneNumberLengthList = useRef<number[]>([10])
 
   const onProceedBack = () => {
     navigation.goBack()
@@ -84,13 +98,45 @@ const AddressScreen = ({ navigation }: Props) => {
   };
 
   useEffect(() => {
-   BackHandler.addEventListener(
+
+    const backAction = () => {
+      return onProceedBack();
+    }
+    const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      () => {
-        return onProceedBack(); // Allow back navigation if not loading
-      }
+      backAction,
     );
-  });
+
+    return () => backHandler.remove();
+  }, [navigation]);
+
+  useEffect(() => {
+    if(!isNewAddress) {
+      setFullNameTextField(`${userData.firstName} ${userData.lastName}`)
+      setEmailTextField(userData.email ?? "")
+      setMainAddressTextField(userData.address1 ?? "")
+      setSecondaryAddressTextField(userData.address2 ?? "")
+      setCityTextField(userData.city ?? "")
+      setStateTextField(userData.state ?? "")
+      setSelectedCountryCode(
+        (userData.countryCode ?? 'IN') as CountryCode
+      );
+      setCountryTextField(userData.countryName ?? "")
+      setPinTextField(userData.pincode ?? "")
+
+      const selectedCountry = getPhoneNumberCodeAndCountryName(userData.countryCode ?? "IN")
+      setSelectedPhoneCode(selectedCountry.isdCode ?? "+91")
+      setCountryTextField(selectedCountry.fullName ?? "")
+
+      if (userData.completePhoneNumber?.startsWith(selectedCountry.isdCode)) {
+        // 2. Remove the ISD code from the beginning
+        const rawNumber = userData.completePhoneNumber.slice(selectedCountry.isdCode.length);
+        setPhoneNumberTextField(rawNumber)
+
+        phoneNumberLengthList.current = selectedCountry.phoneNumberLength
+      }
+    }
+  }, [userData])
 
   const onChangeFullName = (updatedText: string) => {
     setFullNameTextField(updatedText);
@@ -98,11 +144,34 @@ const AddressScreen = ({ navigation }: Props) => {
 
     if (trimmedText === '') {
       setFullNameErrorText('Required');
-      setIsFullNameValid(true);
+      setIsFullNameValid(false);
     } else {
       setFullNameErrorText('');
-      setIsFullNameValid(false);
+      setIsFullNameValid(true);
     }
+  };
+
+  const onChangePhoneNumber = (updatedText : string) => {
+    setPhoneNumberTextField(updatedText)
+    if(updatedText.length == 0) {
+      setMobileNumberErrorText("Required")
+      setIsPhoneNumberValid(false)
+    } else if(!phoneNumberLengthList.current.includes(updatedText.length)) {
+      setMobileNumberErrorText(`Mobile number must be ${phoneNumberLengthList.current} digits long`)
+      setIsPhoneNumberValid(false)
+    } else {
+      setMobileNumberErrorText("")
+      setIsPhoneNumberValid(true)
+    }
+  }
+
+  const handleCountrySelect = (country : Country) => {
+    console.log(country)
+    const selectedCountry = getPhoneNumberCodeAndCountryName(country?.cca2 ?? "IN")
+    setSelectedPhoneCode(selectedCountry.isdCode ?? "+91")
+    setCountryTextField(selectedCountry.fullName ?? "")
+    phoneNumberLengthList.current = selectedCountry.phoneNumberLength
+    setShowContryPicker(false);
   };
 
   const onChangeEmailId = (updatedText: string) => {
@@ -112,13 +181,13 @@ const AddressScreen = ({ navigation }: Props) => {
 
     if (trimmedText === '') {
       setEmailIdErrorText('Required');
-      setIsEmailValid(true);
+      setIsEmailValid(false);
     } else if (!emailRegexPattern.test(trimmedText)) {
       setEmailIdErrorText('Invalid Email');
-      setIsEmailValid(true);
+      setIsEmailValid(false);
     } else {
       setEmailIdErrorText('');
-      setIsEmailValid(false);
+      setIsEmailValid(true);
     }
   };
 
@@ -128,16 +197,16 @@ const AddressScreen = ({ navigation }: Props) => {
 
     if (trimmedText === '') {
       setPinCodeErrorText('Required');
-      setIsPinValid(true);
+      setIsPinValid(false);
     } else if (
-      selectedPhoneCodeRef.current === '+91' &&
+      selectedPhoneCode === '+91' &&
       trimmedText.length < 6
     ) {
       setPinCodeErrorText('Zip/Postal code must be 6 digits');
-      setIsPinValid(true);
+      setIsPinValid(false);
     } else {
       setPinCodeErrorText('');
-      setIsPinValid(false);
+      setIsPinValid(true);
     }
   };
 
@@ -147,10 +216,10 @@ const AddressScreen = ({ navigation }: Props) => {
 
     if (trimmedText === '') {
       setCityErrorText('Required');
-      setIsCityValid(true);
+      setIsCityValid(false);
     } else {
       setCityErrorText('');
-      setIsCityValid(false);
+      setIsCityValid(true);
     }
   };
 
@@ -160,10 +229,10 @@ const AddressScreen = ({ navigation }: Props) => {
 
     if (trimmedText === '') {
       setStateErrorText('Required');
-      setIsStateValid(true);
+      setIsStateValid(false);
     } else {
       setStateErrorText('');
-      setIsStateValid(false);
+      setIsStateValid(true);
     }
   };
 
@@ -173,7 +242,7 @@ const AddressScreen = ({ navigation }: Props) => {
 
     if (trimmedText === '') {
       setMainAddressErrorText('Required');
-      setIsMainAddressValid(true);
+      setIsMainAddressValid(false);
     } else {
       setMainAddressErrorText('');
       setIsMainAddressValid(true);
@@ -204,12 +273,20 @@ const AddressScreen = ({ navigation }: Props) => {
       isAllValid = false;
     }
 
+    // Phone Number
+    const phoneNumberTrimmed = safeTrim(phoneNumberTextField)
+    const phoneNumberValid = phoneNumberLengthList.current.includes(phoneNumberTrimmed.length) && isPhoneNumberEnabled
+    if(!phoneNumberValid) {
+      onChangePhoneNumber(phoneNumberTextField)
+      isAllValid = false
+    }
+
     // Shipping-specific fields
     if (isShippingEnabled) {
       // Postal Code
       const postalTrimmed = safeTrim(pinTextField);
       let postalValid = false;
-      if (selectedPhoneCodeRef.current === '+91') {
+      if (selectedPhoneCode === '+91') {
         postalValid = postalTrimmed !== '' && postalTrimmed.length >= 6;
       } else {
         postalValid = postalTrimmed !== '';
@@ -253,7 +330,7 @@ const AddressScreen = ({ navigation }: Props) => {
         onBackPress={onProceedBack}
         showDesc={false}
         showSecure={false}
-        text={isShippingEnabled ? 'Add Address' : 'Add Personal Details'}
+        text={(isShippingEnabled && isNewAddressBool) ? 'Add Address' : (isShippingEnabled && !isNewAddressBool) ? 'Edit Address' : (!isShippingEnabled && isNewAddressBool) ? 'Edit Personal Details' :  'Add Personal Details'}
       />
       <View
         style={styles.divider}
@@ -261,51 +338,54 @@ const AddressScreen = ({ navigation }: Props) => {
       <ScrollView>
         <View>
           {isShippingEnabled && (
-            <>
-              <Pressable
-                onPress={() => {}}
+            <TextInput
+            mode="outlined"
+            editable={true}                // allow focus
+            showSoftInputOnFocus={false}
+            label={
+              <Text
+                style={[styles.textFieldLable,{
+                  color: countryTextFieldFocused ? '#2D2B32' : '#ADACB0',
+                }]}
               >
-                <TextInput
-                  mode="outlined"
-                  label={
-                    <Text
-                      style={[styles.textFieldLable,{
-                        color: countryTextFieldFocused ? '#2D2B32' : '#ADACB0',
-                      }]}
-                    >
-                      Country*
-                    </Text>
-                  }
-                  value={countryTextField || ''}
-                  onChangeText={(_) => {}}
-                  editable={false} // disables keyboard input
-                  theme={{
-                    colors: {
-                      primary: '#2D2B32',
-                      outline: '#E6E6E6',
-                    },
-                  }}
-                  style={[
-                    styles.textInput,
-                    { marginTop: 28, marginHorizontal: 16 },
-                  ]}
-                  outlineStyle={{
-                    borderRadius: 8,
-                    borderWidth: 1.5,
-                  }}
-                  right={
-                    <TextInput.Icon
-                      icon={() => (
-                        <Image
-                          source={require('../../assets/images/chervon-down.png')}
-                          style={styles.imageStyle}
-                        />
-                      )}
-                    />
-                  }
-                />
-              </Pressable>
-            </>
+                Country*
+              </Text>
+            }
+            value={countryTextField || ''}
+            onChangeText={(_) => {}}
+            theme={{
+              colors: {
+                primary: '#2D2B32',
+                outline: '#E6E6E6',
+              },
+            }}
+            style={[
+              styles.textInput,
+              { marginTop: 28, marginHorizontal: 16 },
+            ]}
+            outlineStyle={{
+              borderRadius: 8,
+              borderWidth: 1.5,
+            }}
+            right={
+              <TextInput.Icon
+                icon={() => (
+                  <Image
+                    source={require('../../assets/images/chervon-down.png')}
+                    style={styles.imageStyle}
+                  />
+                )}
+              />
+            }
+            onFocus={() => {
+              setShowContryPicker(true)
+              setCountryTextFieldFocused(true);
+            }}
+            onBlur={() => {
+              setShowContryPicker(false)
+              setCountryTextFieldFocused(false);
+            }}
+          />
           )}
 
           {(isShippingEnabled || isFullNameEnabled) && (
@@ -315,7 +395,7 @@ const AddressScreen = ({ navigation }: Props) => {
                 label={
                   <Text
                     style={[styles.textFieldLable,{
-                      color: nameTextFieldFocused ? '#2D2B32' : '#ADACB0',
+                      color: (nameTextFieldFocused && fullNameTextField != "") ? '#2D2B32' : '#ADACB0',
                     }]}
                   >
                     Full Name*
@@ -335,7 +415,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16 },
                 ]}
-                error={isFullNameValid}
+                error={isFullNameValid == false}
                 outlineStyle={{
                   borderRadius: 8, // Add this
                   borderWidth: 1.5,
@@ -347,7 +427,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   setNameTextFieldFocused(false);
                 }}
               />
-              {isFullNameValid && (
+              {(isFullNameValid == false) && (
                 <Text
                   style={styles.errorText}
                 >
@@ -365,7 +445,18 @@ const AddressScreen = ({ navigation }: Props) => {
               >
                 <TextInput
                   mode="outlined"
-                  value={selectedPhoneCodeRef.current || ''}
+                  editable={true}                // allow focus
+                  showSoftInputOnFocus={false}
+                  label={
+                    <Text
+                      style={[styles.textFieldLable,{
+                        color: (phoneCodeTextFieldFocused && selectedPhoneCode != "") ? '#2D2B32' : '#ADACB0',
+                      }]}
+                    >
+                      Code*
+                    </Text>
+                  }
+                  value={selectedPhoneCode || ''}
                   onChangeText={(_) => {}}
                   theme={{
                     colors: {
@@ -375,7 +466,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   }}
                   style={[
                     styles.textInput,
-                    { width: 90, marginEnd: 8, marginTop: 6 },
+                    { width: 100, marginEnd: 8},
                   ]}
                   outlineStyle={{
                     borderRadius: 8,
@@ -391,12 +482,13 @@ const AddressScreen = ({ navigation }: Props) => {
                       )}
                     />
                   }
-                  keyboardType="number-pad"
                   onFocus={() => {
-                    setPhoneTextFieldFocused(true);
+                    setShowContryPicker(true)
+                    setPhoneCodeTextFieldFocused(true);
                   }}
                   onBlur={() => {
-                    setPhoneTextFieldFocused(false);
+                    setShowContryPicker(false)
+                    setPhoneCodeTextFieldFocused(false);
                   }}
                 />
                 <TextInput
@@ -404,14 +496,16 @@ const AddressScreen = ({ navigation }: Props) => {
                   label={
                     <Text
                       style={[styles.textFieldLable,{
-                        color: phoneTextFieldFocused ? '#2D2B32' : '#ADACB0',
+                        color: (phoneTextFieldFocused && phoneNumberTextField != "") ? '#2D2B32' : '#ADACB0',
                       }]}
                     >
                       Mobile Number*
                     </Text>
                   }
                   value={phoneNumberTextField || ''}
-                  onChangeText={(_) => {}}
+                  onChangeText={(it) => {
+                    onChangePhoneNumber(it)
+                  }}
                   theme={{
                     colors: {
                       primary: '#2D2B32',
@@ -419,7 +513,7 @@ const AddressScreen = ({ navigation }: Props) => {
                     },
                   }}
                   style={[styles.textInput, { flex: 1 }]}
-                  error={isPhoneNumberValid}
+                  error={isPhoneNumberValid == false}
                   outlineStyle={{
                     borderRadius: 8,
                     borderWidth: 1.5,
@@ -431,7 +525,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   }}
                 />
               </View>
-              {isPhoneNumberValid && (
+              {(isPhoneNumberValid == false) && (
                 <Text
                   style={styles.errorText}
                 >
@@ -447,7 +541,7 @@ const AddressScreen = ({ navigation }: Props) => {
                 label={
                   <Text
                     style={[styles.textFieldLable,{
-                      color: emailTextFieldFocused ? '#2D2B32' : '#ADACB0',
+                      color: (emailTextFieldFocused && emailTextField != "") ? '#2D2B32' : '#ADACB0',
                     }]}
                   >
                     Email ID*
@@ -467,7 +561,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16 },
                 ]}
-                error={isEmailValid}
+                error={isEmailValid == false}
                 outlineStyle={{
                   borderRadius: 8, // Add this
                   borderWidth: 1.5,
@@ -479,7 +573,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   setEmailTextFieldFocused(false);
                 }}
               />
-              {isEmailValid && (
+              {(isEmailValid == false) && (
                 <Text
                   style={styles.errorText}
                 >
@@ -501,7 +595,7 @@ const AddressScreen = ({ navigation }: Props) => {
                     label={
                       <Text
                         style={[styles.textFieldLable,{
-                          color: pincodeTextFieldFocused
+                          color: (pincodeTextFieldFocused && pinTextField != "")
                             ? '#2D2B32'
                             : '#ADACB0',
                         }]}
@@ -520,7 +614,7 @@ const AddressScreen = ({ navigation }: Props) => {
                       },
                     }}
                     style={[styles.textInput]}
-                    error={isPinValid}
+                    error={isPinValid == false}
                     outlineStyle={{
                       borderRadius: 8, // Add this
                       borderWidth: 1.5,
@@ -533,7 +627,7 @@ const AddressScreen = ({ navigation }: Props) => {
                       setPincodeTextFieldFocused(false);
                     }}
                   />
-                  {isPinValid && (
+                  {(isPinValid == false) && (
                     <Text
                       style={styles.errorText}
                     >
@@ -564,7 +658,7 @@ const AddressScreen = ({ navigation }: Props) => {
                       },
                     }}
                     style={[styles.textInput, { marginStart: 8 }]}
-                    error={isCityValid}
+                    error={isCityValid == false}
                     outlineStyle={{
                       borderRadius: 8, // Add this
                       borderWidth: 1.5,
@@ -576,7 +670,7 @@ const AddressScreen = ({ navigation }: Props) => {
                       setCityTextFieldFocused(false);
                     }}
                   />
-                  {isCityValid && (
+                  {(isCityValid == false) && (
                     <Text
                       style={styles.errorText}
                     >
@@ -610,7 +704,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16 },
                 ]}
-                error={isStateValid}
+                error={isStateValid == false}
                 outlineStyle={{
                   borderRadius: 8, // Add this
                   borderWidth: 1.5,
@@ -622,7 +716,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   setStateTextFieldFocused(false);
                 }}
               />
-              {isStateValid && (
+              {(isStateValid == false) && (
                 <Text
                   style={styles.errorText}
                 >
@@ -656,7 +750,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16 },
                 ]}
-                error={isMainAddressValid}
+                error={isMainAddressValid == false}
                 outlineStyle={{
                   borderRadius: 8, // Add this
                   borderWidth: 1.5,
@@ -668,7 +762,7 @@ const AddressScreen = ({ navigation }: Props) => {
                   setMainAddressTextFieldFocused(false);
                 }}
               />
-              {isMainAddressValid && (
+              {(isMainAddressValid == false) && (
                 <Text
                   style={styles.errorText}
                 >
@@ -717,13 +811,23 @@ const AddressScreen = ({ navigation }: Props) => {
           )}
         </View>
       </ScrollView>
+      <CountryPicker
+      visible = {showCountryPicker}
+      withFilter = {true}
+      withCallingCode = {true}
+      withAlphaFilter = {true}
+      withFlag = {true}
+      withEmoji = {true}
+      countryCode={selectedCountryCode}
+      onSelect={handleCountrySelect}
+      />
       <View
         style={styles.bottomContainer}
       >
         <Pressable
           style={[
             styles.buttonContainer,
-            { backgroundColor: checkoutDetails.brandColor },
+            { backgroundColor: checkoutDetails.buttonColor },
           ]}
           onPress={() => {
             // Todo add functon call
@@ -734,7 +838,8 @@ const AddressScreen = ({ navigation }: Props) => {
                   email: emailTextField,
                   firstName: firstName,
                   lastName: lastName,
-                  phone: `${selectedPhoneCodeRef.current}${phoneNumberTextField}`,
+                  completePhoneNumber: `${selectedPhoneCode}${phoneNumberTextField}`,
+                  phoneCode : selectedPhoneCode,
                   uniqueId: userData.uniqueId,
                   dob: userData.dob,
                   pan: userData.pan,
@@ -743,7 +848,8 @@ const AddressScreen = ({ navigation }: Props) => {
                   city: cityTextField,
                   state: stateTextField,
                   pincode: pinTextField,
-                  country: selectedCountryCode,
+                  countryCode: selectedCountryCode,
+                  countryName : countryTextField,
                   labelType: userData.labelType,
                   labelName: userData.labelName,
                 },
@@ -752,7 +858,12 @@ const AddressScreen = ({ navigation }: Props) => {
             }
           }}
         >
-          <Text style={styles.buttonText}>
+          <Text
+            style={[
+              styles.buttonText,
+              { color: checkoutDetails.buttonTextColor }
+            ]}
+          >
             {isShippingEnabled ? 'Save Address' : 'Save Personal Details'}
           </Text>
         </Pressable>

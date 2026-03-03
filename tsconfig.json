@@ -25,5 +25,9 @@
     "strict": true,
     "target": "ESNext",
     "verbatimModuleSyntax": true
-  }
+  },
+  "exclude" : [
+    "node_modules",
+    "**/node_modules/react-native-country-select/**"
+  ]
 }

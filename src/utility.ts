@@ -1,7 +1,8 @@
-import type { PaymentMethod, PaymentClass, DeliveryAddress } from './interface';
+import type { PaymentMethod, PaymentClass, DeliveryAddress, CountryDetails } from './interface';
 import { Dimensions, Platform } from 'react-native';
 import { userDataHandler } from './sharedContext/userdataHandler';
 import { useState, useRef, useCallback, useEffect } from 'react';
+import countryData from '../assets/json/countryCodes.json'
 
 export function transformAndFilterList(
   data: PaymentMethod[],
@@ -61,7 +62,7 @@ export function getShopperDetails() {
     address2: userData.address2,
     city: userData.city,
     state: userData.state,
-    countryCode: userData.country,
+    countryCode: userData.countryCode,
     postalCode: userData.pincode,
     labelType: userData.labelType,
     labelName: userData.labelName,
@@ -71,7 +72,7 @@ export function getShopperDetails() {
     firstName: userData.firstName,
     gender: null,
     lastName: userData.lastName,
-    phoneNumber: userData.phone,
+    phoneNumber: userData.completePhoneNumber,
     uniqueReference: userData.uniqueId,
     dateOfBirth: userData.dob,
     panNumber: userData.pan,
@@ -191,3 +192,10 @@ export const formatExpiry = (input: string): string => {
 
   return `${fullYear}-${month}`;
 };
+
+export const getPhoneNumberCodeAndCountryName = (countryCodeRef : string) : CountryDetails | any => {
+
+  const countryDataJson = countryData as Record<string, CountryDetails>;
+  return countryDataJson[countryCodeRef];
+
+}

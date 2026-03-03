@@ -37,8 +37,8 @@ const styles = StyleSheet.create({
         alignItems:'center'
       },
       imageStyle : {
-        height: 20,
-        width: 20,
+        height: 14,
+        width: 14,
         marginStart: 12
       },
       insideContainerClickableText : {

@@ -4,13 +4,16 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 import MorePaymentContainer from './morePaymentContainer';
 import type { CheckoutStackParamList } from '../navigation';
 import { useNavigation, type NavigationProp } from "@react-navigation/native";
+import type { SurchargeProp } from './orderDetails';
 
 interface MorePaymentMethodsArgs{
     savedCards : PaymentClass[],
-    stopTimer : () => void
+    stopTimer : () => void,
+    setSelectedPaymentMethod : (method : string) => void,
+    surchargeDetails : SurchargeProp[]
 }
 
-const MorePaymentMethods = ({savedCards, stopTimer}:MorePaymentMethodsArgs) => {
+const MorePaymentMethods = ({savedCards, stopTimer, setSelectedPaymentMethod, surchargeDetails}:MorePaymentMethodsArgs) => {
   const navigation = useNavigation<NavigationProp<CheckoutStackParamList>>();
     const {checkoutDetails} = checkoutDetailsHandler
     const {
@@ -74,12 +77,19 @@ const MorePaymentMethods = ({savedCards, stopTimer}:MorePaymentMethodsArgs) => {
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress= {() => {
                             stopTimer()
+                            setSelectedPaymentMethod("card")
                             navigation.navigate("CardScreen", {})
                           }}
                         >
                           <MorePaymentContainer
                             title="Cards"
                             image={require('../../assets/images/ic_card.png')}
+                            surchargeFee={
+                              (surchargeDetails.find(
+                                item => item.applicable?.toLowerCase() === 'card'
+                              )?.amount)?.toString() ?? ""
+                            }
+                            currencySymbol={checkoutDetails.currencySymbol}
                           />
                           {(isWalletVisible ||
                             isNetBankingVisible ||
@@ -102,12 +112,19 @@ const MorePaymentMethods = ({savedCards, stopTimer}:MorePaymentMethodsArgs) => {
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress={() => {
                             stopTimer()
+                            setSelectedPaymentMethod("wallet")
                             navigation.navigate("WalletScreen", {})
                           }}
                         >
                           <MorePaymentContainer
                             title="Wallet"
                             image={require('../../assets/images/ic_wallet.png')}
+                            surchargeFee={
+                              (surchargeDetails.find(
+                                item => item.applicable?.toLowerCase() === 'wallet'
+                              )?.amount)?.toString() ?? ""
+                            }
+                            currencySymbol={checkoutDetails.currencySymbol}
                           />
                           {(isNetBankingVisible ||
                             isEmiVisible ||
@@ -129,12 +146,19 @@ const MorePaymentMethods = ({savedCards, stopTimer}:MorePaymentMethodsArgs) => {
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress={() => {
                             stopTimer()
+                            setSelectedPaymentMethod("netbanking")
                             navigation.navigate("NetBankingScreen", {})
                           }}
                         >
                           <MorePaymentContainer
                             title="Netbanking"
                             image={require('../../assets/images/ic_netbanking.png')}
+                            surchargeFee={
+                              (surchargeDetails.find(
+                                item => item.applicable?.toLowerCase() === 'netbanking'
+                              )?.amount)?.toString() ?? ""
+                            }
+                            currencySymbol={checkoutDetails.currencySymbol}
                           />
                           {(isEmiVisible || isBNPLVisible) && (
                             <View
@@ -154,12 +178,19 @@ const MorePaymentMethods = ({savedCards, stopTimer}:MorePaymentMethodsArgs) => {
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress={() => {
                             stopTimer()
+                            setSelectedPaymentMethod("emi")
                             navigation.navigate("EmiScreen", {})
                           }}
                         >
                           <MorePaymentContainer
                             title="EMI"
                             image={require('../../assets/images/ic_emi.png')}
+                            surchargeFee={
+                              (surchargeDetails.find(
+                                item => item.applicable?.toLowerCase() === 'emi'
+                              )?.amount)?.toString() ?? ""
+                            }
+                            currencySymbol={checkoutDetails.currencySymbol}
                           />
                           {isBNPLVisible && (
                             <View
@@ -179,12 +210,19 @@ const MorePaymentMethods = ({savedCards, stopTimer}:MorePaymentMethodsArgs) => {
                           style={{ paddingHorizontal: 16, paddingTop: 16 }}
                           onPress={() => {
                             stopTimer()
+                            setSelectedPaymentMethod("buynowpaylater")
                             navigation.navigate("BNPLScreen", {})
                           }}
                         >
                           <MorePaymentContainer
                             title="Pay Later"
                             image={require('../../assets/images/ic_bnpl.png')}
+                            surchargeFee={
+                              (surchargeDetails.find(
+                                item => item.applicable?.toLowerCase() === 'buynowpaylater'
+                              )?.amount)?.toString() ?? ""
+                            }
+                            currencySymbol={checkoutDetails.currencySymbol}
                           />
                         </Pressable>
                       )}

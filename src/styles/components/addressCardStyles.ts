@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { checkoutDetailsHandler } from '../../sharedContext/checkoutDetailsHandler';
 
-const {brandColor} = checkoutDetailsHandler.checkoutDetails
+const {buttonColor} = checkoutDetailsHandler.checkoutDetails
 const styles = StyleSheet.create({
   titleText: {
     marginStart: 16,
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   insideContainerClickableText : {
     fontSize: 14,
-    color: brandColor,
+    color: buttonColor,
     fontFamily: 'Poppins-SemiBold',
     flexShrink: 1,
     marginTop: -4,

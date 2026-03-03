@@ -9,19 +9,22 @@ import NetBankingScreen from "./screens/netBankingScreen";
 import SavedAddressScreen from "./screens/savedAddressScreen";
 import WalletScreen from "./screens/walletScreen";
 import MainScreen from "./screens/mainScreen";
-import type { BoxpayCheckoutProps, CardScreenParams, UPITimerScreenParams } from "./interface";
+import type { AddressScreenParams, BoxpayCheckoutProps, CardScreenParams, UPITimerScreenParams } from "./interface";
 import { NavigationIndependentTree } from "@react-navigation/native";
+import type { InstantOfferProps } from "./screens/instantOfferList";
+import InstantOfferScreen from "./screens/instantOfferList";
 
 export type CheckoutStackParamList = {
   MainScreen : BoxpayCheckoutProps,
   CardScreen: CardScreenParams;
   EmiScreen: {};
   UpiTimerScreen: UPITimerScreenParams;
-  AddressScreen : {},
+  AddressScreen : AddressScreenParams,
   BNPLScreen : {},
   SavedAddressScreen : {},
   NetBankingScreen : {},
   WalletScreen : {},
+  InstantOfferScreen : InstantOfferProps
 };
 
 const Stack = createNativeStackNavigator<CheckoutStackParamList>();
@@ -48,6 +51,7 @@ const CheckoutNavigator = ({
       <Stack.Screen name="NetBankingScreen" component={NetBankingScreen}/>
       <Stack.Screen name="WalletScreen" component={WalletScreen}/>
       <Stack.Screen name="SavedAddressScreen" component={SavedAddressScreen}/>
+      <Stack.Screen name="InstantOfferScreen" component={InstantOfferScreen}/>
     </Stack.Navigator>
   );
 };

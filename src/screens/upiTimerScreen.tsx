@@ -16,11 +16,12 @@ import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import CircularProgressBar from '../components/circularProgress';
 import type { PaymentResultObject, UPITimerScreenParams } from '../interface';
 import styles from '../styles/screens/upiTimerScreenStyle';
-import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import { handleFetchStatusResponseHandler } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
 import type {RouteProp, NavigationProp} from '@react-navigation/native'
 import { useCountdown , formatTime} from '../utility';
+import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
 
 type UpiTimerScreenRouteProp = RouteProp<CheckoutStackParamList, 'UpiTimerScreen'>;
 
@@ -78,6 +79,8 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
       status: status,
       transactionId: transactionId,
     };
+    setUserDataHandlerToDefault()
+    setCheckOutDetailsHandlerToDefault()
     paymentHandler.onPaymentResult(mockPaymentResult);
   };
 
@@ -96,13 +99,19 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
     stopCollectTimer()
     navigation.goBack()
   };
-
+  
   useEffect(() => {
-    BackHandler.addEventListener(
+
+    const backAction = () => {
+      return onProceedBack();
+    }
+    const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      onProceedBack
+      backAction,
     );
-  }, []);
+
+    return () => backHandler.remove();
+  }, [navigation]);
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
@@ -175,12 +184,12 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
             size={150}
             strokeWidth={10}
             progressColor={
-              upiCollectTimerValue <= 30 ? '#FAA4A4' : checkoutDetails.brandColor
+              upiCollectTimerValue <= 30 ? '#FAA4A4' : checkoutDetails.buttonColor
             }
             progress={upiCollectTimerValue}
             formatTime={formatTime(upiCollectTimerValue)}
             textColor={
-              upiCollectTimerValue <= 30 ? '#F53535' : checkoutDetails.brandColor
+              upiCollectTimerValue <= 30 ? '#F53535' : checkoutDetails.buttonColor
             }
           />
         </View>
@@ -189,7 +198,7 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
         >
           <Image
             source={require('../../assets/images/ic_info.png')}
-            style={styles.infoImageStyle}
+            style={[styles.infoImageStyle, {tintColor : checkoutDetails.buttonColor}]}
           />
           <Text
             style={styles.infoText}
@@ -206,7 +215,7 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
       <View style={styles.cancelPaymentContainer}>
         <Text
           style={[styles.cancelTextStyle,{
-            color: checkoutDetails.brandColor
+            color: checkoutDetails.buttonColor
           }]}
           onPress={() => {
             setCancelClicked(true);

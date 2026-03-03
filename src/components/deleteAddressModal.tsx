@@ -46,7 +46,7 @@ const DeleteAddressModal = ({ visible, onCancel, onDelete, address } : DeletePro
     </Modal>
   );
 };
-const {brandColor} = checkoutDetailsHandler.checkoutDetails
+const {buttonColor} = checkoutDetailsHandler.checkoutDetails
 const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: "#fff",
@@ -91,13 +91,13 @@ const styles = StyleSheet.create({
   deleteButton: {
     flex: 1,
     paddingVertical: 12,
-    backgroundColor: brandColor,
+    backgroundColor: buttonColor,
     borderRadius: 8,
     alignItems: "center",
   },
   cancelText: {
     fontSize: 16,
-    color: brandColor,
+    color: buttonColor,
     fontFamily:"Poppins-Regular"
   },
   deleteText: {

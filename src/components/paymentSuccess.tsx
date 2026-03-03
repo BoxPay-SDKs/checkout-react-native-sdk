@@ -210,7 +210,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.brandColor },
+              { backgroundColor: checkoutDetails.buttonColor },
             ]}
             onPress={() => {
               callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Success Screen button clicked", "")

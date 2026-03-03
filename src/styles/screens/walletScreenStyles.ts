@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     bottomText : {
         fontSize: 12,
         color: '#888888',
-        marginBottom: 15,
+        marginBottom: 13,
         fontFamily: 'Poppins-Medium',  
     },
     bottomImage : {

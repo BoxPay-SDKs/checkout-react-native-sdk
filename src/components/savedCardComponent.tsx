@@ -36,7 +36,7 @@ const SavedCardComponentView = ({
             instrumentTypeValue={card.instrumentTypeValue}
             onPress={onClickRadio}
             onProceedForward={onProceedForward}
-            brandColor={checkoutDetails.brandColor || '#1CA672'}
+            brandColor={checkoutDetails.buttonColor || '#1CA672'}
             currencySymbol={checkoutDetails.currencySymbol || '₹'}
             amount={checkoutDetails.amount}
           />
@@ -67,14 +67,15 @@ const SavedCardComponentView = ({
             style={{
               height: 14,
               width: 14,
-              tintColor: checkoutDetails.brandColor,
+              tintColor: checkoutDetails.buttonColor,
             }}
           />
           <Text
             style={{
               fontSize: 14,
-              color: checkoutDetails.brandColor,
+              color: checkoutDetails.buttonColor,
               paddingStart: 10,
+              paddingTop : 4,
               fontFamily: 'Poppins-SemiBold',
             }}
           >

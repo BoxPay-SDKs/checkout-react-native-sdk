@@ -21,7 +21,10 @@ export interface CheckoutDetails {
   currencyCode : string,
   amount: string;
   token: string;
-  brandColor: string;
+  buttonColor: string;
+  buttonTextColor : string;
+  headerColor : string;
+  headerTextColor : string;
   env: string;
   itemsLength: number;
   errorMessage: string;
@@ -105,14 +108,16 @@ export interface UserData {
   firstName: string | null;
   lastName: string | null;
   email: string | null;
-  phone: string | null;
+  completePhoneNumber: string | null;
+  phoneCode : string | null;
   dob: string | null;
   pan: string | null;
   address1: string | null;
   address2: string | null;
   city: string | null;
   state: string | null;
-  country: string | null;
+  countryCode: string | null;
+  countryName : string | null;
   pincode: string | null;
   labelType: string | null;
   labelName: string | null;
@@ -289,7 +294,8 @@ export interface SurChargeResponse {
     surchargeDetails : {
       title : string,
       merchantId : string,
-      surchargeCode : string
+      surchargeCode : string,
+      applicableOn : string
     },
     calculatedSurchargeFee : number
   }[],
@@ -458,7 +464,8 @@ export interface SessionDetails {
     money : {
       amountLocaleFull : string,
       currencySymbol : string,
-      currencyCode : string
+      currencyCode : string,
+      amount : number
     },
     shopper : {
       firstName : string | null,
@@ -475,7 +482,9 @@ export interface SessionDetails {
   merchantDetails : {
     checkoutTheme : {
       primaryButtonColor : string,
-      buttonTextColor : string
+      buttonTextColor : string,
+      headerColor : string,
+      headerTextColor : string
     }
   },
   sessionExpiryTimestamp : string,
@@ -524,3 +533,65 @@ export interface CardScreenParams {
 export interface UPITimerScreenParams {
   upiId : string
 }
+
+export interface AddressScreenParams {
+  isNewAddress : boolean
+}
+
+export interface CountryDetails {
+  fullName: string;
+  isdCode: string;
+  phoneNumberLength: number[];
+  threeLetterCode: string;
+}
+
+
+export interface GetInstantOffersResponse {
+  title : string | null,
+  description: string | null,
+  terms : string | null,
+  type : string | null,
+  code : string | null,
+  discount : OfferDiscount | null,
+  enabled : boolean | null,
+  visibleOnCheckout : boolean | null,
+  criteria : Criteria | null
+}
+
+export interface OfferDiscount{
+  percentage : number | null,
+  amount : number | null,
+  type : string | null,
+  maxAmount : number | null
+}
+
+export interface Criteria{
+  startDate : string | null,
+  endDate : string | null,
+  minMoney : MinMoney | null,
+  applicableTo : Applicable | null
+}
+
+export interface MinMoney {
+  amount : number | null ;
+  currencyCode : string | null
+}
+
+export interface Applicable {
+  paymentMethods : OfferPaymentMethod[] | null
+}
+
+export interface OfferPaymentMethod {
+  type : string | null;
+  issuer : string | null
+}
+
+export type GetInstantDiscountResponse = 
+| {
+  apiStatus: APIStatus.Success;
+  data: GetInstantOffersResponse[]
+}
+| {
+  apiStatus: APIStatus.Failed;
+  data: ErrorResponse;
+};

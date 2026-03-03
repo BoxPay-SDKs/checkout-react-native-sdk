@@ -41,7 +41,7 @@ const CancelPaymentModal: React.FC<CancelPaymentModalProps> = ({
               <Text
                 style={[
                   styles.buttonText,
-                  { color: checkoutDetails.brandColor },
+                  { color: checkoutDetails.buttonColor },
                 ]}
               >
                 Not now
@@ -50,7 +50,7 @@ const CancelPaymentModal: React.FC<CancelPaymentModalProps> = ({
             <Pressable
               style={[
                 styles.confirmButton,
-                { backgroundColor: checkoutDetails.brandColor },
+                { backgroundColor: checkoutDetails.buttonColor },
               ]}
               onPress={onYesClick}
             >
