@@ -10,6 +10,7 @@ interface PaymentFailedProps {
   onClick: () => void;
   errorMessage: string;
 }
+
 const PaymentFailed: React.FC<PaymentFailedProps> = ({
   onClick,
   errorMessage,
@@ -25,11 +26,11 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({
             loop={false}
             style={{ width: 90, height: 90, alignSelf: 'center' }}
           />
-          <Text style={styles.successfulHeading}>Payment Failed</Text>
+          <Text style={[styles.successfulHeading, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Payment Failed</Text>
           <Text
             style={{
               fontSize: 14,
-              fontFamily: 'Poppins-Regular',
+              fontFamily: checkoutDetails.fontFamily.regular,
               color: '#000000D9',
               textAlign: 'center',
               alignSelf: 'center',
@@ -43,7 +44,7 @@ const PaymentFailed: React.FC<PaymentFailedProps> = ({
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.buttonColor },
+              { backgroundColor: checkoutDetails.buttonColor, borderRadius: checkoutDetails.ctaBorderRadius, },
             ]}
             onPress={()=> {
               callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Payment Failed Screen button clicked", errorMessage)
@@ -79,11 +80,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     alignSelf: 'center',
     paddingTop: 8,
-    fontFamily: 'Poppins-SemiBold',
   },
   buttonContainer: {
     flexDirection: 'row',
-    borderRadius: 8,
     justifyContent: 'center',
     marginTop: 12,
     backgroundColor: '#1CA672',
@@ -92,6 +91,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     paddingVertical: 12,
-    fontFamily: 'Poppins-SemiBold',
   },
 });

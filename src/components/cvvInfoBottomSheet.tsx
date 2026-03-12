@@ -14,7 +14,7 @@ const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick }) => {
       <Modal isVisible={true} style={styles.modal} onBackdropPress={onClick}>
         <View style={styles.sheet}>
           <Text
-            style={styles.headingText}
+            style={[styles.headingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
           >
             Where to find CVV?
           </Text>
@@ -22,8 +22,8 @@ const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick }) => {
             source={require('../../assets/images/cvv_info_image.png')}
             style={styles.imageStyle}
           />
-          <Text style={styles.secondaryHeading}>Generic position for CVV</Text>
-          <Text style={styles.desc}>
+          <Text style={[styles.secondaryHeading, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Generic position for CVV</Text>
+          <Text style={[styles.desc, {fontFamily: checkoutDetails.fontFamily.regular,}]}>
             3 digit numeric code on the back side of card
           </Text>
           <View
@@ -33,21 +33,21 @@ const CvvInfoBottomSheet: React.FC<CvvInfoBottomSheetProps> = ({ onClick }) => {
             source={require('../../assets/images/cvv_info_image_amex.png')}
             style={styles.imageStyle}
           />
-          <Text style={styles.secondaryHeading}>
+          <Text style={[styles.secondaryHeading, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
             CVV for American Express Card
           </Text>
-          <Text style={styles.desc}>
+          <Text style={[styles.desc, {fontFamily: checkoutDetails.fontFamily.regular,}]}>
             4 digit numeric code on the front side of the card, just above the
             card number
           </Text>
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.buttonColor },
+              { backgroundColor: checkoutDetails.buttonColor ,borderRadius: checkoutDetails.ctaBorderRadius,},
             ]}
             onPress={onClick}
           >
-            <Text style={styles.buttonText}>Got it!</Text>
+            <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Got it!</Text>
           </Pressable>
         </View>
       </Modal>

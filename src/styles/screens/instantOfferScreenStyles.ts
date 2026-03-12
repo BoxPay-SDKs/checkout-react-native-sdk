@@ -28,15 +28,13 @@ const styles = StyleSheet.create({
       flex: 1, backgroundColor: 'white' 
     },
     searchTextInputLabel : {
-      fontSize: 16,
-      fontFamily: 'Poppins-Regular',
+      fontSize: 16
     },
     searchTextInput : {
       marginTop: 16,
       marginHorizontal: 16,
       backgroundColor: 'white',
       fontSize: 16,
-      fontFamily: 'Poppins-Regular',
       color: '#0A090B',
       height: 60,
     }

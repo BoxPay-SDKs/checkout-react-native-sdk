@@ -97,7 +97,7 @@ const OrderDetails = ({
                 style={{
                   fontSize: 14,
                   color: '#363840',
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                 }}
               >
                 Price Details
@@ -157,7 +157,7 @@ const OrderDetails = ({
                   >
                     <Text
                       style={{
-                        fontFamily: 'Poppins-Regular',
+                        fontFamily: checkoutDetails.fontFamily.regular,
                         fontSize: 12,
                         color: '#2D2B32',
                       }}
@@ -168,7 +168,7 @@ const OrderDetails = ({
                     </Text>
                     <Text
                       style={{
-                        fontFamily: 'Poppins-SemiBold',
+                        fontFamily: checkoutDetails.fontFamily.semiBold,
                         fontSize: 12,
                         color: '#2D2B32',
                       }}
@@ -181,7 +181,7 @@ const OrderDetails = ({
                   <View style={{ alignSelf: 'flex-start' }}>
                     <Text
                       style={{
-                        fontFamily: 'Poppins-Regular',
+                        fontFamily: checkoutDetails.fontFamily.regular,
                         fontSize: 12,
                         color: '#2D2B32',
                         textAlign: 'right',
@@ -232,7 +232,7 @@ const OrderDetails = ({
             >
               <Text
                 style={{
-                  fontFamily: 'Poppins-Regular',
+                  fontFamily: checkoutDetails.fontFamily.regular,
                   fontSize: 14,
                   color: '#2D2B32',
                 }}
@@ -241,7 +241,7 @@ const OrderDetails = ({
               </Text>
               <Text
                 style={{
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                   fontSize: 14,
                   color: '#2D2B32',
                 }}
@@ -272,7 +272,7 @@ const OrderDetails = ({
             >
               <Text
                 style={{
-                  fontFamily: 'Poppins-Regular',
+                  fontFamily: checkoutDetails.fontFamily.regular,
                   fontSize: 14,
                   color: '#2D2B32',
                 }}
@@ -281,7 +281,7 @@ const OrderDetails = ({
               </Text>
               <Text
                 style={{
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                   fontSize: 14,
                   color: '#2D2B32',
                 }}
@@ -312,7 +312,7 @@ const OrderDetails = ({
             >
               <Text
                 style={{
-                  fontFamily: 'Poppins-Regular',
+                  fontFamily: checkoutDetails.fontFamily.regular,
                   fontSize: 14,
                   color: '#2D2B32',
                 }}
@@ -321,7 +321,7 @@ const OrderDetails = ({
               </Text>
               <Text
                 style={{
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                   fontSize: 14,
                   color: '#2D2B32',
                 }}
@@ -362,7 +362,7 @@ const OrderDetails = ({
             >
               <Text
                 style={{
-                  fontFamily: 'Poppins-Regular',
+                  fontFamily: checkoutDetails.fontFamily.regular,
                   fontSize: 14,
                   color: '#2D2B32',
                 }}
@@ -371,7 +371,7 @@ const OrderDetails = ({
               </Text>
               <Text
                 style={{
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                   fontSize: 14,
                   color: '#2D2B32',
                 }}
@@ -404,7 +404,7 @@ const OrderDetails = ({
           >
             <Text
               style={{
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
                 fontSize: 16,
                 color: '#1D1C20',
               }}
@@ -413,7 +413,7 @@ const OrderDetails = ({
             </Text>
             <Text
               style={{
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
                 fontSize: 16,
                 color: '#1D1C20',
               }}
@@ -454,7 +454,7 @@ const OrderDetails = ({
               style={{
                 fontSize: 14,
                 color: '#363840',
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
               }}
             >
               Price Details
@@ -466,7 +466,7 @@ const OrderDetails = ({
                 style={{
                   fontSize: 14,
                   color: '#363840',
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                 }}
               >
                 <Text

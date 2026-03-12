@@ -33,7 +33,8 @@ const CheckoutNavigator = ({
   token,
   configurationOptions = null,
   onPaymentResult,
-  shopperToken = null
+  shopperToken = null,
+  uiConfiguration = null
 }: BoxpayCheckoutProps) => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -41,7 +42,8 @@ const CheckoutNavigator = ({
         token,
         configurationOptions,
         onPaymentResult,
-        shopperToken
+        shopperToken,
+        uiConfiguration
       }}/>
       <Stack.Screen name="CardScreen" component={CardScreen} />
       <Stack.Screen name="EmiScreen" component={EmiScreen} />
@@ -60,7 +62,8 @@ const CheckoutContainer = ({
   token,
   configurationOptions = null,
   onPaymentResult,
-  shopperToken = null
+  shopperToken = null,
+  uiConfiguration = null
 }: BoxpayCheckoutProps)=> {
   return (
     <NavigationIndependentTree>
@@ -69,6 +72,7 @@ const CheckoutContainer = ({
       configurationOptions={configurationOptions}
       onPaymentResult={onPaymentResult}
       shopperToken={shopperToken}
+      uiConfiguration={uiConfiguration}
       />
     </NavigationIndependentTree>
   );

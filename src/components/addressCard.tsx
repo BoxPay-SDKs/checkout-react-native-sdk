@@ -16,12 +16,12 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
             {address != '' && checkoutDetails.isShippingAddressEnabled && (
                 <View>
                   <Text
-                    style={styles.titleText}
+                    style={[styles.titleText, {fontFamily : checkoutDetails.fontFamily.semiBold}]}
                   >
                     Address
                   </Text>
                   <Pressable
-                    style={styles.pressableContainer}
+                    style={[styles.pressableContainer, {borderRadius: checkoutDetails.ctaBorderRadius,}]}
                     onPress={() => {
                       if (checkoutDetails.isShippingAddressEditable) {
                         navigateToAddressScreen();
@@ -36,11 +36,11 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                       style={styles.insideContainer}
                     >
                       <Text
-                        style={styles.insideContainerNormalText}
+                        style={[styles.insideContainerNormalText, {fontFamily: checkoutDetails.fontFamily.regular}]}
                       >
                         Deliver at{' '}
                         <Text
-                          style={styles.insideContainerHighlighedText}
+                          style={[styles.insideContainerHighlighedText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                         >
                           {userData.labelType === 'Other' ? userData.labelName : userData.labelType}
                         </Text>
@@ -48,7 +48,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                       <Text
                         numberOfLines={1}
                         ellipsizeMode="tail"
-                        style={styles.insideContainerDesc}
+                        style={[styles.insideContainerDesc, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                       >
                         {address}
                       </Text>
@@ -77,12 +77,12 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
               {address == '' && checkoutDetails.isShippingAddressEnabled && (
                 <View>
                   <Text
-                    style={styles.titleText}
+                    style={[styles.titleText, {fontFamily : checkoutDetails.fontFamily.semiBold}]}
                   >
                     Address
                   </Text>
                   <Pressable
-                    style={styles.pressableContainer}
+                    style={[styles.pressableContainer, {borderRadius: checkoutDetails.ctaBorderRadius,}]}
                     onPress={() => {
                       if (checkoutDetails.isShippingAddressEditable) {
                         navigateToAddressScreen();
@@ -91,12 +91,13 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                   >
                     <Image
                       source={require('../../assets/images/add_icon.png')}
-                      style={styles.imageStyle}
+                      style={[styles.imageStyle, {tintColor: checkoutDetails.buttonColor}]}
                     />
                     <Text
                       numberOfLines={1}
                       ellipsizeMode="tail"
-                      style={styles.insideContainerClickableText}
+                      style={[styles.insideContainerClickableText, {color: checkoutDetails.buttonColor,
+                        fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                     >
                       Add new address
                     </Text>
@@ -107,7 +108,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                         alignSelf: 'center',
                         height: 6,
                         width: 14,
-                        marginTop : 6,
+                        marginTop : 14,
                         marginRight :10,
                         marginLeft: 'auto',
                         transform: [
@@ -126,12 +127,12 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                 !checkoutDetails.isShippingAddressEnabled && (
                   <View>
                     <Text
-                      style={styles.titleText}
+                      style={[styles.titleText, {fontFamily : checkoutDetails.fontFamily.semiBold}]}
                     >
                       Personal Details
                     </Text>
                     <Pressable
-                      style={styles.pressableContainer}
+                      style={[styles.pressableContainer, {borderRadius: checkoutDetails.ctaBorderRadius,}]}
                       onPress={() => {
                         if (
                             checkoutDetails.isFullNameEditable ||
@@ -152,11 +153,11 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                             style={styles.insideContainer}
                           >
                             <Text
-                              style={styles.insideContainerHighlighedText}
+                              style={[styles.insideContainerHighlighedText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                             >
                               {userData.firstName} {userData.lastName} | {' '}
                               <Text
-                                style={styles.insideContainerHighlighedText}
+                                style={[styles.insideContainerHighlighedText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                               >
                                 {userData.completePhoneNumber}
                               </Text>
@@ -164,7 +165,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                             <Text
                               numberOfLines={1}
                               ellipsizeMode="tail"
-                              style={styles.insideContainerDesc}
+                              style={[styles.insideContainerDesc, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                             >
                               {userData.email}
                             </Text>
@@ -180,7 +181,8 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                           <Text
                             numberOfLines={1}
                             ellipsizeMode="tail"
-                            style={styles.insideContainerClickableText}
+                            style={[styles.insideContainerClickableText, {color: checkoutDetails.buttonColor,
+                              fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                           >
                             Add personal details
                           </Text>
@@ -196,7 +198,7 @@ const AddressComponent = ({address, navigateToAddressScreen} : AddressCardProps)
                         alignSelf: 'center',
                         height: 6,
                         width: 14,
-                        marginTop : 4,
+                        marginTop : 14,
                         marginRight :4,
                         marginLeft: 'auto',
                         transform: [

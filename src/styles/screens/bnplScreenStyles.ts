@@ -42,13 +42,11 @@ const styles = StyleSheet.create({
         height: 100   
     },
     headingText : {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 16,
         color: '#212426',
         marginTop: 16,
     },
     subHeadingText : {
-        fontFamily: 'Poppins-Regular',
         fontSize: 14,
         color: '#4F4D55',
         marginTop: -4,
@@ -57,7 +55,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#888888',
         marginBottom: 13,
-        fontFamily: 'Poppins-Medium',
     },
     bottomContainer : {
         justifyContent: 'center',

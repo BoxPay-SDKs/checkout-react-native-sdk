@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import RenderHTML from 'react-native-render-html';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface Props {
   offerCode: string;
@@ -31,6 +32,7 @@ const OfferCard: React.FC<Props> = ({
   onPress,
 }) => {
   const [showMore, setShowMore] = useState(false);
+  const {checkoutDetails} = checkoutDetailsHandler
 
   const isSelected = offerCode === selectedCouponCode;
 
@@ -54,7 +56,7 @@ const OfferCard: React.FC<Props> = ({
             { backgroundColor: selectedColor },
           ]}
         >
-          <Text style={styles.verticalText}>
+          <Text style={[styles.verticalText, {fontFamily : checkoutDetails.fontFamily.regular}]}>
             {description}
           </Text>
         </View>
@@ -69,7 +71,7 @@ const OfferCard: React.FC<Props> = ({
                 color: isSelected
                   ? '#E84142'
                   : selectedColor,
-                fontWeight: 'bold',
+                fontFamily : checkoutDetails.fontFamily.bold,
               }}
             >
               {isSelected ? 'REMOVE' : 'APPLY'}
@@ -78,17 +80,17 @@ const OfferCard: React.FC<Props> = ({
 
           <View style={styles.divider} />
 
-          <Text style={styles.info}>
+          <Text style={[styles.info, {fontFamily : checkoutDetails.fontFamily.medium}]}>
             Minimum order amount {minimumOrderAmount}
           </Text>
 
           {expiryDate !== '' && (
-            <Text style={styles.info}>
+            <Text style={[styles.info, {fontFamily : checkoutDetails.fontFamily.medium}]}>
               Offer valid till {expiryDate}
             </Text>
           )}
 
-          <Text style={styles.info}>
+          <Text style={[styles.info, {fontFamily : checkoutDetails.fontFamily.medium}]}>
             {applicable
               ? `Applicable on ${applicable}`
               : 'Applicable on all transactions'}
@@ -97,7 +99,7 @@ const OfferCard: React.FC<Props> = ({
           <TouchableOpacity
             onPress={() => setShowMore(!showMore)}
           >
-            <Text style={styles.more}>
+            <Text style={[styles.more, {fontFamily : checkoutDetails.fontFamily.semiBold}]}>
               {showMore ? '- LESS' : '+ MORE'}
             </Text>
           </TouchableOpacity>

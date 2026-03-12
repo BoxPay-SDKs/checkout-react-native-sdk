@@ -10,6 +10,8 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
     currencyCode : '',
     amount: '',
     token: '',
+    fontFamily : {},
+    ctaBorderRadius:0,
     buttonColor: '#1CA672',
     buttonTextColor:'white',
     headerColor : 'white',
@@ -41,7 +43,8 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
     isBnplMethodEnabled : false,
     isUPIOtmIntentMethodEnabled : false,
     isUPIOtmCollectMethodEnabled : false,
-    isUPIOtmQRMethodEnabled : false
+    isUPIOtmQRMethodEnabled : false,
+    isOrderItemDetailsVisible : true
   },
 };
 
@@ -56,6 +59,8 @@ export const setCheckOutDetailsHandlerToDefault = () => {
       currencyCode: '',
       amount: '',
       token: '',
+      fontFamily : {},
+      ctaBorderRadius:0,
       buttonColor: '',
       buttonTextColor:'',
       headerColor : '',
@@ -88,6 +93,7 @@ export const setCheckOutDetailsHandlerToDefault = () => {
       isUPIOtmIntentMethodEnabled: false,
       isUPIOtmCollectMethodEnabled: false,
       isUPIOtmQRMethodEnabled: false,
+      isOrderItemDetailsVisible : true
     },
   };
 };

@@ -3,12 +3,13 @@ import {
   Text,
   Image,
   BackHandler,
-  Pressable
+  Pressable,
+  TouchableOpacity
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import Header from '../components/header';
 import type { RouteProp, NavigationProp } from '@react-navigation/native';
-import { Checkbox, TextInput } from 'react-native-paper';
+import { TextInput } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
 import fetchCardDetails from '../postRequest/fetchCardDetails';
 import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
@@ -152,8 +153,8 @@ const CardScreen = ({ route, navigation }: Props) => {
             setCardNumberValid(true);
           }
         }
-        if(cleaned.length == 9) {
-          await fetchCardDetails(cleaned).then((response) => {
+        if(cleaned.length >= 9) {
+          await fetchCardDetails(cleaned.slice(0,9)).then((response) => {
             switch (response.apiStatus) {
               case APIStatus.Success : {
                 const data = response.data
@@ -178,7 +179,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                   } else if (data.paymentMethod.brand == 'AmericanExpress') {
                     setCardSelectedIcon(require('../../assets/images/ic_amex.png'));
                     setMaxCvvLength(4);
-                    setMaxCardNumberLength(18);
+                    setMaxCardNumberLength(checkoutDetails.env === 'test' ? 19 : 18);
                   } else if (data.paymentMethod.brand == 'Maestro') {
                     setCardSelectedIcon(require('../../assets/images/ic_maestro.png'));
                     setMaxCvvLength(3);
@@ -249,27 +250,31 @@ const CardScreen = ({ route, navigation }: Props) => {
     setCardNumberErrorText(
       cleaned.length < 1
         ? 'Required'
-        : cleaned.length < cleanedLength && methodEnabled
-          ? 'This card number is invalid'
-          : !methodEnabled
-            ? 'This card is not supported for the payment'
-            : !cardNumberValid
-              ? 'This card number is invalid'
-              : !emiIssuerExist
-                ? "We couldn't find any EMI plans for this card. Please try using a different card number"
-                : emiIssuer != issuerBrand
-                  ? `The card is ${emiIssuer} ${cardType}. Please enter a card number that belongs to ${issuerBrand} ${cardType}`
-                  : ''
+        : checkoutDetails.env === 'test'
+          ? ''
+          : cleaned.length < cleanedLength
+            ? 'This card number is invalid'
+            : !methodEnabled
+              ? 'This card is not supported for the payment'
+              : !cardNumberValid
+                ? 'This card number is invalid'
+                : !emiIssuerExist
+                  ? "We couldn't find any EMI plans for this card. Please try using a different card number"
+                  : emiIssuer != issuerBrand
+                    ? `The card is ${emiIssuer} ${cardType}. Please enter a card number that belongs to ${issuerBrand} ${cardType}`
+                    : ''
     );
     setCardNumberError(
       cleaned.length < cleanedLength ||
+      (checkoutDetails.env !== 'test' && (
         !methodEnabled ||
         !cardNumberValid ||
         !emiIssuerExist ||
         (emiIssuer != issuerBrand &&
           durationNumber != undefined &&
           durationNumber != '')
-    );
+      ))
+    )
     setCardNumberFocused(false);
   };
 
@@ -439,8 +444,7 @@ const CardScreen = ({ route, navigation }: Props) => {
         cardNumberText?.length != maxCardNumberLength ||
         cardExpiryText?.length != 5 ||
         cardCvvText?.length != maxCvvLength ||
-        (cardHolderNameText?.length ?? 0) < 1 ||
-        !cardNumberValid
+        (cardHolderNameText?.length ?? 0) < 1 
       ) {
         setCardValid(false);
       } else {
@@ -625,7 +629,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                   )}
                 </View>
                 <Text
-                  style={styles.nameText}
+                  style={[styles.nameText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                 >
                   {bankNameStr}
                 </Text>
@@ -634,7 +638,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                 style={styles.thickBorder}
               >
                 <Text
-                  style={styles.durationText}
+                  style={[styles.durationText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                 >
                   {duration} months x
                   <Text
@@ -646,7 +650,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                   {amountStr}
                 </Text>
                 <Text
-                  style={styles.percentText}
+                  style={[styles.percentText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   @{percentNumber}% p.a.
                 </Text>
@@ -663,6 +667,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                     : cardNumberText != '' && cardNumberText != null
                       ? '#2D2B32'
                       : '#ADACB0',
+                      fontFamily: checkoutDetails.fontFamily.regular,
                 }]}
               >
                 Card Number
@@ -678,7 +683,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                 outline: '#E6E6E6',
               },
             }}
-            style={[styles.textInput, { marginTop: 28, marginHorizontal: 16 }]}
+            style={[styles.textInput, { marginTop: 28, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
             error={cardNumberError}
             right={
               cardNumberError ? (
@@ -715,7 +720,7 @@ const CardScreen = ({ route, navigation }: Props) => {
           />
           {cardNumberError && (
             <Text
-              style={styles.errorText}
+              style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,}]}
             >
               {cardNumberErrorText}
             </Text>
@@ -734,6 +739,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                         : cardExpiryText != '' && cardExpiryText != null
                           ? '#2D2B32'
                           : '#ADACB0',
+                          fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     Expiry (MM/YY)
@@ -749,7 +755,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                     outline: '#E6E6E6',
                   },
                 }}
-                style={styles.textInput}
+                style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardExpiryError}
                 right={
                   cardExpiryError ? (
@@ -777,7 +783,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               />
               {cardExpiryError && (
                 <Text
-                  style={styles.errorText}
+                  style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   {cardExpiryErrorText}
                 </Text>
@@ -794,6 +800,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                         : cardCvvText != '' && cardCvvText != null
                           ? '#2D2B32'
                           : '#ADACB0',
+                          fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     CVV
@@ -809,7 +816,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                     outline: '#E6E6E6',
                   },
                 }}
-                style={styles.textInput}
+                style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardCvvError}
                 right={
                   cardCvvError ? (
@@ -850,7 +857,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               />
               {cardCvvError && (
                 <Text
-                  style={styles.errorText}
+                  style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   {cardCvvErrorText}
                 </Text>
@@ -867,6 +874,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                     : cardHolderNameText != '' && cardHolderNameText != null
                       ? '#2D2B32'
                       : '#ADACB0',
+                      fontFamily: checkoutDetails.fontFamily.regular,
                 }]}
               >
                 Name on the Card
@@ -882,7 +890,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                 outline: '#E6E6E6',
               },
             }}
-            style={[styles.textInput, { marginHorizontal: 16, marginTop: 16 }]}
+            style={[styles.textInput, { marginHorizontal: 16, marginTop: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
             error={cardHolderNameError}
             right={
               cardHolderNameError ? (
@@ -908,7 +916,7 @@ const CardScreen = ({ route, navigation }: Props) => {
           />
           {cardHolderNameError && (
             <Text
-              style={styles.errorText}
+              style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,}]}
             >
               {cardHolderNameErrorText}
             </Text>
@@ -925,6 +933,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                       : cardNickNameText != '' && cardNickNameText != null
                         ? '#2D2B32'
                         : '#ADACB0',
+                        fontFamily: checkoutDetails.fontFamily.regular,
                   }]}
                 >
                   Card NickName (for easy identification)
@@ -942,7 +951,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               }}
               style={[
                 styles.textInput,
-                { marginHorizontal: 16, marginTop: 16 },
+                { marginHorizontal: 16, marginTop: 16 , fontFamily: checkoutDetails.fontFamily.regular,},
               ]}
               outlineStyle={{
                 borderRadius: 8, // Add this
@@ -963,23 +972,30 @@ const CardScreen = ({ route, navigation }: Props) => {
                 style={styles.infoIcon}
               />
               <Text
-                style={styles.infoText}
+                style={[styles.infoText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
               >
                 CVV will not be stored
               </Text>
+              </View>
 
               <View
               style={styles.checkBoxContainer}
             >
-              <Checkbox
-                status={isSavedCardCheckBoxClicked ? 'checked' : 'unchecked'}
-                onPress={() => {
-                  setIsSavedCardCheckBoxClicked(!isSavedCardCheckBoxClicked);
-                }}
-                color={checkoutDetails.buttonColor}
-              />
+              <TouchableOpacity
+  onPress={() => setIsSavedCardCheckBoxClicked(!isSavedCardCheckBoxClicked)}
+>
+  <View style={[
+    styles.checkboxBox,
+    { borderColor: checkoutDetails.buttonColor },
+    isSavedCardCheckBoxClicked && { backgroundColor: checkoutDetails.buttonColor }
+  ]}>
+    {isSavedCardCheckBoxClicked && (
+      <Text style={styles.checkmark}>✓</Text>
+    )}
+  </View>
+</TouchableOpacity>
               <Text
-                style={styles.checkBoxText}
+                style={[styles.checkBoxText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
               >
                 Save this card as per RBI guidelines.
               </Text>
@@ -992,12 +1008,12 @@ const CardScreen = ({ route, navigation }: Props) => {
                 <Text
                   style={[styles.clickableText,{
                     color: checkoutDetails.buttonColor,
+                    fontFamily: checkoutDetails.fontFamily.semiBold,
                   }]}
                 >
                   Know more
                 </Text>
               </Pressable>
-            </View>
             </View>
             </>
           )}
@@ -1008,19 +1024,19 @@ const CardScreen = ({ route, navigation }: Props) => {
               <Pressable
                 style={[
                   styles.buttonContainer,
-                  { backgroundColor: checkoutDetails.buttonColor },
+                  { backgroundColor: checkoutDetails.buttonColor,borderRadius: checkoutDetails.ctaBorderRadius, },
                 ]}
                 onPress={() => {
                   onProceedForward();
                 }}
               >
-                <Text style={styles.buttonText}>Make Payment</Text>
+                <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Make Payment</Text>
               </Pressable>
             ) : (
               <Pressable
-                style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' }]}
+                style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' , borderRadius: checkoutDetails.ctaBorderRadius,}]}
               >
-                <Text style={[styles.buttonText, { color: checkoutDetails.buttonTextColor }]}>
+                <Text style={[styles.buttonText, { color: checkoutDetails.buttonTextColor, fontFamily: checkoutDetails.fontFamily.semiBold, }]}>
                   Make Payment
                 </Text>
               </Pressable>

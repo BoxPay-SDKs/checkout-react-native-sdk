@@ -260,6 +260,7 @@ const WalletScreen = ({ navigation }: Props) => {
                         : searchText != '' && searchText != null
                           ? '#2D2B32'
                           : '#ADACB0',
+                          fontFamily: checkoutDetails.fontFamily.regular
                     }]}
                   >
                     Search for wallet
@@ -275,7 +276,7 @@ const WalletScreen = ({ navigation }: Props) => {
                     outline: '#E6E6E6',
                   },
                 }}
-                style={styles.textFieldStyle}
+                style={[styles.textFieldStyle, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 left={
                   <TextInput.Icon
                     icon={() => (
@@ -296,7 +297,7 @@ const WalletScreen = ({ navigation }: Props) => {
             </View>
           )}
           <Text
-            style={styles.mainHeadingText}
+            style={[styles.mainHeadingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
           >
             All Wallets
           </Text>
@@ -334,12 +335,12 @@ const WalletScreen = ({ navigation }: Props) => {
                   style={styles.imageStyle}
                 />
                 <Text
-                  style={styles.headingText}
+                  style={[styles.headingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                 >
                   Oops!! No result found
                 </Text>
                 <Text
-                  style={styles.subHeadingText}
+                  style={[styles.subHeadingText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   Please try another search
                 </Text>
@@ -350,7 +351,7 @@ const WalletScreen = ({ navigation }: Props) => {
             style={styles.bottomContainer}
           >
             <Text
-              style={styles.bottomText}
+              style={[styles.bottomText, { fontFamily: checkoutDetails.fontFamily.medium,  }]}
             >
               Secured by
             </Text>

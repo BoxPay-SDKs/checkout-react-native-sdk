@@ -39,14 +39,12 @@ const styles = StyleSheet.create({
       fontSize: 16,
       color: '#2D2B32',
       marginLeft: 8,
-      fontFamily: 'Poppins-SemiBold',
     },
     modalText: {
       fontSize: 14,
       color: '#555',
       marginBottom: 20,
       lineHeight: 24,
-      fontFamily: 'Poppins-Regular',
     },
     buttonContainer: {
       flexDirection: 'row',
@@ -55,7 +53,6 @@ const styles = StyleSheet.create({
     },
     cancelButton: {
       backgroundColor: '#fff',
-      borderRadius: 7,
       paddingVertical: 10,
       paddingHorizontal: 20,
       flex: 1,
@@ -63,7 +60,6 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
     },
     confirmButton: {
-      borderRadius: 7,
       paddingVertical: 10,
       paddingHorizontal: 20,
       flex: 1,
@@ -74,14 +70,12 @@ const styles = StyleSheet.create({
     buttonText: {
       color: '#333',
       fontSize: 16,
-      textAlign: 'center',
-      fontFamily: 'Poppins-Regular',
+      textAlign: 'center'
     },
     confirmButtonText: {
       color: 'white',
       fontSize: 16,
-      textAlign: 'center',
-      fontFamily: 'Poppins-SemiBold',
+      textAlign: 'center'
     },
 });
 

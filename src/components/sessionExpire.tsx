@@ -8,6 +8,7 @@ interface SessionExpireProps {
   onClick: () => void;
 }
 
+
 const SessionExpire: React.FC<SessionExpireProps> = ({ onClick }) => {
   const { checkoutDetails } = checkoutDetailsHandler;
   return (
@@ -20,13 +21,13 @@ const SessionExpire: React.FC<SessionExpireProps> = ({ onClick }) => {
             loop={false}
             style={{ width: 90, height: 90, alignSelf: 'center' }}
           />
-          <Text style={styles.successfulHeading}>
+          <Text style={[styles.successfulHeading, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
             Payment session has expired.
           </Text>
           <Text
             style={{
               fontSize: 14,
-              fontFamily: 'Poppins-Regular',
+              fontFamily: checkoutDetails.fontFamily.regular,
               color: '#000000',
               textAlign: 'center',
               alignSelf: 'center',
@@ -41,13 +42,13 @@ const SessionExpire: React.FC<SessionExpireProps> = ({ onClick }) => {
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.buttonColor },
+              { backgroundColor: checkoutDetails.buttonColor, borderRadius: checkoutDetails.ctaBorderRadius, },
             ]}
             onPress={() => {
               onClick()
             }}
           >
-            <Text style={styles.buttonText}>Go back to Home</Text>
+            <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Go back to Home</Text>
           </Pressable>
         </View>
       </Modal>
@@ -72,12 +73,10 @@ const styles = StyleSheet.create({
     color: '#DB7C1D',
     fontSize: 22,
     alignSelf: 'center',
-    paddingTop: 8,
-    fontFamily: 'Poppins-SemiBold',
+    paddingTop: 8
   },
   buttonContainer: {
     flexDirection: 'row',
-    borderRadius: 8,
     justifyContent: 'center',
     marginTop: 12,
     backgroundColor: '#1CA672',
@@ -86,6 +85,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     paddingVertical: 12,
-    fontFamily: 'Poppins-SemiBold',
   },
 });

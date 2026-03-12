@@ -81,7 +81,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
             speed={0.6}
             style={{ width: 90, height: 90, alignSelf: 'center' }}
           />
-          <Text style={styles.successfulHeading}>Payment Successful!</Text>
+          <Text style={[styles.successfulHeading, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Payment Successful!</Text>
           <View
             style={{
               flexDirection: 'row',
@@ -93,7 +93,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               style={{
                 fontSize: 14,
                 color: '#000000',
-                fontFamily: 'Poppins-Regular',
+                fontFamily: checkoutDetails.fontFamily.regular,
               }}
             >
               Transaction ID
@@ -102,7 +102,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               style={{
                 fontSize: 14,
                 color: '#000000',
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
               }}
             >
               {transactionId}
@@ -119,7 +119,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               style={{
                 fontSize: 14,
                 color: '#000000',
-                fontFamily: 'Poppins-Regular',
+                fontFamily: checkoutDetails.fontFamily.regular,
               }}
             >
               Date
@@ -128,7 +128,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               style={{
                 fontSize: 14,
                 color: '#000000',
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
               }}
             >
               {date}
@@ -145,7 +145,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               style={{
                 fontSize: 14,
                 color: '#000000',
-                fontFamily: 'Poppins-Regular',
+                fontFamily: checkoutDetails.fontFamily.regular,
               }}
             >
               Time
@@ -154,15 +154,15 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               style={{
                 fontSize: 14,
                 color: '#000000',
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
               }}
             >
               {time}
             </Text>
           </View>
           {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingTop: 14 }}>
-                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-Regular' }}>Payment Method</Text>
-                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: 'Poppins-SemiBold' }}>{method}</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: checkoutDetails.fontFamily.regular }}>Payment Method</Text>
+                        <Text style={{ fontSize: 14, color: '#000000', fontFamily: checkoutDetails.fontFamily.semiBold }}>{method}</Text>
                     </View> */}
           <View style={styles.dashedLine} />
           <View
@@ -176,7 +176,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               style={{
                 fontSize: 14,
                 color: '#000000',
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
               }}
             >
               Total Amount
@@ -185,7 +185,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
               style={{
                 fontSize: 18,
                 color: '#000000',
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
               }}
             >
               <Text
@@ -203,21 +203,21 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
           <View style={styles.dashedLine} />
           {/* <Text
                         style={{
-                            fontSize: 12, fontFamily: 'Poppins-Regular',
+                            fontSize: 12, fontFamily: checkoutDetails.fontFamily.regular,
                             color: '#4F4D55', alignSelf: 'center', paddingBottom: 16, paddingTop: 12
                         }}
                     >You will be redirected to the merchant's page</Text> */}
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.buttonColor },
+              { backgroundColor: checkoutDetails.buttonColor, borderRadius: checkoutDetails.ctaBorderRadius, },
             ]}
             onPress={() => {
               callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Success Screen button clicked", "")
               onClick()
             }}
           >
-            <Text style={styles.buttonText}>Done</Text>
+            <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Done</Text>
           </Pressable>
         </View>
       </Modal>
@@ -228,11 +228,6 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
 export default PaymentSuccess;
 
 const styles = StyleSheet.create({
-  openButton: {
-    fontSize: 18,
-    color: 'blue',
-    fontFamily: 'Poppins-Bold',
-  },
   modal: {
     justifyContent: 'flex-end',
     margin: 0,
@@ -243,22 +238,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-  closeButton: {
-    marginTop: 10,
-    fontSize: 16,
-    color: 'red',
-    fontFamily: 'Poppins-Regular',
-  },
   successfulHeading: {
     color: '#019939',
     fontSize: 20,
     alignSelf: 'center',
     paddingTop: 8,
-    fontFamily: 'Poppins-SemiBold',
   },
   buttonContainer: {
     flexDirection: 'row',
-    borderRadius: 8,
     justifyContent: 'center',
     marginTop: 12,
     backgroundColor: '#1CA672',
@@ -267,7 +254,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
   },
   dashedLine: {
     borderBottomWidth: 2, // Thickness of the line

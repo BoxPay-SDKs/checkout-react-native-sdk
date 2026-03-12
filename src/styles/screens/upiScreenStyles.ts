@@ -9,7 +9,6 @@ const styles = StyleSheet.create({
         marginTop: 20,
         fontSize: 14,
         color: '#020815B5',
-        fontFamily: 'Poppins-SemiBold',
     },
     divider : {
         flexDirection: 'row',
@@ -35,7 +34,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         backgroundColor: 'white',
         fontSize: 14,
-        fontFamily: 'Poppins-Regular',
         color: '#0A090B',
     },
     labeltextInput: {
@@ -61,7 +59,6 @@ const styles = StyleSheet.create({
     intentTitle: {
         color: '#363840',
         fontSize: 14,
-        fontFamily: 'Poppins-Regular',
         marginTop: 4,
     },
     intentBackground: {
@@ -83,7 +80,6 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontSize: 16,
-        fontFamily: 'Poppins-SemiBold',
     },
     currencySymbol: {
         color: 'white',
@@ -95,14 +91,12 @@ const styles = StyleSheet.create({
         color: '#E12121',
         marginStart: 16,
         marginHorizontal: 16,
-        fontFamily: 'Poppins-Regular',
     },
     errorIcon : {
         width: 24, height: 24
     },
     labelText : {
         fontSize: 14,
-        fontFamily: 'Poppins-Regular',
     },
     container: {
         flexDirection: "row",
@@ -156,11 +150,11 @@ const styles = StyleSheet.create({
     subHeaderText : {
         fontSize: 14,
         paddingStart: 10,
-        fontFamily: 'Poppins-SemiBold',
     },
     animatedIcon : {
         height: 6,
-        width: 14
+        width: 14,
+        marginTop : -8
     },
     subContainerDivider : {
         flexDirection: 'row',

@@ -80,7 +80,7 @@ const SelectTenureScreen = ({
             )}
           </View>
           <Text
-            style={styles.text}
+            style={[styles.text, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
           >
             {bankName} | {cardType} EMI
           </Text>

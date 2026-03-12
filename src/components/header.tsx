@@ -30,9 +30,9 @@ const Header: React.FC<HeaderProps> = ({
           />
         </Pressable>
         <View style={styles.headerColumn}>
-          <Text style={styles.headerTitle}>{text}</Text>
+          <Text style={[styles.headerTitle, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>{text}</Text>
           {showDesc && (
-            <Text style={styles.headerDesc}>
+            <Text style={[styles.headerDesc, {fontFamily: checkoutDetails.fontFamily.regular,}]}>
               {checkoutDetails.itemsLength > 0 && (
                 <>
                   {checkoutDetails.itemsLength}{' '}
@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({
                 </>
               )}
               Total:
-              <Text style={styles.amount}>
+              <Text style={[styles.amount, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
                 <Text style={styles.currencySymbol}>
                   {' '}
                   {checkoutDetails.currencySymbol}
@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({
                 source={require('../../assets/images/Lock.png')}
                 style={styles.lockIcon}
               />
-              <Text style={styles.secureText}>100% Secure</Text>
+              <Text style={[styles.secureText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>100% Secure</Text>
             </View>
           </View>
         )}
@@ -75,14 +75,12 @@ const styles = StyleSheet.create({
   backArrow: { height: 24, width: 24, marginRight: 8 },
   headerTitle: {
     fontSize: 16,
-    color: '#363840',
-    fontFamily: 'Poppins-SemiBold',
+    color: '#363840'
   },
   headerDesc: {
     marginTop: -4,
     fontSize: 12,
-    color: '#4F4D55',
-    fontFamily: 'Poppins-Regular',
+    color: '#4F4D55'
   },
   headerSecure: {
     flexDirection: 'row',
@@ -96,11 +94,9 @@ const styles = StyleSheet.create({
   secureText: {
     fontSize: 12,
     color: '#1CA672',
-    fontFamily: 'Poppins-SemiBold',
     marginBottom: -2,
   },
   amount: {
-    fontFamily: 'Poppins-SemiBold',
     fontSize: 12,
     color: '#4F4D55',
   },

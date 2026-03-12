@@ -51,7 +51,6 @@ const ImageLoader = ({image , errorImage} : ImageLoaderProps) => {
             setLoad(false);
           })
           .catch((err) => {
-            console.error("SVG Load Error:", err);
             setImageError(true);
             setLoad(false);
           });

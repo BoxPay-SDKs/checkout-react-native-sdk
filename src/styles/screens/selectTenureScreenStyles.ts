@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     text : {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 14,
         paddingStart: 8,
     },

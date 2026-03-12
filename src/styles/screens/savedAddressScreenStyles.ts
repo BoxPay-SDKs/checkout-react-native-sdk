@@ -21,7 +21,6 @@ const styles = StyleSheet.create({
         marginTop: 16,
         marginHorizontal: 16,
         color: '#020815B5',
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 14,
     },
     pressableContainer : {
@@ -43,7 +42,6 @@ const styles = StyleSheet.create({
       },
       insideContainerClickableText : {
         fontSize: 14,
-        fontFamily: 'Poppins-SemiBold',
         paddingLeft:12
       }
 })

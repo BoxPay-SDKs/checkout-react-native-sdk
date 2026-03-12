@@ -15,7 +15,7 @@ import type { CheckoutStackParamList } from '../navigation';
 import { paymentHandler, setPaymentHandler } from "../sharedContext/paymentStatusHandler";
 import { loadBoxpayFonts } from '../components/fontFamily';
 import { setUserDataHandler, setUserDataHandlerToDefault, userDataHandler } from '../sharedContext/userdataHandler';
-import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse } from '../interface';
+import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions } from '../interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import WebViewScreen from '../screens/webViewScreen';
 import styles from '../styles/indexStyles';
@@ -51,7 +51,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     token,
     configurationOptions = null,
     onPaymentResult,
-    shopperToken = null
+    shopperToken = null,
+    uiConfiguration = null
   } = route.params as BoxpayCheckoutProps || {}; 
   const [status, setStatus] = useState('NOACTION');
   const [transactionId, setTransactionId] = useState('');
@@ -250,7 +251,6 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   };
 
   const handleAppStateChange = (nextState: AppStateStatus) => {
-    console.log(nextState, isUpiOpeningRef.current);
   
     if (nextState === "active" && isUpiOpeningRef.current) {
       callFetchStatusApi();
@@ -265,7 +265,6 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
 
   const callFetchStatusApi = async () => {
     const response = await fetchStatus();
-    console.log(`${response} ===fetchs statur response`)
     handleFetchStatusResponseHandler({
         response: response,
         checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
@@ -534,6 +533,22 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     currencyCode : currencyCode,
                     amount: paymentDetails.money.amountLocaleFull,
                     token: token,
+                    fontFamily: uiConfiguration?.[UIConfigurationOptions.FontFamily] 
+                    ? {
+                      regular:  uiConfiguration[UIConfigurationOptions.FontFamily]?.regular  ?? 'Poppins-Regular',
+                      medium:   uiConfiguration[UIConfigurationOptions.FontFamily]?.medium   ?? 'Poppins-Medium',
+                      semiBold: uiConfiguration[UIConfigurationOptions.FontFamily]?.semiBold ?? 'Poppins-SemiBold',
+                      bold:     uiConfiguration[UIConfigurationOptions.FontFamily]?.bold     ?? 'Poppins-Bold',
+                      extraBold : uiConfiguration[UIConfigurationOptions.FontFamily]?.extraBold   ?? 'Poppins-ExtraBold'
+                    } 
+                    : {
+                      regular:  'Poppins-Regular',
+                      medium:   'Poppins-Medium',
+                      semiBold: 'Poppins-SemiBold',
+                      bold:     'Poppins-Bold',
+                      extraBold: 'Poppins-ExtraBold'
+                    },
+                    ctaBorderRadius : uiConfiguration?.[UIConfigurationOptions.CTABorderRadius] ? uiConfiguration[UIConfigurationOptions.CTABorderRadius] : 12, 
                     buttonColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
                     buttonTextColor : response.data.merchantDetails.checkoutTheme.buttonTextColor,
                     headerColor : response.data.merchantDetails.checkoutTheme.headerColor,
@@ -566,7 +581,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     isBnplMethodEnabled : methodFlags.isBNPLVisible,
                     isUPIOtmCollectMethodEnabled : methodFlags.isUPIOtmCollectVisible,
                     isUPIOtmIntentMethodEnabled : methodFlags.isUPIIntentVisible,
-                    isUPIOtmQRMethodEnabled : methodFlags.isUPIOtmQRVisible
+                    isUPIOtmQRMethodEnabled : methodFlags.isUPIOtmQRVisible,
+                    isOrderItemDetailsVisible : isFieldEnabled('ORDER_ITEM_DETAILS')
                   },
                 });
                 setPaymentHandler({
@@ -599,22 +615,28 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     switch (response.apiStatus) {
       case APIStatus.Success : {
         const data = response.data
-        if(data.appliedSurcharges.length != 0 ) {
-          const surcharge = data.appliedSurcharges.map(item => ({
-            title: item.surchargeDetails.title,
-            amount: item.calculatedSurchargeFee,
-            applicable : item.surchargeDetails.applicableOn
-          }))
-
-          let sum = 0
-          surcharge.map((item) => {
-            if (item.applicable === 'Upi' || item.applicable === '') {
-              sum += item.amount;
-            }
-          }, 0);
-          setAppliedSurchargeAmount((sum + amount))
-          setSurchargeDetails(surcharge)
-          getInstantOfferDetails((sum + amount).toString())
+        try {
+          if(data.appliedSurcharges.length != 0 ) {
+            const surcharge = data.appliedSurcharges.map(item => ({
+              title: item.surchargeDetails.title,
+              amount: item.calculatedSurchargeFee,
+              applicable : item.surchargeDetails.applicableOn
+            }))
+  
+            let sum = 0
+            surcharge.map((item) => {
+              if (item.applicable === 'Upi' || item.applicable === '') {
+                sum += item.amount;
+              }
+            }, 0);
+            setAppliedSurchargeAmount((sum + amount))
+            setSurchargeDetails(surcharge)
+            getInstantOfferDetails((sum + amount).toString())
+          } else {
+            getInstantOfferDetails("")
+          }
+        }catch(e) {
+          getInstantOfferDetails("")
         }
         break
       }
@@ -635,12 +657,16 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     switch (response.apiStatus) {
       case APIStatus.Success : {
         const data = response.data
-        const offer =
+        try {
+          const offer =
           appliedOffer == null
           ? data?.[0] ?? null
           : data.find((it: GetInstantOffersResponse) => it.code === appliedOffer.code) ?? null;
         setAppliedOffer(offer)
         setInstantOfferList(data)
+        } catch(e) {
+          
+        }
         
         callRecommendedOrStopLoding()
         break
@@ -785,7 +811,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     style={styles.container}
                   >
                     <Text
-                      style={styles.headingText}
+                      style={[styles.headingText, {fontFamily: checkoutDetailsHandler.checkoutDetails.fontFamily.semiBold,}]}
                     >
                       Recommended
                     </Text>
@@ -835,7 +861,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
               {savedCardArray.length != 0 && (
                 <View>
                   <Text
-                    style={styles.headingText}
+                    style={[styles.headingText, {fontFamily: checkoutDetailsHandler.checkoutDetails.fontFamily.semiBold,}]}
                   >
                     Credit & Debit Cards
                   </Text>
@@ -868,7 +894,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   }}
                 >
                   <Text
-                  style={styles.headingText}
+                  style={[styles.headingText, {fontFamily: checkoutDetailsHandler.checkoutDetails.fontFamily.semiBold,}]}
                 >
                   Apply Coupon
                 </Text>
@@ -900,9 +926,10 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 />
                 </View>
               )}
-              <View>
+              {checkoutDetailsHandler.checkoutDetails.isOrderItemDetailsVisible && (
+                <View>
                 <Text
-                  style={styles.headingText}
+                  style={[styles.headingText, {fontFamily: checkoutDetailsHandler.checkoutDetails.fontFamily.semiBold,}]}
                 >
                   Order Summary
                 </Text>
@@ -917,13 +944,14 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   selectedPaymentMethod={selectedPaymentMethod}
                 />
               </View>
+              )}
 
               {/* Secured by BoxPay - Fixed at Bottom */}
               <View
                 style={styles.footerContainer}
               >
                 <Text
-                  style={styles.footerText}
+                  style={[styles.footerText, {fontFamily: checkoutDetailsHandler.checkoutDetails.fontFamily.medium,}]}
                 >
                   Secured by
                 </Text>

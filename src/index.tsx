@@ -5,9 +5,10 @@ import CheckoutContainer from './navigation';
 
 const BoxpayCheckout = ({
   token,
-  configurationOptions,
+  configurationOptions = null,
   onPaymentResult,
   shopperToken = null,
+  uiConfiguration = null
 }: BoxpayCheckoutProps) => {
   return (
     <SafeAreaView style={styles.screenView}>
@@ -16,6 +17,7 @@ const BoxpayCheckout = ({
       configurationOptions={configurationOptions}
       onPaymentResult={onPaymentResult}
       shopperToken={shopperToken}
+      uiConfiguration={uiConfiguration}
       />
     </SafeAreaView>
   );

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { View, Text, Animated, Easing } from 'react-native';
 import { Svg, Circle } from 'react-native-svg';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -15,6 +16,7 @@ const CircularProgressBar = ({
   const animatedValue = useRef(new Animated.Value(0)).current;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
+  const {fontFamily} = checkoutDetailsHandler.checkoutDetails
 
   useEffect(() => {
     Animated.timing(animatedValue, {
@@ -59,7 +61,7 @@ const CircularProgressBar = ({
         style={{
           position: 'absolute',
           fontSize: 22,
-          fontFamily: 'Poppins-SemiBold',
+          fontFamily: fontFamily.semiBold,
           color: textColor,
         }}
       >

@@ -7,6 +7,7 @@ import {
   type ImageSourcePropType,
 } from "react-native";
 import Modal from "react-native-modal";
+import { checkoutDetailsHandler } from "../sharedContext/checkoutDetailsHandler";
 
 interface Props {
   visible: boolean;
@@ -29,6 +30,7 @@ const SavedAddressBottomSheet = ({
   address,
   icon,
 }: Props) => {
+  const {checkoutDetails} = checkoutDetailsHandler
   return (
     <Modal
       isVisible={visible}
@@ -41,25 +43,25 @@ const SavedAddressBottomSheet = ({
         <View>
           <View style={styles.headerContainer}>
             <Image source={icon} style={styles.icon} />
-            <Text style={styles.label}>{label}</Text>
+            <Text style={[styles.label, {fontFamily:checkoutDetails.fontFamily.semiBold,}]}>{label}</Text>
           </View>
-          <Text style={styles.address} numberOfLines={1} ellipsizeMode="tail">
+          <Text style={[styles.address, {fontFamily: checkoutDetails.fontFamily.regular,}]} numberOfLines={1} ellipsizeMode="tail">
               {address}
             </Text>
         </View>
 
         {/* Options */}
         <TouchableOpacity style={styles.option} onPress={onEdit}>
-          <Text style={styles.optionText}>Edit</Text>
+          <Text style={[styles.optionText, {fontFamily: checkoutDetails.fontFamily.regular}]}>Edit</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.option} onPress={onSetDefault}>
-          <Text style={styles.optionText}>Set as Default</Text>
+          <Text style={[styles.optionText, {fontFamily: checkoutDetails.fontFamily.regular}]}>Set as Default</Text>
         </TouchableOpacity>
 
         {/* Delete Option */}
         <TouchableOpacity style={styles.deleteOption} onPress={onDelete}>
-          <Text style={styles.deleteText}>Delete address</Text>
+          <Text style={[styles.deleteText, { fontFamily: checkoutDetails.fontFamily.regular}]}>Delete address</Text>
         </TouchableOpacity>
       </View>
     </Modal>
@@ -88,13 +90,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontFamily:"Poppins-SemiBold",
     color: "#2D2B32",
   },
   address: {
     fontSize: 14,
     color: "#4F4D55",
-    fontFamily:"Poppins-Regular",
     marginTop:4,
     marginBottom:20
   },
@@ -109,7 +109,6 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     color: "#2D2B32",
-    fontFamily:"Poppins-Regular"
   },
   deleteOption: {
     paddingVertical: 14,
@@ -117,8 +116,7 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 16,
-    color: "#FF4D4F",
-    fontFamily:"Poppins-Regular"
+    color: "#FF4D4F"
   },
 });
 

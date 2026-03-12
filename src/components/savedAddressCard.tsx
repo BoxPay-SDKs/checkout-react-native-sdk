@@ -3,6 +3,7 @@ import { View, Text, Pressable, Image, TouchableOpacity } from 'react-native';
 import { formatAddress } from '../utility';
 import styles from "../styles/components/savedAddressCardStyles";
 import { userDataHandler } from "../sharedContext/userdataHandler";
+import { checkoutDetailsHandler } from "../sharedContext/checkoutDetailsHandler";
 
 
 interface SavedAddressComponentArgs {
@@ -14,7 +15,6 @@ interface SavedAddressComponentArgs {
 
 const SavedAddressComponent = ({savedAddressList, onClickAddress, onClickOtherOptions} : SavedAddressComponentArgs) => {
     const {userData} = userDataHandler
-
     return(
         <View style={{ paddingBottom: 12, paddingHorizontal:16 }}>
             {savedAddressList.map((address) => (
@@ -68,7 +68,7 @@ interface SavedAddressCardArgs {
 }
 
 const SavedAddressCard = ({isSelected, labelType, address, onClickAddress, onClickOtherOptions, labelName, phone}: SavedAddressCardArgs) => {
-
+  const {checkoutDetails} = checkoutDetailsHandler
   const icons = {
     home: require('../../assets/images/ic_home.png'),
     work: require('../../assets/images/ic_work.png'),
@@ -85,11 +85,11 @@ const SavedAddressCard = ({isSelected, labelType, address, onClickAddress, onCli
             source={addressIcon}
             style={styles.imageStyle}
         />
-          <Text style={styles.labelName}>{labelName}</Text>
+          <Text style={[styles.labelName, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>{labelName}</Text>
 
           {isSelected && (
             <View style={styles.selectedTag}>
-              <Text style={styles.selectedTagText}>CURRENTLY SELECTED</Text>
+              <Text style={[styles.selectedTagText, {fontFamily: checkoutDetails.fontFamily.medium,}]}>CURRENTLY SELECTED</Text>
             </View>
           )}
         </View>
@@ -104,8 +104,8 @@ const SavedAddressCard = ({isSelected, labelType, address, onClickAddress, onCli
       </View>
 
       {/* Address */}
-      <Text style={styles.addressText}>{address}</Text>
-      <Text style = {styles.addressText}>Mobile: {phone}</Text>
+      <Text style={[styles.addressText, {fontFamily: checkoutDetails.fontFamily.regular,}]}>{address}</Text>
+      <Text style = {[styles.addressText, {fontFamily: checkoutDetails.fontFamily.regular,}]}>Mobile: {phone}</Text>
     </Pressable>
     )
 }

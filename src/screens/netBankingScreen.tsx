@@ -297,6 +297,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
                         : searchText != '' && searchText != null
                           ? '#2D2B32'
                           : '#ADACB0',
+                          fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     Search for bank
@@ -312,7 +313,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
                     outline: '#E6E6E6',
                   },
                 }}
-                style={styles.searchTextInput}
+                style={[styles.searchTextInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 left={
                   <TextInput.Icon
                     icon={() => (
@@ -347,7 +348,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
             {popularNetBankingList.length > 0 && searchText.length === 0 && (
               <>
                 <Text
-                  style={styles.headingText}
+                  style={[styles.headingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                 >
                   Popular Banks
                 </Text>
@@ -367,7 +368,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
             )}
 
             <Text
-              style={styles.headingText}
+              style={[styles.headingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
             >
               All Banks
             </Text>
@@ -393,12 +394,12 @@ const NetBankingScreen = ({ navigation }: Props) => {
                   style={styles.emptyIcon}
                 />
                 <Text
-                  style={styles.emptyListHeadingText}
+                  style={[styles.emptyListHeadingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                 >
                   Oops!! No result found
                 </Text>
                 <Text
-                  style={styles.emptyListDescText}
+                  style={[styles.emptyListDescText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   Please try another search
                 </Text>
@@ -409,7 +410,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
             style={styles.footerContainer}
           >
             <Text
-              style={styles.footerTextStyle}
+              style={[styles.footerTextStyle, {fontFamily: checkoutDetails.fontFamily.medium,}]}
             >
               Secured by
             </Text>

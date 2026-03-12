@@ -4,13 +4,11 @@ const styles = StyleSheet.create({
     textInput: {
         backgroundColor: 'white',
         fontSize: 16,
-        fontFamily: 'Poppins-Regular',
         color: '#0A090B',
         height: 60,
     },
     buttonContainer: {
         flexDirection: 'row',
-        borderRadius: 8,
         justifyContent: 'center',
         marginTop: 20,
         marginHorizontal: 16,
@@ -20,7 +18,6 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'white',
         fontSize: 16,
-        fontFamily: 'Poppins-SemiBold',
     },
     screenView : {
         flex: 1, backgroundColor: 'white' 
@@ -51,7 +48,6 @@ const styles = StyleSheet.create({
     },
     nameText : {
         paddingStart: 8,
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 14,
     },
     thickBorder : {
@@ -63,7 +59,6 @@ const styles = StyleSheet.create({
         paddingStart: 8,
     },
     durationText : {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 12,
         color: '#2D2B32',
     },
@@ -73,18 +68,15 @@ const styles = StyleSheet.create({
         color: '#2D2B32',
     },
     percentText : {
-        fontFamily: 'Poppins-Regular',
         fontSize: 12,
         color: '#2D2B32',
     },
     textFieldLabel : {
-        fontSize: 16,
-        fontFamily: 'Poppins-Regular',
+        fontSize: 16
     },
     errorText : {
         color: '#B3261E',
         fontSize: 12,
-        fontFamily: 'Poppins-Regular',
         marginHorizontal: 16,
         marginTop: 4,
     },
@@ -108,7 +100,6 @@ const styles = StyleSheet.create({
     },
     infoText : {
         fontSize: 12,
-        fontFamily: 'Poppins-Regular',
         color: '#2D2B32',
         marginStart: 8,
     },
@@ -121,12 +112,10 @@ const styles = StyleSheet.create({
     checkBoxText : {
         color: '#2D2B32',
         fontSize: 14,
-        fontFamily: 'Poppins-Regular',
-        marginLeft: 8,
+        marginLeft: 6,
     },
     clickableText : {
         fontSize: 12,
-        fontFamily: 'Poppins-SemiBold',
         textDecorationLine: 'underline',
     },
     pressableContainer : {
@@ -143,7 +132,22 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: 'white',
-    }
+    },
+      checkboxBox: {
+        width: 20,
+        height: 20,
+        borderWidth: 2,
+        borderRadius: 3,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+      },
+      checkmark: {
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: 'bold',
+        lineHeight: 16,
+      },
 })
 
 export default styles
