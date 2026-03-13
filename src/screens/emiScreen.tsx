@@ -579,6 +579,7 @@ const EmiScreen = ({ navigation }: Props) => {
                             selectedCard === item.cardType
                               ? checkoutDetails.buttonColor
                               : '#01010273',
+                              fontFamily: checkoutDetails.fontFamily.semiBold,
                         }]}
                         onPress={() => handleCardClick(item.cardType)}
                       >
@@ -610,6 +611,7 @@ const EmiScreen = ({ navigation }: Props) => {
                               : searchText != '' && searchText != null
                                 ? '#2D2B32'
                                 : '#ADACB0',
+                                fontFamily: checkoutDetails.fontFamily.regular,
                           }]}
                         >
                           {selectedCard === 'Others'
@@ -627,7 +629,7 @@ const EmiScreen = ({ navigation }: Props) => {
                           outline: '#E6E6E6',
                         },
                       }}
-                      style={styles.textInputStyle}
+                      style={[styles.textInputStyle, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                       left={
                         <TextInput.Icon
                           icon={() => (
@@ -661,7 +663,7 @@ const EmiScreen = ({ navigation }: Props) => {
                         }]}
                       >
                         <Text
-                          style={styles.filterText}
+                          style={[styles.filterText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                           onPress={() => {
                             getBanksByFilter(selectedCard, item);
                           }}
@@ -695,7 +697,7 @@ const EmiScreen = ({ navigation }: Props) => {
                 }}
               >
                 <Text
-                  style={styles.headingText}
+                  style={[styles.headingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                 >
                   {selectedCard === 'Others' ? 'Others' : 'All Banks'}
                 </Text>
@@ -720,12 +722,12 @@ const EmiScreen = ({ navigation }: Props) => {
                             style={styles.emptyListImage}
                           />
                           <Text
-                            style={styles.emptyListHeadingText}
+                            style={[styles.emptyListHeadingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                           >
                             Oops!! No result found
                           </Text>
                           <Text
-                            style={styles.emptyListDescText}
+                            style={[styles.emptyListDescText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                           >
                             Please try another search
                           </Text>

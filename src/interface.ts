@@ -9,9 +9,29 @@ export enum ConfigurationOptions {
   ShowUPIQROnLoad = 'SHOW_UPI_QR_ON_LOAD',
 }
 
+export enum UIConfigurationOptions {
+  FontFamily = 'FONT_FAMILY',
+  CTABorderRadius = 'CTA_BORDER_RADIUS',
+}
+
+export interface FontConfiguration {
+  regular?: string;
+  medium?: string;
+  semiBold?: string;
+  bold?: string;
+  extraBold?: string
+}
+
+// 👇 Each key has its own strict type
+export interface UIConfiguration {
+  [UIConfigurationOptions.FontFamily]?: FontConfiguration;
+  [UIConfigurationOptions.CTABorderRadius]?: number;
+}
+
 export interface BoxpayCheckoutProps {
   token: string;
   configurationOptions?: Partial<Record<ConfigurationOptions, boolean>> | null;
+  uiConfiguration?: UIConfiguration | null;
   onPaymentResult: (result: PaymentResultObject) => void;
   shopperToken?: string | null;
 }
@@ -21,6 +41,8 @@ export interface CheckoutDetails {
   currencyCode : string,
   amount: string;
   token: string;
+  fontFamily : FontConfiguration,
+  ctaBorderRadius : number,
   buttonColor: string;
   buttonTextColor : string;
   headerColor : string;
@@ -52,7 +74,8 @@ export interface CheckoutDetails {
   isBnplMethodEnabled : boolean,
   isUPIOtmIntentMethodEnabled : boolean,
   isUPIOtmCollectMethodEnabled : boolean,
-  isUPIOtmQRMethodEnabled : boolean
+  isUPIOtmQRMethodEnabled : boolean,
+  isOrderItemDetailsVisible : boolean
 }
 
 interface AnalyticsResponse {

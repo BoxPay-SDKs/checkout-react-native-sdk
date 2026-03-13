@@ -25,7 +25,6 @@ const PaymentSelectorView = ({
   onClickRadio,
 }: PaymentSelectorViewProps) => {
   const { checkoutDetails } = checkoutDetailsHandler;
-
   return (
     <View>
       {providerList.map((provider, index) => (
@@ -91,7 +90,7 @@ const PaymentSelector = ({
   amount,
 }: PaymentSelectorProps) => {
   
-
+  const { checkoutDetails } = checkoutDetailsHandler;
   return (
     <View
       style={{
@@ -107,7 +106,7 @@ const PaymentSelector = ({
         <View style={{ paddingStart: 12, flex: 1 }}>
           <Text
             style={{
-              fontFamily: 'Poppins-SemiBold',
+              fontFamily: checkoutDetails.fontFamily.semiBold,
               fontSize: 14,
               color: '#4F4D55',
             }}
@@ -119,7 +118,7 @@ const PaymentSelector = ({
           </Text>
           {isLastUsed && (
             <View style={styles.tag}>
-              <Text style={styles.tagText}>Last Used</Text>
+              <Text style={[styles.tagText, {fontFamily: checkoutDetails.fontFamily.medium,}]}>Last Used</Text>
             </View>
           )}
         </View>
@@ -133,12 +132,12 @@ const PaymentSelector = ({
       </View>
       {isSelected && (
         <Pressable
-          style={[styles.buttonContainer, { backgroundColor: brandColor }]}
+          style={[styles.buttonContainer, { backgroundColor: brandColor, borderRadius: checkoutDetails.ctaBorderRadius, }]}
           onPress={() => {
             onProceedForward(title, instrumentTypeValue);
           }}
         >
-          <Text style={styles.buttonText}>
+          <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
             Proceed to Pay{' '}
             <Text
               style={{
@@ -163,15 +162,13 @@ export default PaymentSelectorView;
 const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
-    borderRadius: 8,
     justifyContent: 'center',
     marginTop: 10,
     paddingVertical: 12,
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
+    fontSize: 16
   },
   tag: {
     borderColor: '#1CA672',
@@ -184,7 +181,6 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 10,
-    fontFamily: 'Poppins-Medium',
     color: '#1CA672',
   },
 });

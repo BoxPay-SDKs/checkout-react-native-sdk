@@ -1,14 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { checkoutDetailsHandler } from '../../sharedContext/checkoutDetailsHandler';
 
-const {buttonColor} = checkoutDetailsHandler.checkoutDetails
+
 const styles = StyleSheet.create({
   titleText: {
     marginStart: 16,
     marginTop: 20,
     fontSize: 14,
-    color: '#020815B5',
-    fontFamily: 'Poppins-SemiBold'
+    color: '#020815B5'
   },
   pressableContainer : {
     borderColor: '#F1F1F1',
@@ -18,11 +16,10 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     backgroundColor: 'white',
     flexDirection: 'row',
-    borderRadius: 12,
   },
   imageStyle : {
-    height: 20,
-    width: 20,
+    height: 14,
+    width: 14,
     marginStart: 12,
     marginTop: 20,
   },
@@ -35,27 +32,23 @@ const styles = StyleSheet.create({
   },
   insideContainerNormalText : {
     fontSize: 12,
-    color: '#4F4D55',
-    fontFamily: 'Poppins-Regular',
+    color: '#4F4D55'
   },
   insideContainerHighlighedText : {
-    fontFamily: 'Poppins-SemiBold',
     fontSize: 12,
     color: '#4F4D55',
   },
   insideContainerDesc : {
     fontSize: 14,
     color: '#4F4D55',
-    fontFamily: 'Poppins-SemiBold',
     flexShrink: 1,
     marginTop: -4,
   },
   insideContainerClickableText : {
     fontSize: 14,
-    color: buttonColor,
-    fontFamily: 'Poppins-SemiBold',
     flexShrink: 1,
-    marginTop: -4,
+    marginTop: 16,
+    marginStart : 8
   }
 });
 

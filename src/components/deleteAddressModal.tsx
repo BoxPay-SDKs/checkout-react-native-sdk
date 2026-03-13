@@ -10,6 +10,7 @@ interface DeletePros {
 }
 
 const DeleteAddressModal = ({ visible, onCancel, onDelete, address } : DeletePros) => {
+  const {checkoutDetails} = checkoutDetailsHandler
   return (
     <Modal
       isVisible={visible}
@@ -27,26 +28,26 @@ const DeleteAddressModal = ({ visible, onCancel, onDelete, address } : DeletePro
         />
 
         {/* Title */}
-        <Text style={styles.title}>Proceed to delete this address?</Text>
+        <Text style={[styles.title, {fontFamily:checkoutDetails.fontFamily.semiBold,}]}>Proceed to delete this address?</Text>
 
         {/* Address Info */}
-        <Text style={styles.address}>{address}</Text>
+        <Text style={[styles.address, { fontFamily: checkoutDetails.fontFamily.regular}]}>{address}</Text>
 
         {/* Buttons */}
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={[styles.cancelText, {color: checkoutDetails.buttonColor,
+    fontFamily: checkoutDetails.fontFamily.regular}]}>Cancel</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-            <Text style={styles.deleteText}>Yes, delete</Text>
+          <TouchableOpacity style={[styles.deleteButton, {backgroundColor: checkoutDetails.buttonColor,}]} onPress={onDelete}>
+            <Text style={[styles.deleteText, {fontFamily: checkoutDetails.fontFamily.semiBold}]}>Yes, delete</Text>
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
   );
 };
-const {buttonColor} = checkoutDetailsHandler.checkoutDetails
 const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: "#fff",
@@ -62,15 +63,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontFamily:"Poppins-SemiBold",
     color: "#2D2B32",
     marginBottom: 4,
   },
   address: {
     fontSize: 12,
     color: "#4F4D55",
-    marginBottom: 20,
-    fontFamily:"Poppins-Regular"
+    marginBottom: 20
   },
   buttonRow: {
     flexDirection: "row",
@@ -91,19 +90,15 @@ const styles = StyleSheet.create({
   deleteButton: {
     flex: 1,
     paddingVertical: 12,
-    backgroundColor: buttonColor,
     borderRadius: 8,
     alignItems: "center",
   },
   cancelText: {
-    fontSize: 16,
-    color: buttonColor,
-    fontFamily:"Poppins-Regular"
+    fontSize: 16
   },
   deleteText: {
     fontSize: 16,
-    color: "#fff",
-    fontFamily:"Poppins-SemiBold"
+    color: "#fff"
   },
 });
 

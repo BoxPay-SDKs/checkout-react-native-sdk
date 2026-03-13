@@ -243,12 +243,12 @@ const BNPLScreen = ({ navigation }: Props) => {
                   style={styles.imageStyle}
                 />
                 <Text
-                  style={styles.headingText}
+                  style={[styles.headingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                 >
                   Oops!! No result found
                 </Text>
                 <Text
-                  style={styles.subHeadingText}
+                  style={[styles.subHeadingText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   Please try another search
                 </Text>
@@ -259,7 +259,7 @@ const BNPLScreen = ({ navigation }: Props) => {
             style={styles.bottomContainer}
           >
             <Text
-              style={styles.bottomText}
+              style={[styles.bottomText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
             >
               Secured by
             </Text>

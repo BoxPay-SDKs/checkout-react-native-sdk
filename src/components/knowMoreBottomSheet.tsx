@@ -13,13 +13,13 @@ const KnowMoreBottomSheet = ({ onClick }: KnowMoreBottomSheetProps) => {
       <Modal isVisible={true} style={styles.modal} onBackdropPress={onClick}>
         <View style={styles.sheet}>
           <Text
-            style={styles.headingText}
+            style={[styles.headingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
           >
             RBI Guidelines
           </Text>
 
           <Text
-            style={styles.subHeadingText}
+            style={[styles.subHeadingText, { fontFamily: checkoutDetails.fontFamily.regular,}]}
           >
             As per the new RBI guidelines, we can no longer store your card
             information with us.
@@ -33,7 +33,7 @@ const KnowMoreBottomSheet = ({ onClick }: KnowMoreBottomSheetProps) => {
               style={styles.imageStyle}
             />
             <Text
-              style={styles.subHeadingText}
+              style={[styles.subHeadingText, { fontFamily: checkoutDetails.fontFamily.regular,}]}
             >
               Your bank/card network will securely save your card information
               via tokenization if you consent for the same.
@@ -47,7 +47,7 @@ const KnowMoreBottomSheet = ({ onClick }: KnowMoreBottomSheetProps) => {
               style={styles.imageStyle}
             />
             <Text
-              style={styles.subHeadingText}
+              style={[styles.subHeadingText,{ fontFamily: checkoutDetails.fontFamily.regular,}]}
             >
               In case you choose to not tokenize, you’ll have to enter card
               details every time you pay.
@@ -56,11 +56,11 @@ const KnowMoreBottomSheet = ({ onClick }: KnowMoreBottomSheetProps) => {
           <Pressable
             style={[
               styles.buttonContainer,
-              { backgroundColor: checkoutDetails.buttonColor },
+              { backgroundColor: checkoutDetails.buttonColor, borderRadius: checkoutDetails.ctaBorderRadius, },
             ]}
             onPress={onClick}
           >
-            <Text style={styles.buttonText}>Got it!</Text>
+            <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold}]}>Got it!</Text>
           </Pressable>
         </View>
       </Modal>
@@ -81,20 +81,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-  secondaryHeading: {
-    color: '#2D2B32',
-    fontSize: 14,
-    marginTop: 16,
-    fontFamily: 'Poppins-SemiBold',
-  },
-  desc: {
-    color: '#4F4D55',
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-  },
   buttonContainer: {
     flexDirection: 'row',
-    borderRadius: 8,
     justifyContent: 'center',
     marginTop: 28,
     backgroundColor: '#1CA672',
@@ -102,16 +90,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
-    paddingVertical: 12,
-    fontFamily: 'Poppins-SemiBold',
+    paddingVertical: 12
   },
   headingText : {
-    fontFamily: 'Poppins-SemiBold',
     fontSize: 20,
     color: '#2D2B32',
   },
   subHeadingText : {
-    fontFamily: 'Poppins-Regular',
     fontSize: 14,
     color: '#2D2B32',
     paddingTop: 12

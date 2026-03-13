@@ -200,7 +200,7 @@ const SavedAddressScreen = ({ navigation }: Props) => {
                     <Text
                       numberOfLines={1}
                       ellipsizeMode="tail"
-                      style={[styles.insideContainerClickableText, {color:checkoutDetails.buttonColor, paddingTop:4}]}
+                      style={[styles.insideContainerClickableText, {color:checkoutDetails.buttonColor, paddingTop:4, fontFamily: checkoutDetails.fontFamily.semiBold,}]}
                     >
                       Add new address
                     </Text>
@@ -223,7 +223,7 @@ const SavedAddressScreen = ({ navigation }: Props) => {
                   </Pressable>
                   {savedAddressList.length !== 0 && (
     <>
-        <Text style={styles.mainHeadingText}>
+        <Text style={[styles.mainHeadingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
             Saved Addresses
         </Text>
         <ScrollView

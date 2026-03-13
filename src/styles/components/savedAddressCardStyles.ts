@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
     },
     labelName: {
       fontSize: 14,
-      fontFamily: 'Poppins-SemiBold',
       color: "#2D2B32",
       paddingTop : 4
     },
@@ -46,12 +45,10 @@ const styles = StyleSheet.create({
     },
     selectedTagText: {
       fontSize: 10,
-      fontFamily: 'Poppins-Medium',
       color: "#EB2F96",
     },
     addressText: {
       fontSize: 12,
-      fontFamily: 'Poppins-Regular',
       color: "#7F7D83",
     },
     imageStyle : {

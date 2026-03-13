@@ -1,5 +1,6 @@
 import { View, Text, Image } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface MorePaymentContainerProps {
   title: string;
@@ -9,6 +10,7 @@ interface MorePaymentContainerProps {
 }
 
 const MorePaymentContainer = ({ title, image, surchargeFee, currencySymbol }: MorePaymentContainerProps) => {
+  const {checkoutDetails} = checkoutDetailsHandler
   return (
     <View
       style={{
@@ -31,13 +33,13 @@ const MorePaymentContainer = ({ title, image, surchargeFee, currencySymbol }: Mo
         marginLeft: 12 
       }}>
       <Text
-        style={{ fontSize: 14, fontFamily: 'Poppins-Medium'}}
+        style={{ fontSize: 14, fontFamily: checkoutDetails.fontFamily.medium}}
       >
         {title}
       </Text>
       {surchargeFee != "" && (
         <Text
-        style={{ fontSize: 14, fontFamily: 'Poppins-Medium', color : '#32CD32' }}
+        style={{ fontSize: 14, fontFamily: checkoutDetails.fontFamily.medium, color : '#32CD32' }}
       >
         {currencySymbol}{surchargeFee} extra applied as surcharge
       </Text>

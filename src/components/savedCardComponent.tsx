@@ -21,7 +21,6 @@ const SavedCardComponentView = ({
   onClickRadio,
 }: SavedCardComponentViewProps) => {
   const { checkoutDetails } = checkoutDetailsHandler;
-
   return (
     <View style={{ paddingBottom: 12 }}>
       {savedCards.map((card) => (
@@ -76,7 +75,7 @@ const SavedCardComponentView = ({
               color: checkoutDetails.buttonColor,
               paddingStart: 10,
               paddingTop : 4,
-              fontFamily: 'Poppins-SemiBold',
+              fontFamily: checkoutDetails.fontFamily.semiBold,
             }}
           >
             Add new Card
@@ -130,7 +129,7 @@ const SavedCardRow = ({
   currencySymbol,
   amount,
 }: SavedCardRowProps) => {
-
+  const { checkoutDetails } = checkoutDetailsHandler;
   return (
     <View
       style={{
@@ -144,9 +143,10 @@ const SavedCardRow = ({
       <ImageLoader image={image} errorImage={errorImage}/>
 
         <View style={{ paddingStart: 12, flex: 1 }}>
-          <Text
+          {nickName != "" && (
+            <Text
             style={{
-              fontFamily: 'Poppins-SemiBold',
+              fontFamily: checkoutDetails.fontFamily.semiBold,
               fontSize: 12,
               color: '#4F4D55',
             }}
@@ -156,9 +156,10 @@ const SavedCardRow = ({
           >
             {nickName}
           </Text>
+          )}
           <Text
             style={{
-              fontFamily: 'Poppins-Regular',
+              fontFamily: checkoutDetails.fontFamily.regular,
               fontSize: 12,
               color: '#4F4D55',
             }}
@@ -184,7 +185,7 @@ const SavedCardRow = ({
             onProceedForward(instrumentTypeValue);
           }}
         >
-          <Text style={styles.buttonText}>
+          <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
             Proceed to Pay{' '}
             <Text
               style={{
@@ -217,7 +218,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
-    fontFamily: 'Poppins-SemiBold',
   },
   tag: {
     borderColor: '#1CA672',
@@ -227,10 +227,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     marginTop: 4,
     alignSelf: 'flex-start',
-  },
-  tagText: {
-    fontSize: 10,
-    fontFamily: 'Poppins-Medium',
-    color: '#1CA672',
-  },
+  }
 });

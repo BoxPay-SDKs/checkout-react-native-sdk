@@ -14,17 +14,14 @@ const styles = StyleSheet.create({
     secondaryHeading: {
       color: '#2D2B32',
       fontSize: 14,
-      marginTop: 16,
-      fontFamily: 'Poppins-SemiBold',
+      marginTop: 16
     },
     desc: {
       color: '#4F4D55',
-      fontSize: 14,
-      fontFamily: 'Poppins-Regular',
+      fontSize: 14
     },
     buttonContainer: {
       flexDirection: 'row',
-      borderRadius: 8,
       justifyContent: 'center',
       marginTop: 12,
       backgroundColor: '#1CA672',
@@ -33,10 +30,8 @@ const styles = StyleSheet.create({
       color: 'white',
       fontSize: 16,
       paddingVertical: 12,
-      fontFamily: 'Poppins-SemiBold',
     },
     headingText : {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 20,
         color: '#2D2B32'
     },

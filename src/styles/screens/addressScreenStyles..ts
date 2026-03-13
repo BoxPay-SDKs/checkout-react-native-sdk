@@ -13,13 +13,11 @@ const styles = StyleSheet.create({
     textInput: {
         backgroundColor: 'white',
         fontSize: 16,
-        fontFamily: 'Poppins-Regular',
         color: '#0A090B',
         height: 56,
     },
     buttonContainer: {
         flexDirection: 'row',
-        borderRadius: 8,
         justifyContent: 'center',
         marginTop: 20,
         marginHorizontal: 16,
@@ -28,11 +26,9 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontSize: 16,
-        fontFamily: 'Poppins-SemiBold',
     },
     textFieldLable : {
         fontSize: 16,
-        fontFamily: 'Poppins-Regular',
     },
     imageStyle : {
         alignSelf: 'center',
@@ -42,7 +38,6 @@ const styles = StyleSheet.create({
     },
     errorText : {
         fontSize: 12,
-        fontFamily: 'Poppins-Regular',
         color: '#E12121',
         marginHorizontal: 16,
         marginTop : 2

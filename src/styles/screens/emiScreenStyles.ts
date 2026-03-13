@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
     },
     cardsContainer : { paddingHorizontal: 16, paddingTop: 12 },
     cardsText : {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 14,
     },
     highlightedDivider : {
@@ -35,14 +34,12 @@ const styles = StyleSheet.create({
     },
     searchTextLable : {
         fontSize: 16,
-        fontFamily: 'Poppins-Regular',
     },
     textInputStyle : {
         marginTop: 16,
         marginHorizontal: 16,
         backgroundColor: 'white',
         fontSize: 16,
-        fontFamily: 'Poppins-Regular',
         color: '#0A090B',   
     },
     filterContainer : {
@@ -60,7 +57,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     filterText : {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 12,
         color: '#2D2B32',
     },
@@ -74,7 +70,6 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         marginHorizontal: 16,
         color: '#020815B5',
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 14,
     },
     listContainer : {
@@ -95,13 +90,11 @@ const styles = StyleSheet.create({
     },
     emptyListImage : { width: 100, height: 100 },
     emptyListHeadingText : {
-        fontFamily: 'Poppins-SemiBold',
         fontSize: 16,
         color: '#212426',
         marginTop: 16,
     },
     emptyListDescText : {
-        fontFamily: 'Poppins-Regular',
         fontSize: 14,
         color: '#4F4D55',
         marginTop: -4,

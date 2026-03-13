@@ -13,6 +13,7 @@ import type { CheckoutStackParamList } from '../navigation';
 import type { RouteProp, NavigationProp } from '@react-navigation/native';
 import Header from '../components/header';
 import styles from '../styles/screens/instantOfferScreenStyles';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 export interface InstantOfferProps {
   couponList: GetInstantOffersResponse[];
@@ -45,6 +46,7 @@ const InstantOfferScreen = ({ route, navigation } : Props) => {
 
 
   const [searchText, setSearchText] = useState('');
+  const {checkoutDetails} = checkoutDetailsHandler
   
 
   const sortedCoupons = useMemo(() => {
@@ -86,6 +88,7 @@ const InstantOfferScreen = ({ route, navigation } : Props) => {
                         : searchText != '' && searchText != null
                           ? '#2D2B32'
                           : '#ADACB0',
+                          fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     Enter Coupon Code
@@ -101,7 +104,7 @@ const InstantOfferScreen = ({ route, navigation } : Props) => {
                     outline: '#E6E6E6',
                   },
                 }}
-                style={styles.searchTextInput}
+                style={[styles.searchTextInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 left={
                   <TextInput.Icon
                     icon={() => (

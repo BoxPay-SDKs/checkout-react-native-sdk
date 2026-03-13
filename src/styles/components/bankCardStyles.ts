@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
     },
     bankName: {
       fontSize: 14,
-      fontFamily: 'Poppins-SemiBold',
       color: '#4F4D55',
     },
     tagsContainer: {
@@ -41,7 +40,6 @@ const styles = StyleSheet.create({
     },
     tagText: {
       fontSize: 10,
-      fontFamily: 'Poppins-Medium',
       color: '#EB2F96',
     },
     chervonImage : {

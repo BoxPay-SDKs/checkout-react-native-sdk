@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import React from 'react';
 import { RadioButton } from 'react-native-paper';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface SelectTenureCardProps {
   duration: number;
@@ -37,6 +38,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
   interestCharged,
   processingFee,
 }) => {
+  const {checkoutDetails} = checkoutDetailsHandler
   return (
     <View>
       {isSelected ? (
@@ -59,7 +61,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             />
             <Text
               style={{
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
                 fontSize: 14,
                 color: '#2D2B32',
               }}
@@ -79,13 +81,13 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             </Text>
             {isLowCostOffer && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>LOW COST EMI</Text>
+                <Text style={[styles.tagText, { fontFamily: checkoutDetails.fontFamily.medium,}]}>LOW COST EMI</Text>
               </View>
             )}
 
             {isNoCostOffer && (
               <View style={styles.tag}>
-                <Text style={styles.tagText}>NO COST EMI</Text>
+                <Text style={[styles.tagText, { fontFamily: checkoutDetails.fontFamily.medium,}]}>NO COST EMI</Text>
               </View>
             )}
           </Pressable>
@@ -105,7 +107,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             >
               <Text
                 style={{
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                   fontSize: 12,
                   color: '#2D2B32',
                   flex: 1,
@@ -117,7 +119,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               </Text>
               <Text
                 style={{
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                   fontSize: 12,
                   color: '#2D2B32',
                   flex: 1,
@@ -130,7 +132,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               {discount !== '0' && (
                 <Text
                   style={{
-                    fontFamily: 'Poppins-SemiBold',
+                    fontFamily: checkoutDetails.fontFamily.semiBold,
                     fontSize: 12,
                     color: '#2D2B32',
                     flex: 1,
@@ -143,7 +145,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               )}
               <Text
                 style={{
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                   fontSize: 12,
                   color: '#2D2B32',
                   flex: 1,
@@ -169,7 +171,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             >
               <Text
                 style={{
-                  fontFamily: 'Poppins-Medium',
+                  fontFamily: checkoutDetails.fontFamily.medium,
                   fontSize: 12,
                   color: '#2D2B32',
                   flex: 1,
@@ -191,7 +193,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               </Text>
               <Text
                 style={{
-                  fontFamily: 'Poppins-Medium',
+                  fontFamily: checkoutDetails.fontFamily.medium,
                   fontSize: 12,
                   color: '#2D2B32',
                   flex: 1,
@@ -214,7 +216,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               {discount !== '0' && (
                 <Text
                   style={{
-                    fontFamily: 'Poppins-Medium',
+                    fontFamily: checkoutDetails.fontFamily.medium,
                     fontSize: 12,
                     color: '#1CA672',
                     flex: 1,
@@ -237,7 +239,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               )}
               <Text
                 style={{
-                  fontFamily: 'Poppins-Medium',
+                  fontFamily: checkoutDetails.fontFamily.medium,
                   fontSize: 12,
                   color: '#2D2B32',
                   flex: 1,
@@ -265,7 +267,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               color: '#2D2B32',
               fontSize: 12,
               lineHeight: 18,
-              fontFamily: 'Poppins-Regular',
+              fontFamily: checkoutDetails.fontFamily.regular,
             }}
           >
             Your card will be charged for an amount of{' '}
@@ -281,7 +283,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             </Text>
             <Text
               style={{
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
                 fontSize: 12,
                 color: '#2D2B32',
               }}
@@ -301,7 +303,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             </Text>
             <Text
               style={{
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
                 fontSize: 12,
                 color: '#2D2B32',
               }}
@@ -321,7 +323,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             </Text>
             <Text
               style={{
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
                 fontSize: 12,
                 color: '#2D2B32',
               }}
@@ -332,7 +334,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
           </Text>
           <Text
             style={{
-              fontFamily: 'Poppins-Regular',
+              fontFamily: checkoutDetails.fontFamily.regular,
               fontSize: 12,
               color: '#2D2B32',
               paddingHorizontal: 12,
@@ -351,7 +353,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             </Text>
             <Text
               style={{
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
                 fontSize: 12,
                 color: '#2D2B32',
               }}
@@ -378,7 +380,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               style={{
                 color: 'white',
                 fontSize: 16,
-                fontFamily: 'Poppins-SemiBold',
+                fontFamily: checkoutDetails.fontFamily.semiBold,
               }}
             >
               Proceed to Enter Card Details
@@ -407,7 +409,7 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
             <View style={{ flexShrink: 1 }}>
               <Text
                 style={{
-                  fontFamily: 'Poppins-SemiBold',
+                  fontFamily: checkoutDetails.fontFamily.semiBold,
                   fontSize: 14,
                   color: '#2D2B32',
                   alignSelf: 'center',
@@ -438,12 +440,12 @@ const SelectTenureCard: React.FC<SelectTenureCardProps> = ({
               >
                 {isLowCostOffer && (
                   <View style={styles.tag}>
-                    <Text style={styles.tagText}>LOW COST EMI</Text>
+                    <Text style={[styles.tagText, { fontFamily: checkoutDetails.fontFamily.medium,}]}>LOW COST EMI</Text>
                   </View>
                 )}
                 {isNoCostOffer && (
                   <View style={styles.tag}>
-                    <Text style={styles.tagText}>NO COST EMI</Text>
+                    <Text style={[styles.tagText, { fontFamily: checkoutDetails.fontFamily.medium,}]}>NO COST EMI</Text>
                   </View>
                 )}
               </View>
@@ -468,7 +470,6 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 10,
-    fontFamily: 'Poppins-Medium',
     color: '#EB2F96',
   },
 });

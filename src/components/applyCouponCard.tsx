@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
 interface Props {
   selectedColor: string;
@@ -31,6 +32,7 @@ const ApplyCouponCard: React.FC<Props> = ({
   onClickRemove,
   onClickViewAll,
 }) => {
+  const {checkoutDetails} = checkoutDetailsHandler
   return (
     <View style={styles.container}>
       {/* Top Row */}
@@ -54,14 +56,14 @@ const ApplyCouponCard: React.FC<Props> = ({
 
         {/* Text Section */}
         <View style={styles.textContainer}>
-          <Text style={styles.codeText}>
+          <Text style={[styles.codeText, {fontFamily : checkoutDetails.fontFamily.semiBold}]}>
             {isCodeApplied ? `${code} Applied!` : code}
           </Text>
 
           {isCodeApplied ? (
-            <Text style={styles.savedText}>
+            <Text style={[styles.savedText, {fontFamily : checkoutDetails.fontFamily.regular}]}>
               Yay! You saved{' '}
-              <Text style={styles.currency}>
+              <Text style={[styles.currency, {fontFamily : checkoutDetails.fontFamily.semiBold}]}>
                 {currencySymbol}
               </Text>
               {discountAmount} on this order
@@ -70,7 +72,7 @@ const ApplyCouponCard: React.FC<Props> = ({
             <Text
               numberOfLines={1}
               ellipsizeMode="tail"
-              style={styles.description}
+              style={[styles.description, {fontFamily : checkoutDetails.fontFamily.regular}]}
             >
               {description}
             </Text>
@@ -108,7 +110,9 @@ const ApplyCouponCard: React.FC<Props> = ({
         <Text
           style={[
             styles.viewAll,
-            { color: selectedColor },
+            { color: selectedColor,
+              fontFamily : checkoutDetails.fontFamily.semiBold
+             },
           ]}
         >
           View All &gt;

@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
         marginTop: 20,
         fontSize: 14,
         color: '#020815B5',
-        fontFamily: 'Poppins-SemiBold',
     },
     paymentContainer : {
         borderColor: '#F1F1F1',
@@ -46,7 +45,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#888888',
         marginBottom: 13,
-        fontFamily: 'Poppins-Medium',
     },
     footerImage : { height: 50, width: 50 },
     webViewScreenStyle : {

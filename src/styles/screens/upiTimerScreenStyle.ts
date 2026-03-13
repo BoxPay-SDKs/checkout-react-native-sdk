@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
         color: '#2D2B32',
         fontSize: 18,
         textAlign: 'center',
-        fontFamily: 'Poppins-SemiBold',
     },
     descText : {
         color: '#2D2B32',
@@ -32,7 +31,6 @@ const styles = StyleSheet.create({
         paddingTop: 12,
         textAlign: 'center',
         lineHeight: 24,
-        fontFamily: 'Poppins-Regular',
     },
     container : {
         flexDirection: 'row',
@@ -51,14 +49,12 @@ const styles = StyleSheet.create({
     text : {
         color: '#1D1C20',
         fontSize: 12,
-        fontFamily: 'Poppins-Regular',
     },
     expireInTextStyle : {
         color: '#1D1C20',
         fontSize: 16,
         textAlign: 'center',
         marginTop: 32,
-        fontFamily: 'Poppins-Medium',
     },
     progressBarContainer : {
         marginTop: 14, alignItems: 'center' 
@@ -80,7 +76,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         paddingStart: 16,
         lineHeight: 18,
-        fontFamily: 'Poppins-Regular',
     },
     thickDivider : {
         flexDirection: 'row',
@@ -90,7 +85,6 @@ const styles = StyleSheet.create({
     },
     cancelTextStyle : {
         fontSize: 16,
-        fontFamily: 'Poppins-SemiBold',
     }
 })
 

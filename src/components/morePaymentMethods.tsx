@@ -40,7 +40,7 @@ const MorePaymentMethods = ({savedCards, stopTimer, setSelectedPaymentMethod, su
                           marginTop: 12,
                           fontSize: 14,
                           color: '#020815B5',
-                          fontFamily: 'Poppins-SemiBold',
+                          fontFamily: checkoutDetails.fontFamily.semiBold,
                         }}
                       >
                         More Payment Options
@@ -52,7 +52,7 @@ const MorePaymentMethods = ({savedCards, stopTimer, setSelectedPaymentMethod, su
                           marginTop: 12,
                           fontSize: 14,
                           color: '#020815B5',
-                          fontFamily: 'Poppins-SemiBold',
+                          fontFamily: checkoutDetails.fontFamily.semiBold,
                         }}
                       >
                         Payment Options

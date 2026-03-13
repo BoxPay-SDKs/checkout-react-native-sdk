@@ -1,5 +1,8 @@
 // constants/fonts.ts
 
+import { AnalyticsEvents } from "../interface";
+import callUIAnalytics from "../postRequest/callUIAnalytics";
+
 export const BoxpayFonts = {
   'Poppins-Regular': require('../../assets/fonts/Poppins-Regular.ttf'),
   'Poppins-Bold': require('../../assets/fonts/Poppins-Bold.ttf'),
@@ -23,6 +26,8 @@ export async function loadBoxpayFonts() {
       await Font.loadAsync(BoxpayFonts);
     }
   } catch (e) {
-    // Non-Expo app → ignore silently
+    callUIAnalytics(
+      AnalyticsEvents.SDK_CRASH, 'fontfamily.tsx file',`font not loaded ${e}`
+    )
   }
 }

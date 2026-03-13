@@ -151,12 +151,12 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
         style={styles.mainContainer}
       >
         <Text
-          style={styles.headingText}
+          style={[styles.headingText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}
         >
           Complete your payment
         </Text>
         <Text
-          style={styles.descText}
+          style={[styles.descText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
         >
           Open your UPI application and confirm the payment before the time
           expires
@@ -169,13 +169,13 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
             style={styles.imageStyle}
           />
           <Text
-            style={styles.text}
+            style={[styles.text, {fontFamily: checkoutDetails.fontFamily.regular,}]}
           >
             UPI Id : {upiIdStr}
           </Text>
         </View>
         <Text
-          style={styles.expireInTextStyle}
+          style={[styles.expireInTextStyle, {fontFamily: checkoutDetails.fontFamily.medium,}]}
         >
           Expires in
         </Text>
@@ -201,7 +201,7 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
             style={[styles.infoImageStyle, {tintColor : checkoutDetails.buttonColor}]}
           />
           <Text
-            style={styles.infoText}
+            style={[styles.infoText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
           >
             Kindly avoid using the back button until the transaction process is
             complete
@@ -215,7 +215,8 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
       <View style={styles.cancelPaymentContainer}>
         <Text
           style={[styles.cancelTextStyle,{
-            color: checkoutDetails.buttonColor
+            color: checkoutDetails.buttonColor,
+            fontFamily: checkoutDetails.fontFamily.semiBold,
           }]}
           onPress={() => {
             setCancelClicked(true);

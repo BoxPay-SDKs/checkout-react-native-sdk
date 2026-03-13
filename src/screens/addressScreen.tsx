@@ -346,6 +346,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
               <Text
                 style={[styles.textFieldLable,{
                   color: countryTextFieldFocused ? '#2D2B32' : '#ADACB0',
+                  fontFamily: checkoutDetails.fontFamily.regular,
                 }]}
               >
                 Country*
@@ -361,7 +362,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
             }}
             style={[
               styles.textInput,
-              { marginTop: 28, marginHorizontal: 16 },
+              { marginTop: 28, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
             ]}
             outlineStyle={{
               borderRadius: 8,
@@ -396,6 +397,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   <Text
                     style={[styles.textFieldLable,{
                       color: (nameTextFieldFocused && fullNameTextField != "") ? '#2D2B32' : '#ADACB0',
+                      fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     Full Name*
@@ -413,7 +415,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 style={[
                   styles.textInput,
-                  { marginTop: 20, marginHorizontal: 16 },
+                  { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
                 ]}
                 error={isFullNameValid == false}
                 outlineStyle={{
@@ -429,7 +431,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
               />
               {(isFullNameValid == false) && (
                 <Text
-                  style={styles.errorText}
+                  style={[styles.errorText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   {fullNameErrorText}
                 </Text>
@@ -451,6 +453,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                     <Text
                       style={[styles.textFieldLable,{
                         color: (phoneCodeTextFieldFocused && selectedPhoneCode != "") ? '#2D2B32' : '#ADACB0',
+                        fontFamily: checkoutDetails.fontFamily.regular,
                       }]}
                     >
                       Code*
@@ -466,7 +469,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   }}
                   style={[
                     styles.textInput,
-                    { width: 100, marginEnd: 8},
+                    { width: 100, marginEnd: 8, fontFamily: checkoutDetails.fontFamily.regular,},
                   ]}
                   outlineStyle={{
                     borderRadius: 8,
@@ -497,6 +500,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                     <Text
                       style={[styles.textFieldLable,{
                         color: (phoneTextFieldFocused && phoneNumberTextField != "") ? '#2D2B32' : '#ADACB0',
+                        fontFamily: checkoutDetails.fontFamily.regular, 
                       }]}
                     >
                       Mobile Number*
@@ -512,7 +516,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                       outline: '#E6E6E6',
                     },
                   }}
-                  style={[styles.textInput, { flex: 1 }]}
+                  style={[styles.textInput, { flex: 1 , fontFamily: checkoutDetails.fontFamily.regular,}]}
                   error={isPhoneNumberValid == false}
                   outlineStyle={{
                     borderRadius: 8,
@@ -527,7 +531,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
               </View>
               {(isPhoneNumberValid == false) && (
                 <Text
-                  style={styles.errorText}
+                  style={[styles.errorText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   {mobileNumberErrorText}
                 </Text>
@@ -542,6 +546,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   <Text
                     style={[styles.textFieldLable,{
                       color: (emailTextFieldFocused && emailTextField != "") ? '#2D2B32' : '#ADACB0',
+                      fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     Email ID*
@@ -559,7 +564,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 style={[
                   styles.textInput,
-                  { marginTop: 20, marginHorizontal: 16 },
+                  { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
                 ]}
                 error={isEmailValid == false}
                 outlineStyle={{
@@ -575,7 +580,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
               />
               {(isEmailValid == false) && (
                 <Text
-                  style={styles.errorText}
+                  style={[styles.errorText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   {emailIdErrorText}
                 </Text>
@@ -598,6 +603,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                           color: (pincodeTextFieldFocused && pinTextField != "")
                             ? '#2D2B32'
                             : '#ADACB0',
+                            fontFamily: checkoutDetails.fontFamily.regular,
                         }]}
                       >
                         ZIP/Postal code*
@@ -613,7 +619,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                         outline: '#E6E6E6',
                       },
                     }}
-                    style={[styles.textInput]}
+                    style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                     error={isPinValid == false}
                     outlineStyle={{
                       borderRadius: 8, // Add this
@@ -629,7 +635,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   />
                   {(isPinValid == false) && (
                     <Text
-                      style={styles.errorText}
+                      style={[styles.errorText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                     >
                       {pinCodeErrorText}
                     </Text>
@@ -642,6 +648,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                       <Text
                         style={[styles.textFieldLable,{
                           color: cityTextFieldFocused ? '#2D2B32' : '#ADACB0',
+                          fontFamily: checkoutDetails.fontFamily.regular,
                         }]}
                       >
                         City*
@@ -657,7 +664,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                         outline: '#E6E6E6',
                       },
                     }}
-                    style={[styles.textInput, { marginStart: 8 }]}
+                    style={[styles.textInput, { marginStart: 8, fontFamily: checkoutDetails.fontFamily.regular, }]}
                     error={isCityValid == false}
                     outlineStyle={{
                       borderRadius: 8, // Add this
@@ -672,7 +679,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   />
                   {(isCityValid == false) && (
                     <Text
-                      style={styles.errorText}
+                      style={[styles.errorText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                     >
                       {cityErrorText}
                     </Text>
@@ -685,6 +692,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   <Text
                     style={[styles.textFieldLable,{
                       color: stateTextFieldFocused ? '#2D2B32' : '#ADACB0',
+                      fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     State*
@@ -702,7 +710,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 style={[
                   styles.textInput,
-                  { marginTop: 20, marginHorizontal: 16 },
+                  { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
                 ]}
                 error={isStateValid == false}
                 outlineStyle={{
@@ -718,7 +726,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
               />
               {(isStateValid == false) && (
                 <Text
-                  style={styles.errorText}
+                  style={[styles.errorText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   {stateErrorText}
                 </Text>
@@ -731,6 +739,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                       color: mainAddressTextFieldFocused
                         ? '#2D2B32'
                         : '#ADACB0',
+                        fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     House number, Apartment*
@@ -748,7 +757,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 style={[
                   styles.textInput,
-                  { marginTop: 20, marginHorizontal: 16 },
+                  { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
                 ]}
                 error={isMainAddressValid == false}
                 outlineStyle={{
@@ -764,7 +773,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
               />
               {(isMainAddressValid == false) && (
                 <Text
-                  style={styles.errorText}
+                  style={[styles.errorText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 >
                   {mainAddressErrorText}
                 </Text>
@@ -777,6 +786,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                       color: secondaryAddressTextFieldFocused
                         ? '#2D2B32'
                         : '#ADACB0',
+                        fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
                     Area,Colony,Street, Sector
@@ -794,7 +804,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 style={[
                   styles.textInput,
-                  { marginTop: 20, marginHorizontal: 16 },
+                  { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
                 ]}
                 outlineStyle={{
                   borderRadius: 8, // Add this
@@ -827,7 +837,9 @@ const AddressScreen = ({ route, navigation }: Props) => {
         <Pressable
           style={[
             styles.buttonContainer,
-            { backgroundColor: checkoutDetails.buttonColor },
+            { backgroundColor: checkoutDetails.buttonColor,
+              borderRadius: checkoutDetails.ctaBorderRadius,
+             },
           ]}
           onPress={() => {
             // Todo add functon call
@@ -861,7 +873,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
           <Text
             style={[
               styles.buttonText,
-              { color: checkoutDetails.buttonTextColor }
+              { color: checkoutDetails.buttonTextColor, fontFamily: checkoutDetails.fontFamily.semiBold, }
             ]}
           >
             {isShippingEnabled ? 'Save Address' : 'Save Personal Details'}

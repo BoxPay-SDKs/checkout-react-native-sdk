@@ -67,7 +67,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
     isUpiQRMethodEnabled: isUpiQRVisible,
     isUPIOtmIntentMethodEnabled : isUPIOtmIntentVisible,
     isUPIOtmCollectMethodEnabled : isUPIOtmCollectVisible,
-    isUPIOtmQRMethodEnabled : isUPIOtmQRVisible
+    isUPIOtmQRMethodEnabled : isUPIOtmQRVisible,
+    fontFamily
   } = checkoutDetails;
   const isTablet = Math.min(width, height) >= 600
   const [qrImage, setQrImage] = useState("")
@@ -158,12 +159,14 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
   return (
     <View>
       {((isUpiIntentVisible || isUpiCollectVisible || (isUpiQRVisible && isTablet)) || ((isUPIOtmIntentVisible || isUPIOtmCollectVisible || (isUPIOtmQRVisible && isTablet)))) && (
+       <>
         <View style={styles.headingContainer}>
-          <Text style={styles.headingText}>Pay by any UPI</Text>
+          <Text style={[styles.headingText, { fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Pay by any UPI</Text>
         </View>
-      )}
-      <View style={styles.intentBackground}>
-        <PaymentSelectorView
+        <View style={styles.intentBackground}>
+        {savedUpiArray.length != 0 && (
+          <>
+          <PaymentSelectorView
           providerList={savedUpiArray}
           onProceedForward={(displayValue : string, instrumentValue : string, type : string) =>
             handleCollectPayment(displayValue, instrumentValue, type)
@@ -181,6 +184,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
         <View
           style={styles.divider}
         />
+        </>
+        )}
         {(isUpiIntentVisible || isUPIOtmIntentVisible) && (
           <View>
             <View style={styles.upiIntentRow}>
@@ -212,8 +217,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                       styles.intentTitle,
                       selectedIntent === 'GPay' && {
                         color: checkoutDetails.buttonColor,
-                        fontFamily: 'Poppins-SemiBold',
-                      },
+                        fontFamily: fontFamily.semiBold,
+                      }
                     ]}
                   >
                     GPay
@@ -249,7 +254,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                       styles.intentTitle,
                       selectedIntent === 'PhonePe' && {
                         color: checkoutDetails.buttonColor,
-                        fontFamily: 'Poppins-SemiBold',
+                        fontFamily: fontFamily.semiBold,
                       },
                     ]}
                   >
@@ -285,7 +290,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                       styles.intentTitle,
                       selectedIntent === 'PayTm' && {
                         color: checkoutDetails.buttonColor,
-                        fontFamily: 'Poppins-SemiBold',
+                        fontFamily: fontFamily.semiBold,
                       },
                     ]}
                   >
@@ -310,7 +315,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                     style={styles.intentIcon}
                   />
                 </Pressable>
-                <Text style={styles.intentTitle}>Others</Text>
+                <Text style={[styles.intentTitle, {fontFamily: fontFamily.semiBold,}]}>Others</Text>
               </View>
             </View>
 
@@ -322,7 +327,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                 ]}
                 onPress={() => handleUpiPayment(selectedIntent)}
               >
-                <Text style={[styles.buttonText, {color : checkoutDetails.buttonTextColor}]}>
+                <Text style={[styles.buttonText, {color : checkoutDetails.buttonTextColor, fontFamily: fontFamily.semiBold,}]}>
                   Pay{' '}
                   <Text style={styles.currencySymbol}>
                     {checkoutDetails.currencySymbol}
@@ -359,7 +364,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                     />
                     <Text
                       style={[styles.subHeaderText,{
-                        color: checkoutDetails.buttonColor, paddingTop : 4
+                        color: checkoutDetails.buttonColor, paddingTop : 4,
+                        fontFamily: fontFamily.semiBold,
                       }]}
                     >
                       Add new UPI Id
@@ -390,7 +396,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   onPress={() => handleUpiCollectChevronClick()}
                 >
                   {/* Icon and Text Wrapper */}
-                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingBottom : 16 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingBottom : 10 }}>
                     <Image
                       source={require('../../assets/images/add_icon.png')}
                       style={[styles.imageStyle,{
@@ -399,7 +405,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                     />
                     <Text
                       style={[styles.subHeaderText,{
-                        color: checkoutDetails.buttonColor, paddingTop : 4
+                        color: checkoutDetails.buttonColor, paddingTop : 4,
+                        fontFamily: fontFamily.semiBold,
                       }]}
                     >
                       Add new UPI Id
@@ -430,6 +437,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                 <Text
                   style={[styles.labelText,{
                     color: upiIdFocused ? '#2D2B32' : '#ADACB0',
+                    fontFamily: fontFamily.regular,
                   }]}
                 >
                   Enter UPI Id
@@ -445,7 +453,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   outline: '#E6E6E6',
                 },
               }}
-              style={styles.textInput}
+              style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
               error={upiCollectError}
               right={
                 upiCollectError ? (
@@ -468,7 +476,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
             />
             {upiCollectError && (
               <Text
-                style={styles.errorText}
+                style={[styles.errorText, {fontFamily: fontFamily.regular,}]}
               >
                 Please enter a valid UPI Id
               </Text>
@@ -487,7 +495,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   }
                 }}
               >
-                <Text style={[styles.buttonText, {color : checkoutDetails.buttonTextColor}]}>
+                <Text style={[styles.buttonText, {color : checkoutDetails.buttonTextColor, fontFamily: fontFamily.semiBold,}]}>
                   Verify & Pay{' '}
                   <Text style={styles.currencySymbol}>
                     {checkoutDetails.currencySymbol}
@@ -499,7 +507,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
               <Pressable
                 style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' }]}
               >
-                <Text style={[styles.buttonText, { color: '#ADACB0' }]}>
+                <Text style={[styles.buttonText, { color: '#ADACB0', fontFamily: fontFamily.semiBold, }]}>
                   Verify & Pay{' '}
                   <Text style={[styles.currencySymbol, { color: '#ADACB0' }]}>
                     {checkoutDetails.currencySymbol}
@@ -536,7 +544,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   />
                   <Text
                     style={[styles.subHeaderText,{
-                      color: checkoutDetails.buttonColor
+                      color: checkoutDetails.buttonColor,
+                      fontFamily: fontFamily.semiBold,
                     }]}
                   >
                     Pay Using QR
@@ -576,7 +585,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
                   />
                   <Text
                     style={[styles.subHeaderText,{
-                      color: checkoutDetails.buttonColor
+                      color: checkoutDetails.buttonColor,
+                      fontFamily: fontFamily.semiBold,
                     }]}
                   >
                    Pay Using QR
@@ -639,6 +649,8 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
 )}
 
       </View>
+       </>
+      )}
     </View>
   );
 };
