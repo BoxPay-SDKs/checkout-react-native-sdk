@@ -104,7 +104,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     const response = await upiPostRequest({
       type: checkoutDetailsHandler.checkoutDetails.isUPIOtmIntentMethodEnabled ? "upiotm/intent" : 'upi/intent',
       ...(selectedIntent && { upiAppDetails: { upiApp: selectedIntent } }), // Conditionally add upiAppDetails only if upiIntent is present
-    });
+    }, false);
     handlePaymentResponse({
       response: response,
       checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,
@@ -130,7 +130,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const handleUpiCollectPayment = async (
     upiId: string,
     instrumentRef: string,
-    type: string
+    type: string,
+    isSICheckBoxClicked : boolean
   ) => {
     const requestPayload: InstrumentDetails =
       type === 'Card'
@@ -145,7 +146,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
               : { shopperVpa: upiId },
           };
     setLoadingState(true);
-    const response = await upiPostRequest(requestPayload);
+    const response = await upiPostRequest(requestPayload, isSICheckBoxClicked);
     handlePaymentResponse({
       response: response,
       upiId: upiId,
@@ -582,7 +583,9 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     isUPIOtmCollectMethodEnabled : methodFlags.isUPIOtmCollectVisible,
                     isUPIOtmIntentMethodEnabled : methodFlags.isUPIIntentVisible,
                     isUPIOtmQRMethodEnabled : methodFlags.isUPIOtmQRVisible,
-                    isOrderItemDetailsVisible : isFieldEnabled('ORDER_ITEM_DETAILS')
+                    isOrderItemDetailsVisible : isFieldEnabled('ORDER_ITEM_DETAILS'),
+                    isSICheckboxVisible : configurationOptions?.SHOW_SI_CHECKBOX ? true : false,
+                    isSubscriptionCheckout : paymentDetails.subscriptionDetails != null ? true : false
                   },
                 });
                 setPaymentHandler({
@@ -825,7 +828,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                         handleUpiCollectPayment(
                           displayValue,
                           instrumentValue,
-                          type
+                          type,
+                          false
                         )
                       }
                       errorImage={require('../../assets/images/ic_upi.png')}
@@ -843,7 +847,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   handlePaymentIntent(selectedIntent)
                 }
                 handleCollectPayment={(displayValue : string, instrumentValue : string, type : string) =>
-                  handleUpiCollectPayment(displayValue, instrumentValue, type)
+                  handleUpiCollectPayment(displayValue, instrumentValue, type, false)
                 }
                 savedUpiArray={savedUpiArray}
                 onClickRadio={handleSavedUpiSectionClick}
@@ -870,8 +874,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   >
                     <SavedCardComponentView
                       savedCards={savedCardArray}
-                      onProceedForward={(instrumentValue : string) => {
-                        handleUpiCollectPayment('', instrumentValue, 'Card');
+                      onProceedForward={(instrumentValue : string, isSICheckBoxClicked : boolean) => {
+                        handleUpiCollectPayment('', instrumentValue, 'Card', isSICheckBoxClicked);
                       }}
                       errorImage={require('../../assets/images/ic_card.png')}
                       onClickAddCard={() => navigation.navigate("CardScreen", {})}

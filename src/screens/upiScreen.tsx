@@ -94,7 +94,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
       type: isUPIOtmQRVisible ? "upiotm/qr" : 'upi/qr',
     }
     setLoading(true);
-    const response = await upiPostRequest(requestPayload);
+    const response = await upiPostRequest(requestPayload, false);
     handlePaymentResponse({
       response: response,
       checkoutDetailsErrorMessage: checkoutDetailsHandler.checkoutDetails.errorMessage,

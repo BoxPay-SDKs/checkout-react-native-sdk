@@ -108,6 +108,8 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [showKnowMoreDialog, setKnowMoreDialog] = useState(false);
   const [isSavedCardCheckBoxClicked, setIsSavedCardCheckBoxClicked] =
     useState(false);
+  
+  const [isSICheckBoxClicked, setIsSICheckBoxClicked] = useState(false)
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [paymentHtml, setPaymentHtml] = useState<string | null>(null);
   const [showWebView, setShowWebView] = useState(false);
@@ -504,7 +506,8 @@ const CardScreen = ({ route, navigation }: Props) => {
         cardCvvText || '',
         cardHolderNameText || '',
         cardNickNameText || '',
-        isSavedCardCheckBoxClicked
+        isSavedCardCheckBoxClicked,
+        isSICheckBoxClicked
       );
     }
     handlePaymentResponse({
@@ -982,18 +985,18 @@ const CardScreen = ({ route, navigation }: Props) => {
               style={styles.checkBoxContainer}
             >
               <TouchableOpacity
-  onPress={() => setIsSavedCardCheckBoxClicked(!isSavedCardCheckBoxClicked)}
->
-  <View style={[
-    styles.checkboxBox,
-    { borderColor: checkoutDetails.buttonColor },
-    isSavedCardCheckBoxClicked && { backgroundColor: checkoutDetails.buttonColor }
-  ]}>
-    {isSavedCardCheckBoxClicked && (
-      <Text style={styles.checkmark}>✓</Text>
-    )}
-  </View>
-</TouchableOpacity>
+                onPress={() => setIsSavedCardCheckBoxClicked(!isSavedCardCheckBoxClicked)}
+              >
+                <View style={[
+                  styles.checkboxBox,
+                  { borderColor: checkoutDetails.buttonColor },
+                  isSavedCardCheckBoxClicked && { backgroundColor: checkoutDetails.buttonColor }
+                ]}>
+                  {isSavedCardCheckBoxClicked && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
               <Text
                 style={[styles.checkBoxText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
               >
@@ -1014,8 +1017,33 @@ const CardScreen = ({ route, navigation }: Props) => {
                   Know more
                 </Text>
               </Pressable>
-            </View>
+              </View>
             </>
+          )}
+
+          {checkoutDetails.isSICheckboxVisible && (
+            <View
+            style={styles.checkBoxContainer}
+          >
+            <TouchableOpacity
+              onPress={() => setIsSICheckBoxClicked(!isSICheckBoxClicked)}
+            >
+              <View style={[
+                styles.checkboxBox,
+                { borderColor: checkoutDetails.buttonColor },
+                isSICheckBoxClicked && { backgroundColor: checkoutDetails.buttonColor }
+              ]}>
+                {isSICheckBoxClicked && (
+                  <Text style={styles.checkmark}>✓</Text>
+                )}
+              </View>
+            </TouchableOpacity>
+            <Text
+              style={[styles.checkBoxText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
+            >
+              Set up Standing Instructions (SI) for this payment.
+            </Text>
+            </View>
           )}
           <View
             style={styles.pressableContainer}

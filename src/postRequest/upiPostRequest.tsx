@@ -3,15 +3,20 @@ import type { InstrumentDetails, PaymentExecutedPostResponse } from '../interfac
 import { getBrowserData, getDeviceDetails, getShopperDetails } from '../utility';
 import { AnalyticsEvents, APIStatus } from '../interface';
 import callUIAnalytics from './callUIAnalytics';
+import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 
-const upiPostRequest = async (instrumentDetails: InstrumentDetails) : Promise<PaymentExecutedPostResponse> => {
+const upiPostRequest = async (instrumentDetails: InstrumentDetails, isSICheckBoxClicked : boolean) : Promise<PaymentExecutedPostResponse> => {
   const deviceDetails = getDeviceDetails()
   const browserData = getBrowserData()
   const shopperData = getShopperDetails()
+  const {checkoutDetails} = checkoutDetailsHandler
 
   const requestBody = {
     browserData: browserData,
     instrumentDetails,
+    ...((checkoutDetails.isSubscriptionCheckout && instrumentDetails.type === 'card/token')
+      ? { oneTimePayment: checkoutDetails.isSICheckboxVisible ? isSICheckBoxClicked : true }
+      : {}),
     shopper: shopperData,
     deviceDetails: deviceDetails
   };
