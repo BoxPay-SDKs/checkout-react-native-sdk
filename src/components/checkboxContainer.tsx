@@ -4,7 +4,7 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 interface CheckBoxContainerProps {
     text : string,
     isSelected : boolean,
-    setIsSelected : (checked : boolean) => void
+    setIsSelected : () => void
 }
 
 const CheckBoxContainer = ({text, isSelected, setIsSelected} : CheckBoxContainerProps) =>{
@@ -13,7 +13,7 @@ const CheckBoxContainer = ({text, isSelected, setIsSelected} : CheckBoxContainer
         <View
         style={styles.checkBoxContainer}>
           <TouchableOpacity
-            onPress={() => setIsSelected(!isSelected)}
+            onPress={() => setIsSelected()}
           >
             <View style={[
               styles.checkboxBox,

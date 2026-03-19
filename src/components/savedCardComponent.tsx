@@ -188,7 +188,9 @@ const SavedCardRow = ({
         <CheckBoxContainer
         text = {"Set up Standing Instructions (SI) for this payment."}
         isSelected = {isSICheckBoxClicked}
-        setIsSelected = {setIsSICheckBoxClicked}
+        setIsSelected = {() => {
+          setIsSICheckBoxClicked(!isSICheckBoxClicked)
+        }}
         />
       )}
       {isSelected && (
