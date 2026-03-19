@@ -1025,8 +1025,8 @@ const CardScreen = ({ route, navigation }: Props) => {
           {checkoutDetails.isSICheckboxVisible && (
              <CheckBoxContainer
              text = {"Set up Standing Instructions (SI) for this payment."}
-             isSelected = {isSICheckBoxClicked}
-             setIsSelected = {() => {
+             isCheckBoxSelected = {isSICheckBoxClicked}
+             onCheckBoxClicked = {() => {
               setIsSICheckBoxClicked(!isSICheckBoxClicked)
              }}
              />

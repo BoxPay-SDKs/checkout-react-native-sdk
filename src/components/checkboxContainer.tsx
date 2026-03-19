@@ -3,24 +3,24 @@ import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler'
 
 interface CheckBoxContainerProps {
     text : string,
-    isSelected : boolean,
-    setIsSelected : () => void
+    isCheckBoxSelected : boolean,
+    onCheckBoxClicked : () => void
 }
 
-const CheckBoxContainer = ({text, isSelected, setIsSelected} : CheckBoxContainerProps) =>{
+const CheckBoxContainer = ({text, isCheckBoxSelected, onCheckBoxClicked} : CheckBoxContainerProps) =>{
     const {checkoutDetails} = checkoutDetailsHandler
     return(
         <View
         style={styles.checkBoxContainer}>
           <TouchableOpacity
-            onPress={() => setIsSelected()}
+            onPress={() => onCheckBoxClicked()}
           >
             <View style={[
               styles.checkboxBox,
               { borderColor: checkoutDetails.buttonColor },
-              isSelected && { backgroundColor: checkoutDetails.buttonColor }
+              isCheckBoxSelected && { backgroundColor: checkoutDetails.buttonColor }
             ]}>
-              {isSelected && (
+              {isCheckBoxSelected && (
                 <Text style={styles.checkmark}>✓</Text>
               )}
             </View>
