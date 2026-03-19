@@ -31,6 +31,7 @@ import Toast from 'react-native-toast-message'
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
+import CheckBoxContainer from '../components/checkboxContainer';
 
 type CardScreenRouteProp = RouteProp<CheckoutStackParamList, 'CardScreen'>;
 
@@ -1022,28 +1023,11 @@ const CardScreen = ({ route, navigation }: Props) => {
           )}
 
           {checkoutDetails.isSICheckboxVisible && (
-            <View
-            style={styles.checkBoxContainer}
-          >
-            <TouchableOpacity
-              onPress={() => setIsSICheckBoxClicked(!isSICheckBoxClicked)}
-            >
-              <View style={[
-                styles.checkboxBox,
-                { borderColor: checkoutDetails.buttonColor },
-                isSICheckBoxClicked && { backgroundColor: checkoutDetails.buttonColor }
-              ]}>
-                {isSICheckBoxClicked && (
-                  <Text style={styles.checkmark}>✓</Text>
-                )}
-              </View>
-            </TouchableOpacity>
-            <Text
-              style={[styles.checkBoxText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
-            >
-              Set up Standing Instructions (SI) for this payment.
-            </Text>
-            </View>
+             <CheckBoxContainer
+             text = {"Set up Standing Instructions (SI) for this payment."}
+             isSelected = {isSICheckBoxClicked}
+             setIsSelected = {setIsSICheckBoxClicked}
+             />
           )}
           <View
             style={styles.pressableContainer}

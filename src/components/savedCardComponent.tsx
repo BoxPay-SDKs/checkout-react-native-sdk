@@ -1,10 +1,11 @@
-import { View, Text, Pressable, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import ImageLoader from './imageLoader';
 import type { PaymentClass } from '../interface';
 import { useState } from 'react';
+import CheckBoxContainer from './checkboxContainer';
 
 interface SavedCardComponentViewProps {
   savedCards: PaymentClass[];
@@ -107,7 +108,7 @@ interface SavedCardRowProps {
   cardNumber: string;
   image: string;
   errorImage: ImageSourcePropType;
-  isSelected: boolean | null;
+  isSelected: boolean;
   instrumentTypeValue: string;
   onPress: (id: string) => void;
   onProceedForward: (instrumentValue: string, isSICheckBoxClicked : boolean) => void;
@@ -184,27 +185,11 @@ const SavedCardRow = ({
         />
       </View>
       {(checkoutDetails.isSICheckboxVisible && isSelected) && (
-        <View
-        style={styles.checkBoxContainer}>
-          <TouchableOpacity
-            onPress={() => setIsSICheckBoxClicked(!isSICheckBoxClicked)}
-          >
-            <View style={[
-              styles.checkboxBox,
-              { borderColor: checkoutDetails.buttonColor },
-              isSICheckBoxClicked && { backgroundColor: checkoutDetails.buttonColor }
-            ]}>
-              {isSICheckBoxClicked && (
-                <Text style={styles.checkmark}>✓</Text>
-              )}
-            </View>
-          </TouchableOpacity>
-          <Text
-            style={[styles.checkBoxText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
-          >
-            Set up Standing Instructions (SI) for this payment.
-          </Text>
-        </View>
+        <CheckBoxContainer
+        text = {"Set up Standing Instructions (SI) for this payment."}
+        isSelected = {isSICheckBoxClicked}
+        setIsSelected = {setIsSICheckBoxClicked}
+        />
       )}
       {isSelected && (
         <Pressable
