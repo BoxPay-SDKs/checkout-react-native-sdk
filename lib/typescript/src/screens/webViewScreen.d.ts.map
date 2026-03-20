@@ -1,0 +1,1 @@
+{"version":3,"file":"webViewScreen.d.ts","sourceRoot":"","sources":["../../../../src/screens/webViewScreen.tsx"],"names":[],"mappings":"AAAA,OAAO,KAA2B,MAAM,OAAO,CAAC;AAKhD,UAAU,kBAAkB;IAC1B,GAAG,EAAE,MAAM,GAAG,IAAI,CAAC;IACnB,IAAI,EAAE,MAAM,GAAG,IAAI,CAAC;IACpB,WAAW,EAAE,MAAM,IAAI,CAAC;CACzB;AAED,QAAA,MAAM,aAAa,EAAE,KAAK,CAAC,EAAE,CAAC,kBAAkB,CAwD/C,CAAC;AAsBF,eAAe,aAAa,CAAC"}

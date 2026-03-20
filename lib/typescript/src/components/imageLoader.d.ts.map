@@ -1,0 +1,1 @@
+{"version":3,"file":"imageLoader.d.ts","sourceRoot":"","sources":["../../../../src/components/imageLoader.tsx"],"names":[],"mappings":"AAGA,OAAO,EAAS,KAAK,mBAAmB,EAAQ,MAAM,cAAc,CAAC;AAIrE,UAAU,gBAAgB;IACtB,KAAK,EAAG,MAAM,CAAC;IACf,UAAU,EAAG,mBAAmB,CAAA;CACnC;AAED,QAAA,MAAM,WAAW,GAAI,uBAAuB,gBAAgB,4CA+F3D,CAAA;AAED,eAAe,WAAW,CAAA"}

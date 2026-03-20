@@ -1,0 +1,1 @@
+{"version":3,"names":["paymentHandler","onPaymentResult","setPaymentHandler","handler"],"sourceRoot":"../../../src","sources":["sharedContext/paymentStatusHandler.ts"],"mappings":";;AAKA,OAAO,IAAIA,cAA8B,GAAG;EAC1CC,eAAe,EAAEA,CAAA,KAAM,CAAC;AAC1B,CAAC;AAED,OAAO,MAAMC,iBAAiB,GAAIC,OAAuB,IAAK;EAC5DH,cAAc,GAAGG,OAAO;AAC1B,CAAC","ignoreList":[]}

@@ -1,0 +1,1 @@
+{"version":3,"file":"paymentFailed.d.ts","sourceRoot":"","sources":["../../../../src/components/paymentFailed.tsx"],"names":[],"mappings":"AACA,OAAO,KAAK,MAAM,OAAO,CAAC;AAO1B,UAAU,kBAAkB;IAC1B,OAAO,EAAE,MAAM,IAAI,CAAC;IACpB,YAAY,EAAE,MAAM,CAAC;CACtB;AAED,QAAA,MAAM,aAAa,EAAE,KAAK,CAAC,EAAE,CAAC,kBAAkB,CAiD/C,CAAC;AAEF,eAAe,aAAa,CAAC"}

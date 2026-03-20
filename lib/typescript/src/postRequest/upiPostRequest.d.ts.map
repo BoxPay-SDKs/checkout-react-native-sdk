@@ -1,0 +1,1 @@
+{"version":3,"file":"upiPostRequest.d.ts","sourceRoot":"","sources":["../../../../src/postRequest/upiPostRequest.tsx"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,iBAAiB,EAAE,2BAA2B,EAAE,MAAM,cAAc,CAAC;AAMnF,QAAA,MAAM,cAAc,GAAU,mBAAmB,iBAAiB,EAAE,qBAAsB,OAAO,KAAI,OAAO,CAAC,2BAA2B,CA2BvI,CAAC;AAEF,eAAe,cAAc,CAAC"}

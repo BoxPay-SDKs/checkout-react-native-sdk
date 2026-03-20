@@ -1,0 +1,1 @@
+{"version":3,"file":"userdataHandler.d.ts","sourceRoot":"","sources":["../../../../src/sharedContext/userdataHandler.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,QAAQ,EAAE,MAAM,cAAc,CAAC;AAE7C,MAAM,MAAM,eAAe,GAAG;IAC5B,QAAQ,EAAE,QAAQ,CAAC;CACpB,CAAC;AAEF,eAAO,IAAI,eAAe,EAAE,eAoB3B,CAAC;AAEF,eAAO,MAAM,kBAAkB,GAAI,SAAS,eAAe,SAE1D,CAAC;AAEF,eAAO,MAAM,2BAA2B,YAsBvC,CAAA"}

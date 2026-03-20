@@ -1,0 +1,1 @@
+{"version":3,"file":"fetchSavedAddress.d.ts","sourceRoot":"","sources":["../../../../src/postRequest/fetchSavedAddress.ts"],"names":[],"mappings":"AACA,OAAO,EAAa,KAAK,yBAAyB,EAAE,MAAM,cAAc,CAAC;AAGzE,QAAA,MAAM,iBAAiB,QAAc,OAAO,CAAC,yBAAyB,CASrE,CAAC;AAEF,eAAe,iBAAiB,CAAC"}

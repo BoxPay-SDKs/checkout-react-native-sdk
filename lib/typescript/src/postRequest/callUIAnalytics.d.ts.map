@@ -1,0 +1,1 @@
+{"version":3,"file":"callUIAnalytics.d.ts","sourceRoot":"","sources":["../../../../src/postRequest/callUIAnalytics.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,oBAAoB,EAAE,MAAM,cAAc,CAAC;AAKzD,QAAA,MAAM,eAAe,GACjB,SAAS,MAAM,EACf,YAAY,MAAM,EAClB,SAAS,MAAM,KACb,OAAO,CAAC,oBAAoB,CAuBjC,CAAA;AAED,eAAe,eAAe,CAAC"}
