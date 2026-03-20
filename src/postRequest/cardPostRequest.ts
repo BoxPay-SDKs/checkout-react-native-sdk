@@ -38,7 +38,7 @@ const cardPostRequest = async (
     },
     shopper: shopperData,
     ...(checkoutDetails.isSubscriptionCheckout
-      ? { oneTimePayment: checkoutDetails.isSICheckboxVisible ? !isSICheckBoxClicked : false }
+      ? { oneTimePayment: checkoutDetails.isSICheckboxVisible && !isSICheckBoxClicked }
       : {}),
     deviceDetails: deviceDetails,
   };
