@@ -11,7 +11,8 @@ const cardPostRequest = async (
   cvv: string,
   holderName: string,
   cardNickName: string,
-  isCheckboxClicked: boolean
+  isCheckboxClicked: boolean,
+  isSICheckBoxClicked : boolean,
 ) : Promise<PaymentExecutedPostResponse> => {
   const { checkoutDetails } = checkoutDetailsHandler;
   const deviceDetails = getDeviceDetails()
@@ -36,6 +37,9 @@ const cardPostRequest = async (
         : {}),
     },
     shopper: shopperData,
+    ...(checkoutDetails.isSubscriptionCheckout
+      ? { oneTimePayment: checkoutDetails.isSICheckboxVisible ? isSICheckBoxClicked : true }
+      : {}),
     deviceDetails: deviceDetails,
   };
   callUIAnalytics(AnalyticsEvents.PAYMENT_CATEGORY_SELECTED,"Card Post Request",``)

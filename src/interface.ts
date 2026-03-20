@@ -7,6 +7,7 @@ export enum ConfigurationOptions {
   ShowBoxpaySuccessScreen = 'SHOW_BOXPAY_SUCCESS_SCREEN',
   EnableSandboxEnv = 'ENABLE_SANDBOX_ENV',
   ShowUPIQROnLoad = 'SHOW_UPI_QR_ON_LOAD',
+  ShowSICheckbox = 'SHOW_SI_CHECKBOX'
 }
 
 export enum UIConfigurationOptions {
@@ -75,7 +76,9 @@ export interface CheckoutDetails {
   isUPIOtmIntentMethodEnabled : boolean,
   isUPIOtmCollectMethodEnabled : boolean,
   isUPIOtmQRMethodEnabled : boolean,
-  isOrderItemDetailsVisible : boolean
+  isOrderItemDetailsVisible : boolean,
+  isSICheckboxVisible : boolean,
+  isSubscriptionCheckout : boolean
 }
 
 interface AnalyticsResponse {
@@ -500,6 +503,7 @@ export interface SessionDetails {
       dateOfBirth : string | null,
       panNumber : string | null
     },
+    subscriptionDetails : SubscriptionDetails | null,
     order : OrderDetails | null
   },
   merchantDetails : {
@@ -526,6 +530,11 @@ interface OrderDetails {
   taxAmountLocaleFull : string | null,
   originalAmountLocaleFull : string | null,
   items : OrderItem[] | null
+}
+
+interface SubscriptionDetails {
+  type : string,
+  maxAmountLocaleFull : string
 }
 
 export enum AnalyticsEvents {

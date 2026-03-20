@@ -1,6 +1,6 @@
 import type { BoxpayCheckoutProps} from './interface';
+import { View } from 'react-native';
 import styles from './styles/indexStyles';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import CheckoutContainer from './navigation';
 
 const BoxpayCheckout = ({
@@ -11,7 +11,7 @@ const BoxpayCheckout = ({
   uiConfiguration = null
 }: BoxpayCheckoutProps) => {
   return (
-    <SafeAreaView style={styles.screenView}>
+    <View style={styles.screenView}>
       <CheckoutContainer
       token={token}
       configurationOptions={configurationOptions}
@@ -19,7 +19,7 @@ const BoxpayCheckout = ({
       shopperToken={shopperToken}
       uiConfiguration={uiConfiguration}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

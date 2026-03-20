@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { SvgXml } from 'react-native-svg';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import { Image, type ImageSourcePropType , View} from "react-native";
+import callUIAnalytics from "../postRequest/callUIAnalytics";
+import { AnalyticsEvents } from "../interface";
 
 interface ImageLoaderProps {
     image : string,
@@ -50,7 +52,8 @@ const ImageLoader = ({image , errorImage} : ImageLoaderProps) => {
             }
             setLoad(false);
           })
-          .catch((err) => {
+          .catch((error) => {
+            callUIAnalytics(AnalyticsEvents.SDK_CRASH, "Image loader componenet", `${error}`)
             setImageError(true);
             setLoad(false);
           });

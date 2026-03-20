@@ -4,10 +4,12 @@ import { RadioButton } from 'react-native-paper';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import ImageLoader from './imageLoader';
 import type { PaymentClass } from '../interface';
+import { useState } from 'react';
+import CheckBoxContainer from './checkboxContainer';
 
 interface SavedCardComponentViewProps {
   savedCards: PaymentClass[];
-  onProceedForward: (instrumentValue: string) => void;
+  onProceedForward: (instrumentValue: string, isSICheckBoxClicked : boolean) => void;
   errorImage: ImageSourcePropType;
   onClickAddCard: () => void;
   onClickRadio: (selectedInstrumentValue: string) => void;
@@ -106,10 +108,10 @@ interface SavedCardRowProps {
   cardNumber: string;
   image: string;
   errorImage: ImageSourcePropType;
-  isSelected: boolean | null;
+  isSelected: boolean;
   instrumentTypeValue: string;
   onPress: (id: string) => void;
-  onProceedForward: (instrumentValue: string) => void;
+  onProceedForward: (instrumentValue: string, isSICheckBoxClicked : boolean) => void;
   brandColor: string;
   currencySymbol: string;
   amount: string;
@@ -127,9 +129,10 @@ const SavedCardRow = ({
   onProceedForward,
   brandColor,
   currencySymbol,
-  amount,
+  amount
 }: SavedCardRowProps) => {
   const { checkoutDetails } = checkoutDetailsHandler;
+  const [isSICheckBoxClicked, setIsSICheckBoxClicked] = useState(false)
   return (
     <View
       style={{
@@ -173,16 +176,28 @@ const SavedCardRow = ({
         <RadioButton
           value={id}
           status={isSelected ? 'checked' : 'unchecked'}
-          onPress={() => onPress(id)}
+          onPress={() => {
+            setIsSICheckBoxClicked(false)
+            onPress(id)
+          }}
           color={brandColor}
           uncheckedColor={'#01010273'}
         />
       </View>
+      {(checkoutDetails.isSICheckboxVisible && isSelected) && (
+        <CheckBoxContainer
+        text = {"Set up Standing Instructions (SI) for this payment."}
+        isCheckBoxSelected = {isSICheckBoxClicked}
+        onCheckBoxClicked = {() => {
+          setIsSICheckBoxClicked(!isSICheckBoxClicked)
+        }}
+        />
+      )}
       {isSelected && (
         <Pressable
           style={[styles.buttonContainer, { backgroundColor: brandColor }]}
           onPress={() => {
-            onProceedForward(instrumentTypeValue);
+            onProceedForward(instrumentTypeValue, isSICheckBoxClicked);
           }}
         >
           <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
@@ -227,5 +242,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     marginTop: 4,
     alignSelf: 'flex-start',
-  }
+  },
+  checkBoxContainer : {
+    flexDirection: 'row',
+    marginTop: 10,
+    alignItems: 'center'
+},
+checkBoxText : {
+    color: '#2D2B32',
+    fontSize: 14,
+    marginLeft: 6,
+},
+checkboxBox: {
+  width: 20,
+  height: 20,
+  borderWidth: 2,
+  borderRadius: 3,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginLeft: 8,
+},
+checkmark: {
+  color: '#fff',
+  fontSize: 13,
+  fontWeight: 'bold',
+  lineHeight: 16,
+}
 });
