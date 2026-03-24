@@ -34,7 +34,7 @@ const methodsPostRequest = async (
     return {apiStatus : APIStatus.Success, data : response.data};
   } catch (error) {
     callUIAnalytics(AnalyticsEvents.PAYMENT_INITIATED,`${paymentMethod} Post Request`,`${error}`)
-    return { apiStatus : APIStatus.Failed, data: {status: { reasonCode: 'API_FAILED', reason: `${error}` } }};
+    return { apiStatus : APIStatus.Failed, data: {status: { reasonCode: 'API_FAILED', reason: `${checkoutDetails.errorMessage}` } }};
   }
 };
 

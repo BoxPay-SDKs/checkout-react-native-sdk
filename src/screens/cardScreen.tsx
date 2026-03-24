@@ -268,7 +268,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                     : ''
     );
     setCardNumberError(
-      cleaned.length < cleanedLength ||
+      cleaned.length < 1 ||
       (checkoutDetails.env !== 'test' && (
         !methodEnabled ||
         !cardNumberValid ||
@@ -427,7 +427,7 @@ const CardScreen = ({ route, navigation }: Props) => {
         cardExpiryError ||
         cardCvvError ||
         cardHolderNameError ||
-        cardNumberText?.length != maxCardNumberLength ||
+        (cardNumberText?.length != maxCardNumberLength && checkoutDetails.env !== 'test') ||
         cardExpiryText?.length != 5 ||
         cardCvvText?.length != maxCvvLength ||
         (cardHolderNameText?.length ?? 0) < 1 ||
@@ -444,7 +444,7 @@ const CardScreen = ({ route, navigation }: Props) => {
         cardExpiryError ||
         cardCvvError ||
         cardHolderNameError ||
-        cardNumberText?.length != maxCardNumberLength ||
+        (cardNumberText?.length != maxCardNumberLength && checkoutDetails.env !== 'test') ||
         cardExpiryText?.length != 5 ||
         cardCvvText?.length != maxCvvLength ||
         (cardHolderNameText?.length ?? 0) < 1 
