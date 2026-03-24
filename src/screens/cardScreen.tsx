@@ -1022,7 +1022,7 @@ const CardScreen = ({ route, navigation }: Props) => {
             </>
           )}
 
-          {checkoutDetails.isSICheckboxVisible && (
+          {(checkoutDetails.isSICheckboxVisible && checkoutDetails.isSubscriptionCheckout) && (
              <CheckBoxContainer
              text = {"Set up Standing Instructions (SI) for this payment."}
              isCheckBoxSelected = {isSICheckBoxClicked}
