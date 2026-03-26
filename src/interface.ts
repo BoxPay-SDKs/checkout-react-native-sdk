@@ -560,6 +560,23 @@ export interface CardScreenParams {
   percent?: number; 
   cardType?: string;
   issuerBrand?: string;
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface WalletScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface NetBankingScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface EmiScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface BNPLScreenParams {
+  isAutoNavigationEnabled?: boolean;
 }
 
 export interface UPITimerScreenParams {

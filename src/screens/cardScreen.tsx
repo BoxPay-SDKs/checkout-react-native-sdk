@@ -4,7 +4,8 @@ import {
   Image,
   BackHandler,
   Pressable,
-  TouchableOpacity
+  TouchableOpacity,
+  ScrollView
 } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import Header from '../components/header';
@@ -53,6 +54,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     percent,
     cardType,
     issuerBrand,
+    isAutoNavigationEnabled
   } = route.params as CardScreenParams || {}; 
   const durationNumber = Array.isArray(duration) ? duration[0] : duration;
   const bankNameStr = Array.isArray(bankName) ? bankName[0] : bankName;
@@ -123,7 +125,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>("NOACTION");
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
@@ -457,8 +459,13 @@ const CardScreen = ({ route, navigation }: Props) => {
   };
 
   const onProceedBack = () => {
-    navigation.goBack()
-    return true;
+    if (isAutoNavigationEnabled) {
+      onExitCheckout();
+      return true;
+    } else {
+      navigation.goBack()
+      return true;
+    }
   };
 
   const callFetchStatusApi = async () => {
@@ -589,7 +596,11 @@ const CardScreen = ({ route, navigation }: Props) => {
           <Text>Loading...</Text>
         </View>
       ) : (
-        <View style={styles.screenView}>
+          <View style= {{flex:1}}>
+            <ScrollView 
+            contentContainerStyle={styles.screenView}
+            keyboardShouldPersistTaps="handled" 
+          >
           <Header
             onBackPress={onProceedBack}
             showDesc={true}
@@ -1031,9 +1042,8 @@ const CardScreen = ({ route, navigation }: Props) => {
              }}
              />
           )}
-          <View
-            style={styles.pressableContainer}
-          >
+          </ScrollView>
+          <View>
             {cardValid ? (
               <Pressable
                 style={[
@@ -1056,7 +1066,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               </Pressable>
             )}
           </View>
-        </View>
+          </View>
       )}
       {failedModalOpen && (
         <PaymentFailed
