@@ -17,15 +17,7 @@ const fetchPaymentMethods = async (): Promise<PaymentMethodFetchResponse> => {
     };
 
   } catch (error: any) {
-    return {
-      apiStatus: APIStatus.Failed,
-      data: {
-        status: {
-          reasonCode: error?.response?.data?.status?.reasonCode || 'API_FAILED',
-          reason: error?.response?.data?.status?.reason || error.message
-        }
-      }
-    };
+    return { apiStatus : APIStatus.Failed,data : {status: { reasonCode: 'API_FAILED', reason: `${error}` } }};
   }
 };
 
