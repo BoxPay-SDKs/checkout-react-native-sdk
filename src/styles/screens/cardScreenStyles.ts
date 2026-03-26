@@ -118,13 +118,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         textDecorationLine: 'underline',
     },
-    pressableContainer : {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        paddingBottom: 16,
-    },
     webViewContainer : {
         position: 'absolute',
         top: 0,
@@ -148,6 +141,17 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         lineHeight: 16,
       },
+      footerContainer : {
+        justifyContent: 'center',
+        alignItems: 'flex-end',
+        flexDirection: 'row',
+    },
+    footerText : {
+        fontSize: 12,
+        color: '#888888',
+        marginBottom: 13,
+    },
+    footerImage : { height: 50, width: 50 },
 })
 
 export default styles

@@ -15,7 +15,7 @@ import type { CheckoutStackParamList } from '../navigation';
 import { paymentHandler, setPaymentHandler } from "../sharedContext/paymentStatusHandler";
 import { loadBoxpayFonts } from '../components/fontFamily';
 import { setUserDataHandler, setUserDataHandlerToDefault, userDataHandler } from '../sharedContext/userdataHandler';
-import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions } from '../interface';
+import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions, TransactionStatus } from '../interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import WebViewScreen from '../screens/webViewScreen';
 import styles from '../styles/indexStyles';
@@ -34,6 +34,7 @@ import { formatAddress, getPhoneNumberCodeAndCountryName, useCountdown } from '.
 import fetchSurCharge from '../postRequest/fetchSurcharge';
 import fetchInstantOffer from '../postRequest/fetchInstantOffer';
 import ApplyCouponCard from '../components/applyCouponCard';
+import { handleAutoNavigation } from '../sharedContext/handleAutoNavigation';
 
 type MainScreenRouteProp = RouteProp<CheckoutStackParamList, 'MainScreen'>;
 
@@ -218,7 +219,6 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
       setUpiInstrumentList : setSavedUpiArray,
       setCardInstrumentList : setSavedCardArray
     });
-    setIsFirstLoading(false)
   };
 
   useEffect(() => {
@@ -486,9 +486,10 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
                   setSuccessfulTimeStamp(response.data.lastPaidAtTimestampLocale);
                   setTransactionId(response.data.lastTransactionId);
-                  setStatus(response.data.status);
+                  setStatus(TransactionStatus.Success);
                   setSuccessModalState(true);
                 } else if (['EXPIRED'].includes(response.data.status)) {
+                  setStatus(TransactionStatus.Expired);
                   setSessionExppireModalState(true);
                 }
 
@@ -581,7 +582,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     isEmiMethodEnabled : methodFlags.isEMIVisible,
                     isBnplMethodEnabled : methodFlags.isBNPLVisible,
                     isUPIOtmCollectMethodEnabled : methodFlags.isUPIOtmCollectVisible,
-                    isUPIOtmIntentMethodEnabled : methodFlags.isUPIIntentVisible,
+                    isUPIOtmIntentMethodEnabled : methodFlags.isUPIOtmIntentVisible,
                     isUPIOtmQRMethodEnabled : methodFlags.isUPIOtmQRVisible,
                     isOrderItemDetailsVisible : isFieldEnabled('ORDER_ITEM_DETAILS'),
                     isSICheckboxVisible : configurationOptions?.SHOW_SI_CHECKBOX ? true : false,
@@ -688,9 +689,21 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
 
   const callRecommendedOrStopLoding =async() => {
     if(shopperToken != null && shopperToken != "") {
-      getRecommendedInstruments()
+      await getRecommendedInstruments()
+      checkAutoNavigation()
     } else {
+      checkAutoNavigation()
+    }
+  }
+
+  const checkAutoNavigation = () => {
+    const targetScreen = handleAutoNavigation(
+      savedCardArray
+    )
+    if (!targetScreen) {
       setIsFirstLoading(false)
+    } else {
+      navigation.navigate(targetScreen, {isAutoNavigationEnabled : true})
     }
   }
 

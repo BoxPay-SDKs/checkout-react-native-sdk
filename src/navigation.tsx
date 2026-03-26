@@ -10,6 +10,7 @@ import SavedAddressScreen from "./screens/savedAddressScreen";
 import WalletScreen from "./screens/walletScreen";
 import MainScreen from "./screens/mainScreen";
 import type { AddressScreenParams, BoxpayCheckoutProps, CardScreenParams, UPITimerScreenParams } from "./interface";
+import { ScreenRouteMap } from "./interface";
 import { NavigationIndependentTree } from "@react-navigation/native";
 import type { InstantOfferProps } from "./screens/instantOfferList";
 import InstantOfferScreen from "./screens/instantOfferList";
@@ -38,22 +39,22 @@ const CheckoutNavigator = ({
 }: BoxpayCheckoutProps) => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainScreen" component={MainScreen} initialParams={{
+      <Stack.Screen name={ScreenRouteMap.MAIN} component={MainScreen} initialParams={{
         token,
         configurationOptions,
         onPaymentResult,
         shopperToken,
         uiConfiguration
       }}/>
-      <Stack.Screen name="CardScreen" component={CardScreen} />
-      <Stack.Screen name="EmiScreen" component={EmiScreen} />
-      <Stack.Screen name="UpiTimerScreen" component={UpiTimerScreen} />
-      <Stack.Screen name="AddressScreen" component={AddressScreen}/>
-      <Stack.Screen name="BNPLScreen" component={BNPLScreen}/>
-      <Stack.Screen name="NetBankingScreen" component={NetBankingScreen}/>
-      <Stack.Screen name="WalletScreen" component={WalletScreen}/>
-      <Stack.Screen name="SavedAddressScreen" component={SavedAddressScreen}/>
-      <Stack.Screen name="InstantOfferScreen" component={InstantOfferScreen}/>
+      <Stack.Screen name={ScreenRouteMap.CARD} component={CardScreen} />
+      <Stack.Screen name={ScreenRouteMap.EMI} component={EmiScreen} />
+      <Stack.Screen name={ScreenRouteMap.UPITIMER} component={UpiTimerScreen} />
+      <Stack.Screen name={ScreenRouteMap.ADDRESS} component={AddressScreen}/>
+      <Stack.Screen name={ScreenRouteMap.BNPL} component={BNPLScreen}/>
+      <Stack.Screen name={ScreenRouteMap.NETBANKING} component={NetBankingScreen}/>
+      <Stack.Screen name={ScreenRouteMap.WALLET} component={WalletScreen}/>
+      <Stack.Screen name={ScreenRouteMap.SAVEDADDRESS} component={SavedAddressScreen}/>
+      <Stack.Screen name={ScreenRouteMap.INSTANTOFFER} component={InstantOfferScreen}/>
     </Stack.Navigator>
   );
 };

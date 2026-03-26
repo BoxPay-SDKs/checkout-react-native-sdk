@@ -28,11 +28,11 @@ export function handlePaymentResponse({
             const actionsArray = apidata.actions || [];
             const txnStatus = status.toUpperCase() as TransactionStatus;
   
-            onSetStatus(status);
             onSetTransactionId(apidata.transactionId);
         
             switch (txnStatus) {
                 case TransactionStatus.RequiresAction: {
+                    onSetStatus(TransactionStatus.RequiresAction);
                     if (actionsArray.length > 0) {
                         const action = actionsArray[0];
             
@@ -75,6 +75,7 @@ export function handlePaymentResponse({
                 }
                 case TransactionStatus.Failed:
                 case TransactionStatus.Rejected: {
+                    onSetStatus(TransactionStatus.Failed);
                     const fallback = checkoutDetailsErrorMessage;
                     const errorMessage =
                         reasonCode?.startsWith('UF')
@@ -84,11 +85,8 @@ export function handlePaymentResponse({
                         : fallback;
             
                         if(onSetFailedMessage && onShowFailedModal) {
-                    onSetFailedMessage(errorMessage);
-                    onSetFailedMessage(errorMessage);
-                    onSetStatus(TransactionStatus.Failed);
                             onSetFailedMessage(errorMessage);
-                    onSetStatus(TransactionStatus.Failed);
+                            onSetStatus(TransactionStatus.Failed);
                             onShowFailedModal();
                         }
                         setLoading(false);
@@ -98,6 +96,7 @@ export function handlePaymentResponse({
                 case TransactionStatus.Approved:
                 case TransactionStatus.Success:
                 case TransactionStatus.Paid: {
+                    onSetStatus(TransactionStatus.Success);
                     if(onShowSuccessModal) {
                         onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
                     }
@@ -106,6 +105,7 @@ export function handlePaymentResponse({
                 }
         
                 case TransactionStatus.Expired:{
+                    onSetStatus(TransactionStatus.Expired);
                     if(onShowSessionExpiredModal) {
                         onShowSessionExpiredModal();
                     }
@@ -115,7 +115,8 @@ export function handlePaymentResponse({
         
                 default:
                    { 
-                    break;}
+                    break;
+                }
             }
         }
         break;
@@ -151,12 +152,12 @@ export function handleFetchStatusResponseHandler({
             const reason = apidata.reason
             const txnStatus = status.toUpperCase() as TransactionStatus;
   
-            onSetStatus(status);
             onSetTransactionId(apidata.transactionId);
         
             switch (txnStatus) {
                 case TransactionStatus.Failed:
                 case TransactionStatus.Rejected:
+                    onSetStatus(TransactionStatus.Failed);
                     {const fallback = checkoutDetailsErrorMessage;
                     const errorMessage =
                         reasonCode?.startsWith('UF')
@@ -175,6 +176,7 @@ export function handleFetchStatusResponseHandler({
                 case TransactionStatus.Approved:
                 case TransactionStatus.Success:
                 case TransactionStatus.Paid:
+                    onSetStatus(TransactionStatus.Success);
                     {onSetStatus(TransactionStatus.Success);
                     onShowSuccessModal(apidata.transactionTimestampLocale ?? '');
                     stopBackgroundApiTask?.();
@@ -182,6 +184,7 @@ export function handleFetchStatusResponseHandler({
                     break;}
         
                 case TransactionStatus.Expired:
+                    onSetStatus(TransactionStatus.Expired);
                     {onSetStatus(TransactionStatus.Expired);
                     onShowSessionExpiredModal();
                     stopBackgroundApiTask?.();

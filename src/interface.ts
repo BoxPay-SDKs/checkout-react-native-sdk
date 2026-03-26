@@ -560,6 +560,23 @@ export interface CardScreenParams {
   percent?: number; 
   cardType?: string;
   issuerBrand?: string;
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface WalletScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface NetBankingScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface EmiScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface BNPLScreenParams {
+  isAutoNavigationEnabled?: boolean;
 }
 
 export interface UPITimerScreenParams {
@@ -627,3 +644,26 @@ export type GetInstantDiscountResponse =
   apiStatus: APIStatus.Failed;
   data: ErrorResponse;
 };
+
+export const ScreenRouteMap = {
+  UPI : 'UPIScreen',
+  MAIN : 'MainScreen',
+  CARD: 'CardScreen',
+  WALLET: 'WalletScreen',
+  NETBANKING: 'NetBankingScreen',
+  EMI: 'EmiScreen',
+  BNPL: 'BNPLScreen',
+  UPITIMER : 'UpiTimerScreen',
+  ADDRESS : 'AddressScreen',
+  SAVEDADDRESS : 'SavedAddressScreen',
+  INSTANTOFFER : 'InstantOfferScreen'
+} as const
+
+export type AutoNavigationScreen =
+  | "CardScreen"
+  | "WalletScreen"
+  | "NetBankingScreen"
+  | "EmiScreen"
+  | "BNPLScreen"
+
+export type ScreenRoute = typeof ScreenRouteMap[keyof typeof ScreenRouteMap];

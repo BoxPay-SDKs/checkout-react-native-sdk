@@ -13,7 +13,8 @@ import {
   type Emi,
   type PaymentResultObject,
   type PaymentMethod,
-  APIStatus
+  APIStatus,
+  type EmiScreenParams
 } from '../interface';
 import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
@@ -35,16 +36,20 @@ import Toast from 'react-native-toast-message'
 import styles from '../styles/screens/emiScreenStyles';
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
-import type { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
+
+type EmiScreenRouteProp = RouteProp<CheckoutStackParamList, 'EmiScreen'>;
 
 type EmiScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'EmiScreen'>;
 
 interface Props {
   navigation: EmiScreenNavigationProp;
+  route: EmiScreenRouteProp;
 }
 
-const EmiScreen = ({ navigation }: Props) => {
+const EmiScreen = ({ navigation, route }: Props) => {
+  const { isAutoNavigationEnabled } = route.params as EmiScreenParams || {};
   const [emiBankList, setEmiBankList] = useState<ChooseEmiModel>({ cards: [] });
   const [defaultEmiBankList, setDefaultEmiBankList] = useState<ChooseEmiModel>({
     cards: [],
@@ -77,8 +82,8 @@ const EmiScreen = ({ navigation }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalOpen] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState('');
-  const [transactionId, setTransactionId] = useState('');
+  const [status, setStatus] = useState<string>("NOACTION");
+  const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const [paymentHtml, setPaymentHtml] = useState('');
   const [paymentUrl, setPaymentUrl] = useState('');
@@ -371,8 +376,13 @@ const EmiScreen = ({ navigation }: Props) => {
   };
 
   const onProceedBack = () => {
-    navigation.goBack()
-    return true;
+    if (isAutoNavigationEnabled) {
+      onExitCheckout();
+      return true;
+    } else {
+      navigation.goBack()
+      return true;
+    }
   };
 
   useEffect(() => {

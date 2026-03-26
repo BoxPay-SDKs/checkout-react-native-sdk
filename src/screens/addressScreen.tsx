@@ -1,3 +1,4 @@
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
@@ -7,19 +8,18 @@ import {
   Text,
   View,
 } from 'react-native';
+import CountryPicker, { type Country, type CountryCode } from 'react-native-country-picker-modal';
 import { TextInput } from 'react-native-paper';
 import Header from '../components/header';
+import type { AddressScreenParams } from '../interface';
+import type { CheckoutStackParamList } from '../navigation';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
 import {
   setUserDataHandler,
   userDataHandler,
 } from '../sharedContext/userdataHandler';
 import styles from '../styles/screens/addressScreenStyles.';
-import type { CheckoutStackParamList } from '../navigation';
-import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { extractNames, getPhoneNumberCodeAndCountryName } from '../utility';
-import type { AddressScreenParams } from '../interface';
-import CountryPicker, {type Country, type CountryCode} from 'react-native-country-picker-modal'
 
 type AddressScreenRouteProp = RouteProp<CheckoutStackParamList, 'AddressScreen'>;
 type AddressScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'AddressScreen'>;
@@ -112,7 +112,11 @@ const AddressScreen = ({ route, navigation }: Props) => {
 
   useEffect(() => {
     if(!isNewAddress) {
-      setFullNameTextField(`${userData.firstName} ${userData.lastName}`)
+      const firstName = userData.firstName ?? "";
+      const lastName = userData.lastName ?? "";
+      const fullName = `${firstName} ${lastName}`.trim();
+
+      setFullNameTextField(fullName);
       setEmailTextField(userData.email ?? "")
       setMainAddressTextField(userData.address1 ?? "")
       setSecondaryAddressTextField(userData.address2 ?? "")
@@ -830,6 +834,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
       withEmoji = {true}
       countryCode={selectedCountryCode}
       onSelect={handleCountrySelect}
+      withFlagButton = {false}
       />
       <View
         style={styles.bottomContainer}
