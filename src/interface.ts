@@ -644,3 +644,26 @@ export type GetInstantDiscountResponse =
   apiStatus: APIStatus.Failed;
   data: ErrorResponse;
 };
+
+export const ScreenRouteMap = {
+  UPI : 'UPIScreen',
+  MAIN : 'MainScreen',
+  CARD: 'CardScreen',
+  WALLET: 'WalletScreen',
+  NETBANKING: 'NetBankingScreen',
+  EMI: 'EmiScreen',
+  BNPL: 'BNPLScreen',
+  UPITIMER : 'UpiTimerScreen',
+  ADDRESS : 'AddressScreen',
+  SAVEDADDRESS : 'SavedAddressScreen',
+  INSTANTOFFER : 'InstantOfferScreen'
+} as const
+
+export type AutoNavigationScreen =
+  | "CardScreen"
+  | "WalletScreen"
+  | "NetBankingScreen"
+  | "EmiScreen"
+  | "BNPLScreen"
+
+export type ScreenRoute = typeof ScreenRouteMap[keyof typeof ScreenRouteMap];

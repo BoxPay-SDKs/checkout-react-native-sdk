@@ -697,16 +697,13 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   }
 
   const checkAutoNavigation = () => {
-    const didAutoNavigationHappen = handleAutoNavigation(
-      savedCardArray,
-      () => navigation.navigate("CardScreen", {isAutoNavigationEnabled : true}),       // Wrap in arrow function
-      () => navigation.navigate("WalletScreen", {isAutoNavigationEnabled : true}),     // Wrap in arrow function
-      () => navigation.navigate("NetBankingScreen", {isAutoNavigationEnabled : true}), // Wrap in arrow function
-      () => navigation.navigate("EmiScreen", {isAutoNavigationEnabled : true}),        // Wrap in arrow function
-      () => navigation.navigate("BNPLScreen", {isAutoNavigationEnabled : true})        // Wrap in arrow function
-    );
-    if (!didAutoNavigationHappen) {
+    const targetScreen = handleAutoNavigation(
+      savedCardArray
+    )
+    if (!targetScreen) {
       setIsFirstLoading(false)
+    } else {
+      navigation.navigate(targetScreen, {isAutoNavigationEnabled : true})
     }
   }
 
