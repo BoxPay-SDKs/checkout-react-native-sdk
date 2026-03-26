@@ -112,7 +112,11 @@ const AddressScreen = ({ route, navigation }: Props) => {
 
   useEffect(() => {
     if(!isNewAddress) {
-      setFullNameTextField(userData.firstName ? `${userData.firstName} ${userData.lastName}` : "")
+      const firstName = userData.firstName ?? "";
+      const lastName = userData.lastName ?? "";
+      const fullName = `${firstName} ${lastName}`.trim();
+
+      setFullNameTextField(fullName);
       setEmailTextField(userData.email ?? "")
       setMainAddressTextField(userData.address1 ?? "")
       setSecondaryAddressTextField(userData.address2 ?? "")
