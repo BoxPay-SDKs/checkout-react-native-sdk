@@ -142,7 +142,11 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [emiIssuer, setEmiIssuer] = useState('');
   const [shopperToken, setShopperToken] = useState<string | null>(null);
 
-  const inputAccessoryViewID = "cardNumberInputID";
+  const cardNumberAccessoryID = "cardNumberAccessoryID";
+  const cardExpiryAccessoryID = "cardExpiryAccessoryID";
+  const cardCvvAccessoryID = "cardCvvAccessoryID";
+  const cardHolderNameAccessoryID = "cardHolderNameAccessoryID";
+  const cardNickNameAccessoryID = "cardNickNameAccessoryID";
 
   const handleCardNumberTextChange = async (text: string) => {
     if (text == '') {
@@ -593,7 +597,8 @@ const CardScreen = ({ route, navigation }: Props) => {
   }, [paymentHtml]);
 
   return (
-    <View style={styles.screenView}>
+    <>
+      <View style={styles.screenView}>
       {loading ? (
         <View
           style={styles.loadingContainer}
@@ -704,7 +709,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               handleCardNumberTextChange(it);
             }}
             theme={getTextInputTheme()}
-            inputAccessoryViewID={Platform.OS === 'ios' ? inputAccessoryViewID : undefined}
+            inputAccessoryViewID={Platform.OS === 'ios' ? cardNumberAccessoryID : undefined}
             style={[styles.textInput, { marginTop: 28, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
             error={cardNumberError}
             returnKeyType="done"
@@ -776,7 +781,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                   handleCardExpiryTextChange(it);
                 }}
                 theme={getTextInputTheme()}
-                inputAccessoryViewID={Platform.OS === 'ios' ? inputAccessoryViewID : undefined}
+                inputAccessoryViewID={Platform.OS === 'ios' ? cardExpiryAccessoryID : undefined}
                 style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardExpiryError}
                 returnKeyType="done"
@@ -834,7 +839,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                   handleCardCvvTextChange(it);
                 }}
                 theme={getTextInputTheme()}
-                inputAccessoryViewID={Platform.OS === 'ios' ? inputAccessoryViewID : undefined}
+                inputAccessoryViewID={Platform.OS === 'ios' ? cardCvvAccessoryID : undefined}
                 style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardCvvError}
                 returnKeyType="done"
@@ -907,6 +912,7 @@ const CardScreen = ({ route, navigation }: Props) => {
             theme={getTextInputTheme()}
             style={[styles.textInput, { marginHorizontal: 16, marginTop: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
             error={cardHolderNameError}
+            inputAccessoryViewID={Platform.OS === 'ios' ? cardHolderNameAccessoryID : undefined}
             returnKeyType="done"
             right={
               cardHolderNameError ? (
@@ -959,6 +965,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               onChangeText={(it) => {
                 setCardNickNameText(it);
               }}
+              inputAccessoryViewID={Platform.OS === 'ios' ? cardNickNameAccessoryID : undefined}
               theme={getTextInputTheme()}
               style={[
                 styles.textInput,
@@ -1040,18 +1047,19 @@ const CardScreen = ({ route, navigation }: Props) => {
              />
           )}
 
-            {isSubscriptionDetailsVisible && (
-              <View style = {styles.subscriptionContainer}>
-                {checkoutDetails.subscriptionDetails && checkoutDetails.subscriptionDetails.map((item) => item.value && (
-                  <SubscriptionRow
-                  key={item.label}
-                  checkoutDetails={checkoutDetails}
-                  heading={item.label}
-                  value={item.value}
-                />
-                ))}
-              </View>
-            )}
+          {isSubscriptionDetailsVisible && (
+            <View style = {styles.subscriptionContainer}>
+              {checkoutDetails.subscriptionDetails && checkoutDetails.subscriptionDetails.map((item) => item.value && (
+                <SubscriptionRow
+                key={item.label}
+                checkoutDetails={checkoutDetails}
+                heading={item.label}
+                value={item.value}
+              />
+              ))}
+            </View>
+          )}
+
           </ScrollView>
           <View>
             {cardValid ? (
@@ -1101,20 +1109,6 @@ const CardScreen = ({ route, navigation }: Props) => {
             )}
           </View>
           </View>
-      )}
-
-      {Platform.OS === 'ios' && (
-          <InputAccessoryView nativeID={inputAccessoryViewID}>
-            <View style={{
-              backgroundColor: '#f1f1f1',
-              padding: 10,
-              alignItems: 'flex-end',
-            }}>
-              <TouchableOpacity onPress={() => Keyboard.dismiss()}>
-                <Text style={{ fontSize: 16, fontFamily: checkoutDetails.fontFamily.semiBold }}>Done</Text>
-              </TouchableOpacity>
-            </View>
-          </InputAccessoryView>
       )}
       {failedModalOpen && (
         <PaymentFailed
@@ -1166,6 +1160,28 @@ const CardScreen = ({ route, navigation }: Props) => {
         </View>
       )}
     </View>
+    {Platform.OS === 'ios' && (
+  <>
+    {[
+      cardNumberAccessoryID,
+      cardExpiryAccessoryID,
+      cardCvvAccessoryID,
+      cardHolderNameAccessoryID,
+      cardNickNameAccessoryID,
+    ].map((id) => (
+      <InputAccessoryView key={id} nativeID={id}>
+        <View style={{ backgroundColor: '#f1f1f1', padding: 10, alignItems: 'flex-end' }}>
+          <TouchableOpacity onPress={() => Keyboard.dismiss()}>
+            <Text style={{ fontSize: 16, fontFamily: checkoutDetails.fontFamily.semiBold }}>
+              Done
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </InputAccessoryView>
+    ))}
+  </>
+)}
+    </>
   );
 };
 

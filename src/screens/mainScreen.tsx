@@ -30,7 +30,7 @@ import fetchSessionDetails from '../postRequest/fetchSessionDetails';
 import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
-import { formatAddress, formatDate, getPhoneNumberCodeAndCountryName, useCountdown } from '../utility';
+import { formatAddress, formatDate, getPhoneNumberCodeAndCountryName, isEmpty, useCountdown } from '../utility';
 import fetchSurCharge from '../postRequest/fetchSurcharge';
 import fetchInstantOffer from '../postRequest/fetchInstantOffer';
 import ApplyCouponCard from '../components/applyCouponCard';
@@ -552,8 +552,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     },
                     ctaBorderRadius : uiConfiguration?.[UIConfigurationOptions.CTABorderRadius] ? uiConfiguration[UIConfigurationOptions.CTABorderRadius] : 12, 
                     buttonColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
-                    textInputFieldFocusedOutlineColor: uiConfiguration?.[UIConfigurationOptions.TextInputFields]?.focusedColor ? uiConfiguration[UIConfigurationOptions.TextInputFields].focusedColor : '#2D2B32',
-                    textInputFieldUnFocusedOutlineColor : uiConfiguration?.[UIConfigurationOptions.TextInputFields]?.unfocusedColor ? uiConfiguration[UIConfigurationOptions.TextInputFields].unfocusedColor : '#E6E6E6',
+                    textInputFieldFocusedOutlineColor: uiConfiguration?.[UIConfigurationOptions.TextInputFields]?.focusedBorderColor ? uiConfiguration[UIConfigurationOptions.TextInputFields].focusedBorderColor : '#2D2B32',
+                    textInputFieldUnFocusedOutlineColor : uiConfiguration?.[UIConfigurationOptions.TextInputFields]?.borderColor ? uiConfiguration[UIConfigurationOptions.TextInputFields].borderColor : '#E6E6E6',
                     buttonTextColor : response.data.merchantDetails.checkoutTheme.buttonTextColor,
                     headerColor : response.data.merchantDetails.checkoutTheme.headerColor,
                     headerTextColor : response.data.merchantDetails.checkoutTheme.headerTextColor,
@@ -618,51 +618,51 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   }, []);
 
   const getSubscriptionDetails = (data: SubscriptionDetails | null, amount : string, currencySymbol : string) => {
-  if (!data) return null;
+    if (isEmpty(data)) return null;
 
-  const { billingCycle } = data;
-
-  // Frequency
-  let frequency: string | null = null;;
-  if (billingCycle && billingCycle.count) {
-    const { billingCycleValue, count, billingTimeUnit } = billingCycle;
-
-    if (count === 1) {
-      frequency = billingTimeUnit;
-    } else {
-      frequency = `Every ${count} ${billingCycleValue}`;
+    const { billingCycle } = data!;
+  
+    // Frequency
+    let frequency: string | null = null;
+    if (!isEmpty(billingCycle)) {
+      const { billingCycleValue, count, billingTimeUnit } = billingCycle!;
+  
+      if (count === 1) {
+        frequency = billingTimeUnit;
+      } else {
+        frequency = `Every ${count} ${billingCycleValue}`;
+      }
     }
-  }
-
-  // Validity (ONLY if NOT perpetual)
-  let validity: string | null = null;
-
-  if (data.expiryDateLocale) {
-    const date = formatDate(data.expiryDateLocale.split(' ')[0] ?? "");
-    validity = `Till ${date}`;
-  } else if (data.recurringExpiryDateLocale) {
-    const date = formatDate(data.recurringExpiryDateLocale.split(' ')[0] ?? "");
-    validity = `Till ${date}`;
-  }
-
-  return [
-    {
-      label: 'To be paid now',
-      value: `${currencySymbol}${amount}`,
-    },
-    {
-      label: 'Recurring Amount',
-      value: `Up to ${currencySymbol}${data.maxAmountLocaleFull}`,
-    },
-    {
-      label: 'Frequency',
-      value: frequency,
-    },
-    {
-      label: 'Validity',
-      value: validity,
-    },
-  ];
+  
+    // Validity
+    let validity: string | null = null;
+    if (!isEmpty(data!.expiryDateLocale)) {
+      const date = formatDate(data!.expiryDateLocale!.split(' ')[0] ?? "");
+      validity = `Till ${date}`;
+    } else if (!isEmpty(data!.recurringExpiryDateLocale)) {
+      const date = formatDate(data!.recurringExpiryDateLocale!.split(' ')[0] ?? "");
+      validity = `Till ${date}`;
+    }
+  
+    const rows = [
+      {
+        label: 'To be paid now',
+        value: !isEmpty(amount) ? `${currencySymbol}${amount}` : null,
+      },
+      {
+        label: 'Recurring Amount',
+        value: !isEmpty(data!.maxAmountLocaleFull) ? `Up to ${currencySymbol}${data!.maxAmountLocaleFull}` : null,
+      },
+      {
+        label: 'Frequency',
+        value: frequency,
+      },
+      {
+        label: 'Validity',
+        value: validity,
+      },
+    ];
+    return rows.filter(row => !isEmpty(row.value));
 };
 
   const handleSurchargeDetails = async() => {

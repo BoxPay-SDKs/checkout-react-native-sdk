@@ -25,8 +25,8 @@ export interface FontConfiguration {
 }
 
 export interface TextInputFields {
-  focusedColor? : string;
-  unfocusedColor? : string
+  focusedBorderColor? : string;
+  borderColor? : string
 }
 
 // 👇 Each key has its own strict type
