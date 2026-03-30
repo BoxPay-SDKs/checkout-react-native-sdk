@@ -13,6 +13,8 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
     fontFamily : {},
     ctaBorderRadius:0,
     buttonColor: '#1CA672',
+    textInputFieldFocusedOutlineColor : "#2D2B32",
+    textInputFieldUnFocusedOutlineColor: "#ADACB0",
     buttonTextColor:'white',
     headerColor : 'white',
     headerTextColor:'#363840',
@@ -46,7 +48,8 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
     isUPIOtmQRMethodEnabled : false,
     isOrderItemDetailsVisible : true,
     isSICheckboxVisible : false,
-    isSubscriptionCheckout : false
+    isSubscriptionCheckout : false,
+    subscriptionDetails : null
   },
 };
 
@@ -64,6 +67,8 @@ export const setCheckOutDetailsHandlerToDefault = () => {
       fontFamily : {},
       ctaBorderRadius:0,
       buttonColor: '',
+      textInputFieldFocusedOutlineColor : "",
+      textInputFieldUnFocusedOutlineColor: "",
       buttonTextColor:'',
       headerColor : '',
       headerTextColor:'',
@@ -97,7 +102,8 @@ export const setCheckOutDetailsHandlerToDefault = () => {
       isUPIOtmQRMethodEnabled: false,
       isOrderItemDetailsVisible : true,
       isSICheckboxVisible : false,
-      isSubscriptionCheckout : false
+      isSubscriptionCheckout : false,
+      subscriptionDetails : null
     },
   };
 };

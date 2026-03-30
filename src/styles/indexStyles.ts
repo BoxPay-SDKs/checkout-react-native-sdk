@@ -37,14 +37,13 @@ const styles = StyleSheet.create({
     footerContainer : {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         backgroundColor: '#F5F6FB',
         flexDirection: 'row',
     },
     footerText : {
         fontSize: 12,
-        color: '#888888',
-        marginBottom: 13,
+        color: '#888888'
     },
     footerImage : { height: 50, width: 50 },
     webViewScreenStyle : {

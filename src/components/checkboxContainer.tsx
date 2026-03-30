@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginLeft: 16,
   },
   checkmark: {
     color: '#fff',

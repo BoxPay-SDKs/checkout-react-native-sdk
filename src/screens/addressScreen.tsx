@@ -360,8 +360,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
             onChangeText={(_) => {}}
             theme={{
               colors: {
-                primary: '#2D2B32',
-                outline: '#E6E6E6',
+                primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
               },
             }}
             style={[
@@ -413,8 +413,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 theme={{
                   colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
+                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                   },
                 }}
                 style={[
@@ -467,8 +467,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   onChangeText={(_) => {}}
                   theme={{
                     colors: {
-                      primary: '#2D2B32',
-                      outline: '#E6E6E6',
+                      primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                      outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                     },
                   }}
                   style={[
@@ -516,8 +516,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   }}
                   theme={{
                     colors: {
-                      primary: '#2D2B32',
-                      outline: '#E6E6E6',
+                      primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                      outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                     },
                   }}
                   style={[styles.textInput, { flex: 1 , fontFamily: checkoutDetails.fontFamily.regular,}]}
@@ -562,8 +562,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 theme={{
                   colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
+                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                   },
                 }}
                 style={[
@@ -619,8 +619,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                     }}
                     theme={{
                       colors: {
-                        primary: '#2D2B32',
-                        outline: '#E6E6E6',
+                        primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                        outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                       },
                     }}
                     style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
@@ -664,8 +664,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                     }}
                     theme={{
                       colors: {
-                        primary: '#2D2B32',
-                        outline: '#E6E6E6',
+                        primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                        outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                       },
                     }}
                     style={[styles.textInput, { marginStart: 8, fontFamily: checkoutDetails.fontFamily.regular, }]}
@@ -708,8 +708,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 theme={{
                   colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
+                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                   },
                 }}
                 style={[
@@ -755,8 +755,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 theme={{
                   colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
+                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                   },
                 }}
                 style={[
@@ -802,8 +802,8 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 }}
                 theme={{
                   colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
+                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                   },
                 }}
                 style={[

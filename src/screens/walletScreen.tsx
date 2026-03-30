@@ -278,8 +278,8 @@ const WalletScreen = ({ navigation, route }: Props) => {
                 }}
                 theme={{
                   colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
+                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
+                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
                   },
                 }}
                 style={[styles.textFieldStyle, {fontFamily: checkoutDetails.fontFamily.regular,}]}

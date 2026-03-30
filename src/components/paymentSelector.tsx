@@ -138,7 +138,7 @@ const PaymentSelector = ({
           }}
         >
           <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
-            Proceed to Pay{' '}
+            Pay{' '}
             <Text
               style={{
                 fontFamily: 'Inter-SemiBold',

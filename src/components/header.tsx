@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     color: '#363840'
   },
   headerDesc: {
-    marginTop: -4,
+    paddingTop: 2,
     fontSize: 12,
     color: '#4F4D55'
   },

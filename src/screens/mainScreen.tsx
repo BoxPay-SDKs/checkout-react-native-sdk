@@ -15,7 +15,7 @@ import type { CheckoutStackParamList } from '../navigation';
 import { paymentHandler, setPaymentHandler } from "../sharedContext/paymentStatusHandler";
 import { loadBoxpayFonts } from '../components/fontFamily';
 import { setUserDataHandler, setUserDataHandlerToDefault, userDataHandler } from '../sharedContext/userdataHandler';
-import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions, TransactionStatus } from '../interface';
+import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions, TransactionStatus, type SubscriptionDetails } from '../interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import WebViewScreen from '../screens/webViewScreen';
 import styles from '../styles/indexStyles';
@@ -30,7 +30,7 @@ import fetchSessionDetails from '../postRequest/fetchSessionDetails';
 import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
-import { formatAddress, getPhoneNumberCodeAndCountryName, useCountdown } from '../utility';
+import { formatAddress, formatDate, getPhoneNumberCodeAndCountryName, useCountdown } from '../utility';
 import fetchSurCharge from '../postRequest/fetchSurcharge';
 import fetchInstantOffer from '../postRequest/fetchInstantOffer';
 import ApplyCouponCard from '../components/applyCouponCard';
@@ -552,6 +552,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     },
                     ctaBorderRadius : uiConfiguration?.[UIConfigurationOptions.CTABorderRadius] ? uiConfiguration[UIConfigurationOptions.CTABorderRadius] : 12, 
                     buttonColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
+                    textInputFieldFocusedOutlineColor: uiConfiguration?.[UIConfigurationOptions.TextInputFields]?.focusedColor ? uiConfiguration[UIConfigurationOptions.TextInputFields].focusedColor : '#2D2B32',
+                    textInputFieldUnFocusedOutlineColor : uiConfiguration?.[UIConfigurationOptions.TextInputFields]?.unfocusedColor ? uiConfiguration[UIConfigurationOptions.TextInputFields].unfocusedColor : '#E6E6E6',
                     buttonTextColor : response.data.merchantDetails.checkoutTheme.buttonTextColor,
                     headerColor : response.data.merchantDetails.checkoutTheme.headerColor,
                     headerTextColor : response.data.merchantDetails.checkoutTheme.headerTextColor,
@@ -586,7 +588,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     isUPIOtmQRMethodEnabled : methodFlags.isUPIOtmQRVisible,
                     isOrderItemDetailsVisible : isFieldEnabled('ORDER_ITEM_DETAILS'),
                     isSICheckboxVisible : configurationOptions?.SHOW_SI_CHECKBOX ? true : false,
-                    isSubscriptionCheckout : paymentDetails.subscriptionDetails != null ? true : false
+                    isSubscriptionCheckout : paymentDetails.subscriptionDetails != null ? true : false,
+                    subscriptionDetails : getSubscriptionDetails(paymentDetails.subscriptionDetails, paymentDetails.money.amountLocaleFull, symbol)
                   },
                 });
                 setPaymentHandler({
@@ -613,6 +616,54 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     }
     loadSession()
   }, []);
+
+  const getSubscriptionDetails = (data: SubscriptionDetails | null, amount : string, currencySymbol : string) => {
+  if (!data) return null;
+
+  const { billingCycle } = data;
+
+  // Frequency
+  let frequency = '';
+  if (billingCycle) {
+    const { billingCycleValue, count, billingTimeUnit } = billingCycle;
+
+    if (count === 1) {
+      frequency = billingTimeUnit;
+    } else {
+      frequency = `Every ${count} ${billingCycleValue}`;
+    }
+  }
+
+  // Validity (ONLY if NOT perpetual)
+  let validity: string | null = null;
+
+  if (data.expiryDateLocale) {
+    const date = formatDate(data.expiryDateLocale.split(' ')[0] ?? "");
+    validity = `Till ${date}`;
+  } else if (data.recurringExpiryDateLocale) {
+    const date = formatDate(data.recurringExpiryDateLocale.split(' ')[0] ?? "");
+    validity = `Till ${date}`;
+  }
+
+  return [
+    {
+      label: 'To be paid now',
+      value: `${currencySymbol}${amount}`,
+    },
+    {
+      label: 'Recurring Amount',
+      value: `Up to ${currencySymbol}${data.maxAmountLocaleFull}`,
+    },
+    {
+      label: 'Frequency',
+      value: frequency,
+    },
+    {
+      label: 'Validity',
+      value: validity,
+    },
+  ];
+};
 
   const handleSurchargeDetails = async() => {
     const response = await fetchSurCharge()

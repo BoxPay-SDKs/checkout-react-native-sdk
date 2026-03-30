@@ -13,6 +13,7 @@ export enum ConfigurationOptions {
 export enum UIConfigurationOptions {
   FontFamily = 'FONT_FAMILY',
   CTABorderRadius = 'CTA_BORDER_RADIUS',
+  TextInputFields = 'TEXT_INPUT_FIELDS'
 }
 
 export interface FontConfiguration {
@@ -23,10 +24,16 @@ export interface FontConfiguration {
   extraBold?: string
 }
 
+export interface TextInputFields {
+  focusedColor? : string;
+  unfocusedColor? : string
+}
+
 // 👇 Each key has its own strict type
 export interface UIConfiguration {
   [UIConfigurationOptions.FontFamily]?: FontConfiguration;
   [UIConfigurationOptions.CTABorderRadius]?: number;
+  [UIConfigurationOptions.TextInputFields]?: TextInputFields
 }
 
 export interface BoxpayCheckoutProps {
@@ -46,6 +53,8 @@ export interface CheckoutDetails {
   ctaBorderRadius : number,
   buttonColor: string;
   buttonTextColor : string;
+  textInputFieldFocusedOutlineColor : string;
+  textInputFieldUnFocusedOutlineColor : string;
   headerColor : string;
   headerTextColor : string;
   env: string;
@@ -78,7 +87,8 @@ export interface CheckoutDetails {
   isUPIOtmQRMethodEnabled : boolean,
   isOrderItemDetailsVisible : boolean,
   isSICheckboxVisible : boolean,
-  isSubscriptionCheckout : boolean
+  isSubscriptionCheckout : boolean,
+  subscriptionDetails : {label:string,value : string | null}[] | null
 }
 
 interface AnalyticsResponse {
@@ -532,8 +542,20 @@ interface OrderDetails {
   items : OrderItem[] | null
 }
 
-interface SubscriptionDetails {
+export interface SubscriptionDetails {
   type : string,
+  billingCycle : {
+    billingTimeUnit : string,
+    count : number,
+    billingCycleValue : string
+  },
+  billingDuration : {
+    type : string,
+    noOfCycles : number
+  },
+  nextBillingDateLocale : string,
+  expiryDateLocale : string,
+  recurringExpiryDateLocale : string,
   maxAmountLocaleFull : string
 }
 

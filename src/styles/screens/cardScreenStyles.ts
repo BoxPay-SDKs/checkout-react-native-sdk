@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
         paddingTop: 14,
         paddingBottom: 12,
     },
+    subscriptionContainer : {backgroundColor:'#EFF3FA', marginHorizontal : 16, marginTop : 10, borderRadius : 6, paddingBottom : 4},
     buttonText: {
         color: 'white',
         fontSize: 16,
@@ -77,7 +78,6 @@ const styles = StyleSheet.create({
     errorText : {
         color: '#B3261E',
         fontSize: 12,
-        marginHorizontal: 16,
         marginTop: 4,
     },
     expiryCvvContainer : {
@@ -143,13 +143,12 @@ const styles = StyleSheet.create({
       },
       footerContainer : {
         justifyContent: 'center',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         flexDirection: 'row',
     },
     footerText : {
         fontSize: 12,
-        color: '#888888',
-        marginBottom: 13,
+        color: '#888888'
     },
     footerImage : { height: 50, width: 50 },
 })
