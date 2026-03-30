@@ -269,7 +269,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleanedLength = maxCardNumberLength == 19 ? 16 : 15;
     setCardNumberErrorText(
       cleaned.length < 1
-        ? 'Card Number Required'
+        ? 'Required'
         : checkoutDetails.env === 'test'
           ? ''
           : cleaned.length < cleanedLength
@@ -392,7 +392,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleaned = cardExpiryText?.replace(/ /g, '') || '';
     setCardExpiryErrorText(
       cleaned.length < 1
-        ? 'Expiry Required'
+        ? 'Required'
         : cleaned.length < 5 || !cardExpiryValid
           ? 'Expiry is invalid'
           : ''
@@ -405,7 +405,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleaned = cardCvvText?.replace(/ /g, '') || '';
     setCardCvvErrorText(
       cleaned.length < 1
-        ? 'CVV Required'
+        ? 'Required'
         : cleaned.length < maxCvvLength
           ? 'CVV is invalid'
           : ''
@@ -416,7 +416,7 @@ const CardScreen = ({ route, navigation }: Props) => {
 
   const handleCardHolderNameBlur = () => {
     const cleaned = cardHolderNameText?.replace(/ /g, '') || '';
-    setCardHolderNameErrorText(cleaned.length < 1 ? 'Name Required' : '');
+    setCardHolderNameErrorText(cleaned.length < 1 ? 'Required' : '');
     setCardHolderNameFocused(false);
     setCardHolderNameError(cleaned.length < 1);
   };
@@ -424,7 +424,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const handleCardCvvTextChange = (text: string) => {
     setCardCvvText(text);
     if (text == '') {
-      setCardCvvErrorText('CVV Required');
+      setCardCvvErrorText('Required');
       setCardCvvError(true);
     } else {
       setCardCvvError(false);
