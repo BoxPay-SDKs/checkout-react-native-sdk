@@ -623,8 +623,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const { billingCycle } = data;
 
   // Frequency
-  let frequency = '';
-  if (billingCycle) {
+  let frequency: string | null = null;;
+  if (billingCycle && billingCycle.count) {
     const { billingCycleValue, count, billingTimeUnit } = billingCycle;
 
     if (count === 1) {

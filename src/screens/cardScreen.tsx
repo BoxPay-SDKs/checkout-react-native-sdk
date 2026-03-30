@@ -37,6 +37,7 @@ import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
 import styles from '../styles/screens/cardScreenStyles';
 import WebViewScreen from './webViewScreen';
 import SubscriptionRow from '../components/subscriptionRow';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
 
 type CardScreenRouteProp = RouteProp<CheckoutStackParamList, 'CardScreen'>;
 
@@ -226,6 +227,10 @@ const CardScreen = ({ route, navigation }: Props) => {
       }
     }
   };
+
+  const isSubscriptionDetailsVisible =
+  checkoutDetails.isSubscriptionCheckout &&
+  (isSICheckBoxClicked || !checkoutDetails.isSICheckboxVisible);
 
   const isValidCardNumberByLuhn = (stringInputCardNumber: string): boolean => {
     const minCardLength = 13;
@@ -698,12 +703,7 @@ const CardScreen = ({ route, navigation }: Props) => {
             onChangeText={(it) => {
               handleCardNumberTextChange(it);
             }}
-            theme={{
-              colors: {
-                primary: checkoutDetails.textInputFieldFocusedOutlineColor,
-                outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
-              },
-            }}
+            theme={getTextInputTheme()}
             inputAccessoryViewID={Platform.OS === 'ios' ? inputAccessoryViewID : undefined}
             style={[styles.textInput, { marginTop: 28, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
             error={cardNumberError}
@@ -775,12 +775,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                 onChangeText={(it) => {
                   handleCardExpiryTextChange(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
-                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
-                  },
-                }}
+                theme={getTextInputTheme()}
                 inputAccessoryViewID={Platform.OS === 'ios' ? inputAccessoryViewID : undefined}
                 style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardExpiryError}
@@ -838,12 +833,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                 onChangeText={(it) => {
                   handleCardCvvTextChange(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
-                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
-                  },
-                }}
+                theme={getTextInputTheme()}
                 inputAccessoryViewID={Platform.OS === 'ios' ? inputAccessoryViewID : undefined}
                 style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardCvvError}
@@ -914,12 +904,7 @@ const CardScreen = ({ route, navigation }: Props) => {
             onChangeText={(it) => {
               handleCardHolderNameTextChange(it);
             }}
-            theme={{
-              colors: {
-                primary: checkoutDetails.textInputFieldFocusedOutlineColor,
-                outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
-              },
-            }}
+            theme={getTextInputTheme()}
             style={[styles.textInput, { marginHorizontal: 16, marginTop: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
             error={cardHolderNameError}
             returnKeyType="done"
@@ -974,12 +959,7 @@ const CardScreen = ({ route, navigation }: Props) => {
               onChangeText={(it) => {
                 setCardNickNameText(it);
               }}
-              theme={{
-                colors: {
-                  primary: checkoutDetails.textInputFieldFocusedOutlineColor,
-                  outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
-                },
-              }}
+              theme={getTextInputTheme()}
               style={[
                 styles.textInput,
                 { marginHorizontal: 16, marginTop: 16 , fontFamily: checkoutDetails.fontFamily.regular,},
@@ -1060,7 +1040,7 @@ const CardScreen = ({ route, navigation }: Props) => {
              />
           )}
 
-            {((checkoutDetails.isSubscriptionCheckout && isSICheckBoxClicked) || (!checkoutDetails.isSICheckboxVisible && checkoutDetails.isSubscriptionCheckout)) && (
+            {isSubscriptionDetailsVisible && (
               <View style = {styles.subscriptionContainer}>
                 {checkoutDetails.subscriptionDetails && checkoutDetails.subscriptionDetails.map((item) => item.value && (
                   <SubscriptionRow

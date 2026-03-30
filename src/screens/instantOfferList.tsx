@@ -14,6 +14,7 @@ import type { RouteProp, NavigationProp } from '@react-navigation/native';
 import Header from '../components/header';
 import styles from '../styles/screens/instantOfferScreenStyles';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
 
 export interface InstantOfferProps {
   couponList: GetInstantOffersResponse[];
@@ -98,12 +99,7 @@ const InstantOfferScreen = ({ route, navigation } : Props) => {
                 onChangeText={(it) => {
                   handleSearchTextChange(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: checkoutDetails.textInputFieldFocusedOutlineColor,
-                    outline: checkoutDetails.textInputFieldUnFocusedOutlineColor,
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[styles.searchTextInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 left={
                   <TextInput.Icon
