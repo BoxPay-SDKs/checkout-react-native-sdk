@@ -48,14 +48,13 @@ const styles = StyleSheet.create({
     },
     bottomContainer : {
         justifyContent: 'center',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         backgroundColor: '#F5F6FB',
         flexDirection: 'row',
     },
     bottomText : {
         fontSize: 12,
-        color: '#888888',
-        marginBottom: 13,
+        color: '#888888'
     },
     bottomImage : {
         height: 50, width: 50

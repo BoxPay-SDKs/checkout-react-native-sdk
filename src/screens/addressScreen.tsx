@@ -20,6 +20,7 @@ import {
 } from '../sharedContext/userdataHandler';
 import styles from '../styles/screens/addressScreenStyles.';
 import { extractNames, getPhoneNumberCodeAndCountryName } from '../utility';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
 
 type AddressScreenRouteProp = RouteProp<CheckoutStackParamList, 'AddressScreen'>;
 type AddressScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'AddressScreen'>;
@@ -358,12 +359,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
             }
             value={countryTextField || ''}
             onChangeText={(_) => {}}
-            theme={{
-              colors: {
-                primary: '#2D2B32',
-                outline: '#E6E6E6',
-              },
-            }}
+            theme={getTextInputTheme()}
             style={[
               styles.textInput,
               { marginTop: 28, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
@@ -411,12 +407,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 onChangeText={(it) => {
                   onChangeFullName(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
@@ -465,12 +456,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   }
                   value={selectedPhoneCode || ''}
                   onChangeText={(_) => {}}
-                  theme={{
-                    colors: {
-                      primary: '#2D2B32',
-                      outline: '#E6E6E6',
-                    },
-                  }}
+                  theme={getTextInputTheme()}
                   style={[
                     styles.textInput,
                     { width: 100, marginEnd: 8, fontFamily: checkoutDetails.fontFamily.regular,},
@@ -514,12 +500,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                   onChangeText={(it) => {
                     onChangePhoneNumber(it)
                   }}
-                  theme={{
-                    colors: {
-                      primary: '#2D2B32',
-                      outline: '#E6E6E6',
-                    },
-                  }}
+                  theme={getTextInputTheme()}
                   style={[styles.textInput, { flex: 1 , fontFamily: checkoutDetails.fontFamily.regular,}]}
                   error={isPhoneNumberValid == false}
                   outlineStyle={{
@@ -560,12 +541,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 onChangeText={(it) => {
                   onChangeEmailId(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
@@ -617,12 +593,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                     onChangeText={(it) => {
                       onChangePostalCode(it);
                     }}
-                    theme={{
-                      colors: {
-                        primary: '#2D2B32',
-                        outline: '#E6E6E6',
-                      },
-                    }}
+                    theme={getTextInputTheme()}
                     style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                     error={isPinValid == false}
                     outlineStyle={{
@@ -662,12 +633,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                     onChangeText={(it) => {
                       onChangeCity(it);
                     }}
-                    theme={{
-                      colors: {
-                        primary: '#2D2B32',
-                        outline: '#E6E6E6',
-                      },
-                    }}
+                    theme={getTextInputTheme()}
                     style={[styles.textInput, { marginStart: 8, fontFamily: checkoutDetails.fontFamily.regular, }]}
                     error={isCityValid == false}
                     outlineStyle={{
@@ -706,12 +672,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 onChangeText={(it) => {
                   onChangeState(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
@@ -753,12 +714,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 onChangeText={(it) => {
                   onChangeMainAddress(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },
@@ -800,12 +756,7 @@ const AddressScreen = ({ route, navigation }: Props) => {
                 onChangeText={(it) => {
                   setSecondaryAddressTextField(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[
                   styles.textInput,
                   { marginTop: 20, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, },

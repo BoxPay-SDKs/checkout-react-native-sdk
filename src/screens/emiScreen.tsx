@@ -38,6 +38,7 @@ import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../shar
 import type { CheckoutStackParamList } from '../navigation';
 import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
 
 type EmiScreenRouteProp = RouteProp<CheckoutStackParamList, 'EmiScreen'>;
 
@@ -633,12 +634,7 @@ const EmiScreen = ({ navigation, route }: Props) => {
                       onChangeText={(it) => {
                         setSearchText(it);
                       }}
-                      theme={{
-                        colors: {
-                          primary: '#2D2B32',
-                          outline: '#E6E6E6',
-                        },
-                      }}
+                      theme={getTextInputTheme()}
                       style={[styles.textInputStyle, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                       left={
                         <TextInput.Icon

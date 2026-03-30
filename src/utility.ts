@@ -199,3 +199,26 @@ export const getPhoneNumberCodeAndCountryName = (countryCodeRef : string) : Coun
   return countryDataJson[countryCodeRef];
 
 }
+
+export const formatDate = (dateStr: string) => {
+  const [datePart] = dateStr.split(' '); // "28/08/2027"
+  if (!datePart) return '';
+  const [day, month, year] = datePart.split('/');
+
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+
+  return `${day}-${months[Number(month) - 1]}-${year}`;
+};
+
+export const isEmpty = (value: unknown): boolean => {
+  if (value === null || value === undefined) return true;
+  if (typeof value === 'string') return value.trim() === '';
+  if (typeof value === 'number') return isNaN(value);
+  if (typeof value === 'boolean') return false;
+  if (Array.isArray(value)) return value.length === 0;
+  if (typeof value === 'object') return Object.keys(value).length === 0;
+  return false;
+};

@@ -26,6 +26,7 @@ import styles from '../styles/screens/walletScreenStyles';
 import type { CheckoutStackParamList } from '../navigation';
 import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
 
 type WalletScreenRouteProp = RouteProp<CheckoutStackParamList, 'WalletScreen'>;
 type WalletScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'WalletScreen'>;
@@ -276,12 +277,7 @@ const WalletScreen = ({ navigation, route }: Props) => {
                 onChangeText={(it) => {
                   handleSearchTextChange(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[styles.textFieldStyle, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 left={
                   <TextInput.Icon
