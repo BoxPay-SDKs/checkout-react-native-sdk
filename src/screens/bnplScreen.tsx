@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
-import type { PaymentClass, PaymentResultObject, BNPLScreenParams } from '../interface';
+import { type PaymentClass, type PaymentResultObject, type BNPLScreenParams, TransactionStatus } from '../interface';
 import ShimmerView from '../components/shimmerView';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
@@ -54,7 +54,7 @@ const BNPLScreen = ({ navigation, route }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string>("NOACTION");
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
@@ -76,7 +76,7 @@ const BNPLScreen = ({ navigation, route }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoading(false);
         return true;

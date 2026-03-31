@@ -14,7 +14,8 @@ import {
   type PaymentResultObject,
   type PaymentMethod,
   APIStatus,
-  type EmiScreenParams
+  type EmiScreenParams,
+  TransactionStatus
 } from '../interface';
 import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
@@ -83,7 +84,7 @@ const EmiScreen = ({ navigation, route }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalOpen] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string>("NOACTION");
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const [paymentHtml, setPaymentHtml] = useState('');
@@ -392,7 +393,7 @@ const EmiScreen = ({ navigation, route }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalOpen(true);
         setLoading(false);
         return true;
