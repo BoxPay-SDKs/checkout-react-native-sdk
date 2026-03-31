@@ -1,4 +1,4 @@
-import { ScreenRouteMap, TransactionStatus, type AutoNavigationScreen, type PaymentClass } from '../interface';
+import { ScreenRouteMap, type AutoNavigationScreen, type PaymentClass } from '../interface';
 import { checkoutDetailsHandler } from './checkoutDetailsHandler';
 import { userDataHandler } from './userdataHandler';
 
