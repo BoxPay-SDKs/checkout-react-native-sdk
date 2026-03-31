@@ -55,7 +55,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     shopperToken = null,
     uiConfiguration = null
   } = route.params as BoxpayCheckoutProps || {}; 
-  const [status, setStatus] = useState('NOACTION');
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState('');
   const isScreenFocused = useIsFocused()
   const appStateListenerRef = useRef<any>(null);
@@ -309,7 +309,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         setShowWebView(false);
         paymentFailedMessage.current =
           checkoutDetailsHandler.checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoadingState(false);
         return true;
@@ -837,7 +837,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         if (timerRef.current) {
           clearInterval(timerRef.current);
         }
-        setStatus('EXPIRED');
+        setStatus(TransactionStatus.Expired);
         setSessionExppireModalState(true);
       }
       // const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);

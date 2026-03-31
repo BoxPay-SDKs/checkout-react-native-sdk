@@ -11,7 +11,7 @@ import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../s
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
-import type { NetBankingScreenParams, PaymentClass, PaymentResultObject } from '../interface';
+import { TransactionStatus, type NetBankingScreenParams, type PaymentClass, type PaymentResultObject } from '../interface';
 import ShimmerView from '../components/shimmerView';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
@@ -77,7 +77,7 @@ const NetBankingScreen = ({ navigation, route }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string>("NOACTION");
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
@@ -105,7 +105,7 @@ const NetBankingScreen = ({ navigation, route }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoading(false);
         return true;

@@ -457,6 +457,7 @@ export interface HandleFetchStatusOptions {
 }
 
 export enum TransactionStatus {
+  NoAction = "NOACTION",
   RequiresAction = 'REQUIRESACTION',
   Failed = 'FAILED',
   Rejected = 'REJECTED',

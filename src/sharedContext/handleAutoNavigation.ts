@@ -1,4 +1,4 @@
-import { ScreenRouteMap, type AutoNavigationScreen, type PaymentClass } from '../interface';
+import { ScreenRouteMap, TransactionStatus, type AutoNavigationScreen, type PaymentClass } from '../interface';
 import { checkoutDetailsHandler } from './checkoutDetailsHandler';
 import { userDataHandler } from './userdataHandler';
 
@@ -14,7 +14,7 @@ export const handleAutoNavigation = (
 
     if (savedCardArray.length > 0) return null;
 
-    if(status !== "NOACTION") return null
+    if(status !== TransactionStatus.NoAction) return null
 
     const isPersonalDataMissing = 
     (checkoutDetails.isFullNameEnabled && (!userData.firstName || userData.firstName.trim() === "")) ||

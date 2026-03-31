@@ -24,7 +24,7 @@ import KnowMoreBottomSheet from '../components/knowMoreBottomSheet';
 import PaymentFailed from '../components/paymentFailed';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
-import { APIStatus, type CardScreenParams, type PaymentResultObject } from '../interface';
+import { APIStatus, TransactionStatus, type CardScreenParams, type PaymentResultObject } from '../interface';
 import type { CheckoutStackParamList } from '../navigation';
 import cardPostRequest from '../postRequest/cardPostRequest';
 import emiPostRequest from '../postRequest/emiPostRequest';
@@ -130,7 +130,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string>("NOACTION");
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
@@ -557,7 +557,7 @@ const CardScreen = ({ route, navigation }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoading(false);
         return true;
