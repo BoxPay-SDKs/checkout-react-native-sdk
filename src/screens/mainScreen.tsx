@@ -641,7 +641,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
       validity = `Till ${date}`;
     } else if (!isEmpty(data!.recurringExpiryDateLocale)) {
       const date = formatDate(data!.recurringExpiryDateLocale!.split(' ')[0] ?? "");
-      validity = `Till ${date}`;
+      validity = `${date}`;
     }
   
     const rows = [
@@ -658,7 +658,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         value: frequency,
       },
       {
-        label: 'Validity',
+        label: 'Expiry Date',
         value: validity,
       },
     ];
