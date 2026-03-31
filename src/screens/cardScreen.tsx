@@ -269,7 +269,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleanedLength = maxCardNumberLength == 19 ? 16 : 15;
     setCardNumberErrorText(
       cleaned.length < 1
-        ? 'Required'
+        ? 'Card Number is required'
         : checkoutDetails.env === 'test'
           ? ''
           : cleaned.length < cleanedLength
@@ -392,7 +392,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleaned = cardExpiryText?.replace(/ /g, '') || '';
     setCardExpiryErrorText(
       cleaned.length < 1
-        ? 'Required'
+        ? 'Expiry is required'
         : cleaned.length < 5 || !cardExpiryValid
           ? 'Expiry is invalid'
           : ''
@@ -405,7 +405,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleaned = cardCvvText?.replace(/ /g, '') || '';
     setCardCvvErrorText(
       cleaned.length < 1
-        ? 'Required'
+        ? 'CVV is required'
         : cleaned.length < maxCvvLength
           ? 'CVV is invalid'
           : ''
@@ -416,7 +416,7 @@ const CardScreen = ({ route, navigation }: Props) => {
 
   const handleCardHolderNameBlur = () => {
     const cleaned = cardHolderNameText?.replace(/ /g, '') || '';
-    setCardHolderNameErrorText(cleaned.length < 1 ? 'Required' : '');
+    setCardHolderNameErrorText(cleaned.length < 1 ? 'Name is required' : '');
     setCardHolderNameFocused(false);
     setCardHolderNameError(cleaned.length < 1);
   };
@@ -424,7 +424,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const handleCardCvvTextChange = (text: string) => {
     setCardCvvText(text);
     if (text == '') {
-      setCardCvvErrorText('Required');
+      setCardCvvErrorText('CVV is required');
       setCardCvvError(true);
     } else {
       setCardCvvError(false);
@@ -701,7 +701,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                       fontFamily: checkoutDetails.fontFamily.regular,
                 }]}
               >
-                Card Number
+                Card Number*
               </Text>
             }
             value={cardNumberText || ''}
@@ -756,6 +756,60 @@ const CardScreen = ({ route, navigation }: Props) => {
               {cardNumberErrorText}
             </Text>
           )}
+          <TextInput
+            mode="outlined"
+            label={
+              <Text
+                style={[styles.textFieldLabel,{
+                  color: cardHolderNameFocused
+                    ? '#2D2B32'
+                    : cardHolderNameText != '' && cardHolderNameText != null
+                      ? '#2D2B32'
+                      : '#ADACB0',
+                      fontFamily: checkoutDetails.fontFamily.regular,
+                }]}
+              >
+                Cardholder Name*
+              </Text>
+            }
+            value={cardHolderNameText || ''}
+            onChangeText={(it) => {
+              handleCardHolderNameTextChange(it);
+            }}
+            theme={getTextInputTheme()}
+            style={[styles.textInput, { marginHorizontal: 16, marginTop: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
+            error={cardHolderNameError}
+            inputAccessoryViewID={Platform.OS === 'ios' ? cardHolderNameAccessoryID : undefined}
+            returnKeyType="done"
+            right={
+              cardHolderNameError ? (
+                <TextInput.Icon
+                  icon={() => (
+                    <Image
+                      source={require('../../assets/images/ic_upi_error.png')}
+                      style={{ width: 24, height: 24 }}
+                    />
+                  )}
+                />
+              ) : null
+            }
+            outlineStyle={{
+              borderRadius: 8, // Add this
+              borderWidth: 1.5,
+            }}
+            onBlur={handleCardHolderNameBlur}
+            onFocus={() => {
+              setCardHolderNameFocused(true);
+              setCardHolderNameError(false);
+            }}
+          />
+          {cardHolderNameError && (
+            <Text
+              style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,marginHorizontal : 16}]}
+            >
+              {cardHolderNameErrorText}
+            </Text>
+          )}
           <View
             style={styles.expiryCvvContainer}
           >
@@ -773,7 +827,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                           fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
-                    Expiry (MM/YY)
+                    Expiry (MM/YY)*
                   </Text>
                 }
                 value={cardExpiryText || ''}
@@ -831,7 +885,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                           fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
-                    CVV
+                    CVV*
                   </Text>
                 }
                 value={cardCvvText || ''}
@@ -889,60 +943,6 @@ const CardScreen = ({ route, navigation }: Props) => {
               )}
             </View>
           </View>
-          <TextInput
-            mode="outlined"
-            label={
-              <Text
-                style={[styles.textFieldLabel,{
-                  color: cardHolderNameFocused
-                    ? '#2D2B32'
-                    : cardHolderNameText != '' && cardHolderNameText != null
-                      ? '#2D2B32'
-                      : '#ADACB0',
-                      fontFamily: checkoutDetails.fontFamily.regular,
-                }]}
-              >
-                Name on the Card
-              </Text>
-            }
-            value={cardHolderNameText || ''}
-            onChangeText={(it) => {
-              handleCardHolderNameTextChange(it);
-            }}
-            theme={getTextInputTheme()}
-            style={[styles.textInput, { marginHorizontal: 16, marginTop: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
-            error={cardHolderNameError}
-            inputAccessoryViewID={Platform.OS === 'ios' ? cardHolderNameAccessoryID : undefined}
-            returnKeyType="done"
-            right={
-              cardHolderNameError ? (
-                <TextInput.Icon
-                  icon={() => (
-                    <Image
-                      source={require('../../assets/images/ic_upi_error.png')}
-                      style={{ width: 24, height: 24 }}
-                    />
-                  )}
-                />
-              ) : null
-            }
-            outlineStyle={{
-              borderRadius: 8, // Add this
-              borderWidth: 1.5,
-            }}
-            onBlur={handleCardHolderNameBlur}
-            onFocus={() => {
-              setCardHolderNameFocused(true);
-              setCardHolderNameError(false);
-            }}
-          />
-          {cardHolderNameError && (
-            <Text
-              style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,marginHorizontal : 16}]}
-            >
-              {cardHolderNameErrorText}
-            </Text>
-          )}
           {shopperToken != null && shopperToken != '' && (
             <>
             <TextInput

@@ -256,11 +256,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   dashedLine: {
-    borderBottomWidth: 2, // Thickness of the line
-    borderBottomColor: '#E6E6E6', // Color of the line
-    borderStyle: 'dashed', // Makes it dashed
+    backgroundColor: '#E6E6E6', // Color of the line
     width: '100%', // Full width
-    marginVertical: 10, // Some spacing
-    marginTop: 16,
+    marginVertical: 10,
+    height : 2
   },
 });
