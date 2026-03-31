@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
       color: '#2D2B32',
       fontSize: 14,
       marginLeft: 6,
+      marginRight : 16
   },
   checkboxBox: {
     width: 20,

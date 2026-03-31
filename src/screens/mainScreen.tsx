@@ -638,7 +638,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     let validity: string | null = null;
     if (!isEmpty(data!.expiryDateLocale)) {
       const date = formatDate(data!.expiryDateLocale!.split(' ')[0] ?? "");
-      validity = `Till ${date}`;
+      validity = `${date}`;
     } else if (!isEmpty(data!.recurringExpiryDateLocale)) {
       const date = formatDate(data!.recurringExpiryDateLocale!.split(' ')[0] ?? "");
       validity = `${date}`;
@@ -749,6 +749,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
 
   const checkAutoNavigation = () => {
     const targetScreen = handleAutoNavigation(
+      status,
       savedCardArray
     )
     if (!targetScreen) {

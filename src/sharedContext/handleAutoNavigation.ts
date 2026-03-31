@@ -1,9 +1,10 @@
-import { ScreenRouteMap, type AutoNavigationScreen, type PaymentClass } from '../interface';
+import { ScreenRouteMap, TransactionStatus, type AutoNavigationScreen, type PaymentClass } from '../interface';
 import { checkoutDetailsHandler } from './checkoutDetailsHandler';
 import { userDataHandler } from './userdataHandler';
 
 
 export const handleAutoNavigation = (
+    status : String,
     savedCardArray : PaymentClass[]
 ) : AutoNavigationScreen | null => {
     const {checkoutDetails} = checkoutDetailsHandler
@@ -12,6 +13,8 @@ export const handleAutoNavigation = (
     if (checkoutDetails.isOrderItemDetailsVisible) return null;
 
     if (savedCardArray.length > 0) return null;
+
+    if(status !== "NOACTION") return null
 
     const isPersonalDataMissing = 
     (checkoutDetails.isFullNameEnabled && (!userData.firstName || userData.firstName.trim() === "")) ||
