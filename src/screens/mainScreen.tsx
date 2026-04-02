@@ -56,6 +56,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     uiConfiguration = null
   } = route.params as BoxpayCheckoutProps || {}; 
   const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
+  const statusRef = useRef(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState('');
   const isScreenFocused = useIsFocused()
   const appStateListenerRef = useRef<any>(null);
@@ -486,9 +487,11 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
                   setSuccessfulTimeStamp(response.data.lastPaidAtTimestampLocale);
                   setTransactionId(response.data.lastTransactionId);
+                  statusRef.current = TransactionStatus.Success;
                   setStatus(TransactionStatus.Success);
                   setSuccessModalState(true);
                 } else if (['EXPIRED'].includes(response.data.status)) {
+                  statusRef.current = TransactionStatus.Expired;
                   setStatus(TransactionStatus.Expired);
                   setSessionExppireModalState(true);
                 }
@@ -749,7 +752,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
 
   const checkAutoNavigation = () => {
     const targetScreen = handleAutoNavigation(
-      status,
+      statusRef.current,
       savedCardArray
     )
     if (!targetScreen) {

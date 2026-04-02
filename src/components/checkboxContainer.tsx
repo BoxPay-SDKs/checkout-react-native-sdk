@@ -38,13 +38,13 @@ const styles = StyleSheet.create({
     checkBoxContainer : {
       flexDirection: 'row',
       marginTop: 10,
-      alignItems: 'center'
+      alignItems: 'center',
+      marginHorizontal: 16
   },
   checkBoxText : {
       color: '#2D2B32',
       fontSize: 14,
-      marginLeft: 6,
-      marginRight : 16
+      marginLeft: 6
   },
   checkboxBox: {
     width: 20,
@@ -52,8 +52,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 3,
     justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 16,
+    alignItems: 'center'
   },
   checkmark: {
     color: '#fff',
