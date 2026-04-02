@@ -61,14 +61,13 @@ const styles = StyleSheet.create({
     },
     footerContainer : {
         justifyContent: 'center',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         backgroundColor: '#F5F6FB',
         flexDirection: 'row',
     },
     footerTextStyle : {
         fontSize: 12,
-        color: '#888888',
-        marginBottom: 13,
+        color: '#888888'
     },
     footerIcon : { height: 50, width: 50 },
     webViewContainer : {

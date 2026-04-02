@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     footerText : {
         fontSize: 12,
         color: '#888888',
-        marginBottom: 13,
+        paddingBottom:16,
     },
     footerImage : { height: 50, width: 50 },
     webViewScreenStyle : {

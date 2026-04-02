@@ -15,7 +15,7 @@ import type { CheckoutStackParamList } from '../navigation';
 import { paymentHandler, setPaymentHandler } from "../sharedContext/paymentStatusHandler";
 import { loadBoxpayFonts } from '../components/fontFamily';
 import { setUserDataHandler, setUserDataHandlerToDefault, userDataHandler } from '../sharedContext/userdataHandler';
-import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions } from '../interface';
+import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions, TransactionStatus, type SubscriptionDetails } from '../interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import WebViewScreen from '../screens/webViewScreen';
 import styles from '../styles/indexStyles';
@@ -30,10 +30,11 @@ import fetchSessionDetails from '../postRequest/fetchSessionDetails';
 import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
-import { formatAddress, getPhoneNumberCodeAndCountryName, useCountdown } from '../utility';
+import { formatAddress, formatDate, getPhoneNumberCodeAndCountryName, isEmpty, useCountdown } from '../utility';
 import fetchSurCharge from '../postRequest/fetchSurcharge';
 import fetchInstantOffer from '../postRequest/fetchInstantOffer';
 import ApplyCouponCard from '../components/applyCouponCard';
+import { handleAutoNavigation } from '../sharedContext/handleAutoNavigation';
 
 type MainScreenRouteProp = RouteProp<CheckoutStackParamList, 'MainScreen'>;
 
@@ -54,7 +55,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     shopperToken = null,
     uiConfiguration = null
   } = route.params as BoxpayCheckoutProps || {}; 
-  const [status, setStatus] = useState('NOACTION');
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
+  const statusRef = useRef(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState('');
   const isScreenFocused = useIsFocused()
   const appStateListenerRef = useRef<any>(null);
@@ -218,7 +220,6 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
       setUpiInstrumentList : setSavedUpiArray,
       setCardInstrumentList : setSavedCardArray
     });
-    setIsFirstLoading(false)
   };
 
   useEffect(() => {
@@ -309,7 +310,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         setShowWebView(false);
         paymentFailedMessage.current =
           checkoutDetailsHandler.checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoadingState(false);
         return true;
@@ -486,9 +487,12 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 if (['APPROVED', 'SUCCESS', 'PAID'].includes(response.data.status)) {
                   setSuccessfulTimeStamp(response.data.lastPaidAtTimestampLocale);
                   setTransactionId(response.data.lastTransactionId);
-                  setStatus(response.data.status);
+                  statusRef.current = TransactionStatus.Success;
+                  setStatus(TransactionStatus.Success);
                   setSuccessModalState(true);
                 } else if (['EXPIRED'].includes(response.data.status)) {
+                  statusRef.current = TransactionStatus.Expired;
+                  setStatus(TransactionStatus.Expired);
                   setSessionExppireModalState(true);
                 }
 
@@ -551,6 +555,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     },
                     ctaBorderRadius : uiConfiguration?.[UIConfigurationOptions.CTABorderRadius] ? uiConfiguration[UIConfigurationOptions.CTABorderRadius] : 12, 
                     buttonColor: response.data.merchantDetails.checkoutTheme.primaryButtonColor,
+                    textInputFieldFocusedOutlineColor: uiConfiguration?.[UIConfigurationOptions.TextInputFields]?.focusedBorderColor ? uiConfiguration[UIConfigurationOptions.TextInputFields].focusedBorderColor : '#2D2B32',
+                    textInputFieldUnFocusedOutlineColor : uiConfiguration?.[UIConfigurationOptions.TextInputFields]?.borderColor ? uiConfiguration[UIConfigurationOptions.TextInputFields].borderColor : '#E6E6E6',
                     buttonTextColor : response.data.merchantDetails.checkoutTheme.buttonTextColor,
                     headerColor : response.data.merchantDetails.checkoutTheme.headerColor,
                     headerTextColor : response.data.merchantDetails.checkoutTheme.headerTextColor,
@@ -581,11 +587,12 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     isEmiMethodEnabled : methodFlags.isEMIVisible,
                     isBnplMethodEnabled : methodFlags.isBNPLVisible,
                     isUPIOtmCollectMethodEnabled : methodFlags.isUPIOtmCollectVisible,
-                    isUPIOtmIntentMethodEnabled : methodFlags.isUPIIntentVisible,
+                    isUPIOtmIntentMethodEnabled : methodFlags.isUPIOtmIntentVisible,
                     isUPIOtmQRMethodEnabled : methodFlags.isUPIOtmQRVisible,
                     isOrderItemDetailsVisible : isFieldEnabled('ORDER_ITEM_DETAILS'),
                     isSICheckboxVisible : configurationOptions?.SHOW_SI_CHECKBOX ? true : false,
-                    isSubscriptionCheckout : paymentDetails.subscriptionDetails != null ? true : false
+                    isSubscriptionCheckout : paymentDetails.subscriptionDetails != null ? true : false,
+                    subscriptionDetails : getSubscriptionDetails(paymentDetails.subscriptionDetails, paymentDetails.money.amountLocaleFull, symbol)
                   },
                 });
                 setPaymentHandler({
@@ -612,6 +619,54 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     }
     loadSession()
   }, []);
+
+  const getSubscriptionDetails = (data: SubscriptionDetails | null, amount : string, currencySymbol : string) => {
+    if (isEmpty(data)) return null;
+
+    const { billingCycle } = data!;
+  
+    // Frequency
+    let frequency: string | null = null;
+    if (!isEmpty(billingCycle)) {
+      const { billingCycleValue, count, billingTimeUnit } = billingCycle!;
+  
+      if (count === 1) {
+        frequency = billingTimeUnit;
+      } else {
+        frequency = `Every ${count} ${billingCycleValue}`;
+      }
+    }
+  
+    // Validity
+    let validity: string | null = null;
+    if (!isEmpty(data!.expiryDateLocale)) {
+      const date = formatDate(data!.expiryDateLocale!.split(' ')[0] ?? "");
+      validity = `${date}`;
+    } else if (!isEmpty(data!.recurringExpiryDateLocale)) {
+      const date = formatDate(data!.recurringExpiryDateLocale!.split(' ')[0] ?? "");
+      validity = `${date}`;
+    }
+  
+    const rows = [
+      {
+        label: 'To be paid now',
+        value: !isEmpty(amount) ? `${currencySymbol}${amount}` : null,
+      },
+      {
+        label: 'Recurring Amount',
+        value: !isEmpty(data!.maxAmountLocaleFull) ? `Up to ${currencySymbol}${data!.maxAmountLocaleFull}` : null,
+      },
+      {
+        label: 'Frequency',
+        value: frequency,
+      },
+      {
+        label: 'Expiry Date',
+        value: validity,
+      },
+    ];
+    return rows.filter(row => !isEmpty(row.value));
+};
 
   const handleSurchargeDetails = async() => {
     const response = await fetchSurCharge()
@@ -688,9 +743,22 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
 
   const callRecommendedOrStopLoding =async() => {
     if(shopperToken != null && shopperToken != "") {
-      getRecommendedInstruments()
+      await getRecommendedInstruments()
+      checkAutoNavigation()
     } else {
+      checkAutoNavigation()
+    }
+  }
+
+  const checkAutoNavigation = () => {
+    const targetScreen = handleAutoNavigation(
+      statusRef.current,
+      savedCardArray
+    )
+    if (!targetScreen) {
       setIsFirstLoading(false)
+    } else {
+      navigation.navigate(targetScreen, {isAutoNavigationEnabled : true})
     }
   }
 
@@ -772,7 +840,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         if (timerRef.current) {
           clearInterval(timerRef.current);
         }
-        setStatus('EXPIRED');
+        setStatus(TransactionStatus.Expired);
         setSessionExppireModalState(true);
       }
       // const hours = Math.floor((timeDiff / (1000 * 60 * 60)) % 24);

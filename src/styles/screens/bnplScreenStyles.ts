@@ -53,12 +53,11 @@ const styles = StyleSheet.create({
     },
     bottomText : {
         fontSize: 12,
-        color: '#888888',
-        marginBottom: 13,
+        color: '#888888'
     },
     bottomContainer : {
         justifyContent: 'center',
-        alignItems: 'flex-end',
+        alignItems: 'center',
         backgroundColor: '#F5F6FB',
         flexDirection: 'row',
     },

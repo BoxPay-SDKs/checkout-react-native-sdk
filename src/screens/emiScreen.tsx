@@ -13,7 +13,9 @@ import {
   type Emi,
   type PaymentResultObject,
   type PaymentMethod,
-  APIStatus
+  APIStatus,
+  type EmiScreenParams,
+  TransactionStatus
 } from '../interface';
 import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import fetchPaymentMethods from '../postRequest/fetchPaymentMethods';
@@ -35,16 +37,21 @@ import Toast from 'react-native-toast-message'
 import styles from '../styles/screens/emiScreenStyles';
 import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
-import type { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
+
+type EmiScreenRouteProp = RouteProp<CheckoutStackParamList, 'EmiScreen'>;
 
 type EmiScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'EmiScreen'>;
 
 interface Props {
   navigation: EmiScreenNavigationProp;
+  route: EmiScreenRouteProp;
 }
 
-const EmiScreen = ({ navigation }: Props) => {
+const EmiScreen = ({ navigation, route }: Props) => {
+  const { isAutoNavigationEnabled } = route.params as EmiScreenParams || {};
   const [emiBankList, setEmiBankList] = useState<ChooseEmiModel>({ cards: [] });
   const [defaultEmiBankList, setDefaultEmiBankList] = useState<ChooseEmiModel>({
     cards: [],
@@ -77,8 +84,8 @@ const EmiScreen = ({ navigation }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalOpen] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState('');
-  const [transactionId, setTransactionId] = useState('');
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const [paymentHtml, setPaymentHtml] = useState('');
   const [paymentUrl, setPaymentUrl] = useState('');
@@ -371,8 +378,13 @@ const EmiScreen = ({ navigation }: Props) => {
   };
 
   const onProceedBack = () => {
-    navigation.goBack()
-    return true;
+    if (isAutoNavigationEnabled) {
+      onExitCheckout();
+      return true;
+    } else {
+      navigation.goBack()
+      return true;
+    }
   };
 
   useEffect(() => {
@@ -381,7 +393,7 @@ const EmiScreen = ({ navigation }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalOpen(true);
         setLoading(false);
         return true;
@@ -623,12 +635,7 @@ const EmiScreen = ({ navigation }: Props) => {
                       onChangeText={(it) => {
                         setSearchText(it);
                       }}
-                      theme={{
-                        colors: {
-                          primary: '#2D2B32',
-                          outline: '#E6E6E6',
-                        },
-                      }}
+                      theme={getTextInputTheme()}
                       style={[styles.textInputStyle, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                       left={
                         <TextInput.Icon

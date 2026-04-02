@@ -11,7 +11,7 @@ import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../s
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
-import type { PaymentClass, PaymentResultObject } from '../interface';
+import { TransactionStatus, type NetBankingScreenParams, type PaymentClass, type PaymentResultObject } from '../interface';
 import ShimmerView from '../components/shimmerView';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
@@ -24,16 +24,21 @@ import PaymentSelectorView from '../components/paymentSelector';
 import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import styles from '../styles/screens/netBankingScreenStyles';
 import type { CheckoutStackParamList } from '../navigation';
-import type { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
+
+type NetBankingScreenRouteProp = RouteProp<CheckoutStackParamList, 'NetBankingScreen'>;
 
 type NetBankingScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'NetBankingScreen'>;
 
 interface Props {
   navigation: NetBankingScreenNavigationProp;
+  route: NetBankingScreenRouteProp;
 }
 
-const NetBankingScreen = ({ navigation }: Props) => {
+const NetBankingScreen = ({ navigation, route }: Props) => {
+  const { isAutoNavigationEnabled } = route.params as NetBankingScreenParams || {};
   const [netBankingList, setNetBankingList] = useState<PaymentClass[]>([]);
   const [defaultNetBankingList, setDefaultNetBankingList] = useState<
     PaymentClass[]
@@ -72,7 +77,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
@@ -80,8 +85,11 @@ const NetBankingScreen = ({ navigation }: Props) => {
   const [searchTextFocused, setSearchTextFocused] = useState(false);
 
   const onProceedBack = () => {
-    if (!loading) {
+    if (!loading && !isAutoNavigationEnabled) {
       navigation.goBack()
+      return true;
+    } else if (!loading && isAutoNavigationEnabled) {
+      onExitCheckout();
       return true;
     }
     return false;
@@ -97,7 +105,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoading(false);
         return true;
@@ -307,12 +315,7 @@ const NetBankingScreen = ({ navigation }: Props) => {
                 onChangeText={(it) => {
                   handleSearchTextChange(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[styles.searchTextInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 left={
                   <TextInput.Icon

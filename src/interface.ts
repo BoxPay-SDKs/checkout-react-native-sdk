@@ -13,6 +13,7 @@ export enum ConfigurationOptions {
 export enum UIConfigurationOptions {
   FontFamily = 'FONT_FAMILY',
   CTABorderRadius = 'CTA_BORDER_RADIUS',
+  TextInputFields = 'TEXT_INPUT_FIELDS'
 }
 
 export interface FontConfiguration {
@@ -23,10 +24,16 @@ export interface FontConfiguration {
   extraBold?: string
 }
 
+export interface TextInputFields {
+  focusedBorderColor? : string;
+  borderColor? : string
+}
+
 // 👇 Each key has its own strict type
 export interface UIConfiguration {
   [UIConfigurationOptions.FontFamily]?: FontConfiguration;
   [UIConfigurationOptions.CTABorderRadius]?: number;
+  [UIConfigurationOptions.TextInputFields]?: TextInputFields
 }
 
 export interface BoxpayCheckoutProps {
@@ -46,6 +53,8 @@ export interface CheckoutDetails {
   ctaBorderRadius : number,
   buttonColor: string;
   buttonTextColor : string;
+  textInputFieldFocusedOutlineColor : string;
+  textInputFieldUnFocusedOutlineColor : string;
   headerColor : string;
   headerTextColor : string;
   env: string;
@@ -78,7 +87,8 @@ export interface CheckoutDetails {
   isUPIOtmQRMethodEnabled : boolean,
   isOrderItemDetailsVisible : boolean,
   isSICheckboxVisible : boolean,
-  isSubscriptionCheckout : boolean
+  isSubscriptionCheckout : boolean,
+  subscriptionDetails : {label:string,value : string | null}[] | null
 }
 
 interface AnalyticsResponse {
@@ -447,6 +457,7 @@ export interface HandleFetchStatusOptions {
 }
 
 export enum TransactionStatus {
+  NoAction = "NOACTION",
   RequiresAction = 'REQUIRESACTION',
   Failed = 'FAILED',
   Rejected = 'REJECTED',
@@ -532,8 +543,20 @@ interface OrderDetails {
   items : OrderItem[] | null
 }
 
-interface SubscriptionDetails {
+export interface SubscriptionDetails {
   type : string,
+  billingCycle : {
+    billingTimeUnit : string,
+    count : number,
+    billingCycleValue : string
+  },
+  billingDuration : {
+    type : string,
+    noOfCycles : number
+  },
+  nextBillingDateLocale : string,
+  expiryDateLocale : string,
+  recurringExpiryDateLocale : string,
   maxAmountLocaleFull : string
 }
 
@@ -560,6 +583,23 @@ export interface CardScreenParams {
   percent?: number; 
   cardType?: string;
   issuerBrand?: string;
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface WalletScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface NetBankingScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface EmiScreenParams {
+  isAutoNavigationEnabled?: boolean;
+}
+
+export interface BNPLScreenParams {
+  isAutoNavigationEnabled?: boolean;
 }
 
 export interface UPITimerScreenParams {
@@ -627,3 +667,26 @@ export type GetInstantDiscountResponse =
   apiStatus: APIStatus.Failed;
   data: ErrorResponse;
 };
+
+export const ScreenRouteMap = {
+  UPI : 'UPIScreen',
+  MAIN : 'MainScreen',
+  CARD: 'CardScreen',
+  WALLET: 'WalletScreen',
+  NETBANKING: 'NetBankingScreen',
+  EMI: 'EmiScreen',
+  BNPL: 'BNPLScreen',
+  UPITIMER : 'UpiTimerScreen',
+  ADDRESS : 'AddressScreen',
+  SAVEDADDRESS : 'SavedAddressScreen',
+  INSTANTOFFER : 'InstantOfferScreen'
+} as const
+
+export type AutoNavigationScreen =
+  | "CardScreen"
+  | "WalletScreen"
+  | "NetBankingScreen"
+  | "EmiScreen"
+  | "BNPLScreen"
+
+export type ScreenRoute = typeof ScreenRouteMap[keyof typeof ScreenRouteMap];

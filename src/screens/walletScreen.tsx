@@ -11,7 +11,7 @@ import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../s
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
 import { TextInput } from 'react-native-paper';
-import type { PaymentClass, PaymentResultObject } from '../interface';
+import { TransactionStatus, type PaymentClass, type PaymentResultObject, type WalletScreenParams } from '../interface';
 import PaymentSelectorView from '../components/paymentSelector';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
@@ -24,16 +24,20 @@ import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaym
 import ShimmerView from '../components/shimmerView';
 import styles from '../styles/screens/walletScreenStyles';
 import type { CheckoutStackParamList } from '../navigation';
-import type { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
 
+type WalletScreenRouteProp = RouteProp<CheckoutStackParamList, 'WalletScreen'>;
 type WalletScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'WalletScreen'>;
 
 interface Props {
   navigation: WalletScreenNavigationProp;
+  route: WalletScreenRouteProp;
 }
 
-const WalletScreen = ({ navigation }: Props) => {
+const WalletScreen = ({ navigation, route }: Props) => {
+  const { isAutoNavigationEnabled } = route.params as WalletScreenParams || {};
   const [walletList, setWalletList] = useState<PaymentClass[]>([]);
   const screenHeight = Dimensions.get('window').height;
   const [defaultWalletList, setDefaultWalletList] = useState<PaymentClass[]>(
@@ -57,7 +61,7 @@ const WalletScreen = ({ navigation }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
@@ -68,8 +72,11 @@ const WalletScreen = ({ navigation }: Props) => {
   const [checkedOnce, setCheckedOnce] = useState(false);
 
   const onProceedBack = () => {
-    if (!loading) {
+    if (!loading && !isAutoNavigationEnabled) {
       navigation.goBack()
+      return true;
+    } else if (!loading && isAutoNavigationEnabled) {
+      onExitCheckout();
       return true;
     }
     return false;
@@ -85,7 +92,7 @@ const WalletScreen = ({ navigation }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoading(false);
         return true;
@@ -270,12 +277,7 @@ const WalletScreen = ({ navigation }: Props) => {
                 onChangeText={(it) => {
                   handleSearchTextChange(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
                 style={[styles.textFieldStyle, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 left={
                   <TextInput.Icon

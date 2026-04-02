@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import LottieView from 'lottie-react-native';
 import Header from '../components/header';
-import type { PaymentClass, PaymentResultObject } from '../interface';
+import { type PaymentClass, type PaymentResultObject, type BNPLScreenParams, TransactionStatus } from '../interface';
 import ShimmerView from '../components/shimmerView';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
@@ -22,16 +22,20 @@ import PaymentSelectorView from '../components/paymentSelector';
 import styles from '../styles/screens/bnplScreenStyles';
 import { fetchPaymentMethodHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import type { CheckoutStackParamList } from '../navigation';
-import type { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
+
+type BNPLScreenRouteProp = RouteProp<CheckoutStackParamList, 'BNPLScreen'>;
 
 type BNPLScreenNavigationProp = NavigationProp<CheckoutStackParamList, 'BNPLScreen'>;
 
 interface Props {
   navigation: BNPLScreenNavigationProp;
+  route: BNPLScreenRouteProp;
 }
 
-const BNPLScreen = ({ navigation }: Props) => {
+const BNPLScreen = ({ navigation, route }: Props) => {
+  const { isAutoNavigationEnabled } = route.params as BNPLScreenParams || {};
   const [bnplList, setBnplList] = useState<PaymentClass[]>([]);
   const { checkoutDetails } = checkoutDetailsHandler;
   const [loading, setLoading] = useState(false);
@@ -50,14 +54,17 @@ const BNPLScreen = ({ navigation }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
 
   const onProceedBack = () => {
-    if (!loading) {
+    if (!loading && !isAutoNavigationEnabled) {
       navigation.goBack();
+      return true;
+    } else if (!loading && isAutoNavigationEnabled) {
+      onExitCheckout();
       return true;
     }
     return false;
@@ -69,7 +76,7 @@ const BNPLScreen = ({ navigation }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoading(false);
         return true;

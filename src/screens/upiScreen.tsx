@@ -18,6 +18,7 @@ import { formatTime, height, width } from '../utility';
 import upiPostRequest from '../postRequest/upiPostRequest';
 import { handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
 
 interface UpiScreenProps {
   handleUpiPayment: (selectedIntent: string) => void;
@@ -447,12 +448,7 @@ const UpiScreen: React.FC<UpiScreenProps> = ({
               onChangeText={(it) => {
                 handleTextChange(it);
               }}
-              theme={{
-                colors: {
-                  primary: '#2D2B32',
-                  outline: '#E6E6E6',
-                },
-              }}
+              theme={getTextInputTheme()}
               style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
               error={upiCollectError}
               right={

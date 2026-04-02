@@ -1,37 +1,43 @@
-import {
-  View,
-  Text,
-  Image,
-  BackHandler,
-  Pressable,
-  TouchableOpacity
-} from 'react-native';
-import { useEffect, useRef, useState } from 'react';
-import Header from '../components/header';
-import type { RouteProp, NavigationProp } from '@react-navigation/native';
-import { TextInput } from 'react-native-paper';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-import fetchCardDetails from '../postRequest/fetchCardDetails';
-import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
-import cardPostRequest from '../postRequest/cardPostRequest';
+import { useEffect, useRef, useState } from 'react';
+import {
+  BackHandler,
+  Image,
+  InputAccessoryView,
+  Keyboard,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { TextInput } from 'react-native-paper';
+import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
+import { SvgUri } from 'react-native-svg';
+import Toast from 'react-native-toast-message';
+import CheckBoxContainer from '../components/checkboxContainer';
+import CvvInfoBottomSheet from '../components/cvvInfoBottomSheet';
+import Header from '../components/header';
+import KnowMoreBottomSheet from '../components/knowMoreBottomSheet';
 import PaymentFailed from '../components/paymentFailed';
 import PaymentSuccess from '../components/paymentSuccess';
 import SessionExpire from '../components/sessionExpire';
-import { APIStatus, type PaymentResultObject , type CardScreenParams} from '../interface';
-import { paymentHandler } from '../sharedContext/paymentStatusHandler';
-import CvvInfoBottomSheet from '../components/cvvInfoBottomSheet';
-import WebViewScreen from './webViewScreen';
-import fetchStatus from '../postRequest/fetchStatus';
-import { SvgUri } from 'react-native-svg';
-import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
-import emiPostRequest from '../postRequest/emiPostRequest';
-import KnowMoreBottomSheet from '../components/knowMoreBottomSheet';
-import styles from '../styles/screens/cardScreenStyles';
-import Toast from 'react-native-toast-message'
-import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
+import { APIStatus, TransactionStatus, type CardScreenParams, type PaymentResultObject } from '../interface';
 import type { CheckoutStackParamList } from '../navigation';
+import cardPostRequest from '../postRequest/cardPostRequest';
+import emiPostRequest from '../postRequest/emiPostRequest';
+import fetchCardDetails from '../postRequest/fetchCardDetails';
+import fetchStatus from '../postRequest/fetchStatus';
+import { checkoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
+import { handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
+import { paymentHandler } from '../sharedContext/paymentStatusHandler';
 import { setUserDataHandlerToDefault } from '../sharedContext/userdataHandler';
-import CheckBoxContainer from '../components/checkboxContainer';
+import styles from '../styles/screens/cardScreenStyles';
+import WebViewScreen from './webViewScreen';
+import SubscriptionRow from '../components/subscriptionRow';
+import { getTextInputTheme } from '../sharedContext/getTextInputTheme';
 
 type CardScreenRouteProp = RouteProp<CheckoutStackParamList, 'CardScreen'>;
 
@@ -53,6 +59,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     percent,
     cardType,
     issuerBrand,
+    isAutoNavigationEnabled
   } = route.params as CardScreenParams || {}; 
   const durationNumber = Array.isArray(duration) ? duration[0] : duration;
   const bankNameStr = Array.isArray(bankName) ? bankName[0] : bankName;
@@ -73,7 +80,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [cardNickNameText, setCardNickNameText] = useState<string | null>(null);
 
   const [cardSelectedIcon, setCardSelectedIcon] = useState(
-    require('../../assets/images/ic_default_card.png')
+    require('../../assets/images/ic_card.png')
   );
   const [maxCvvLength, setMaxCvvLength] = useState(4);
   const [maxCardNumberLength, setMaxCardNumberLength] = useState(19);
@@ -123,7 +130,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [sessionExpireModalOpen, setSessionExppireModalState] = useState(false);
   const [successfulTimeStamp, setSuccessfulTimeStamp] = useState('');
 
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
@@ -134,6 +141,12 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [emiIssuerExist, setEmiIssuerExist] = useState(true);
   const [emiIssuer, setEmiIssuer] = useState('');
   const [shopperToken, setShopperToken] = useState<string | null>(null);
+
+  const cardNumberAccessoryID = "cardNumberAccessoryID";
+  const cardExpiryAccessoryID = "cardExpiryAccessoryID";
+  const cardCvvAccessoryID = "cardCvvAccessoryID";
+  const cardHolderNameAccessoryID = "cardHolderNameAccessoryID";
+  const cardNickNameAccessoryID = "cardNickNameAccessoryID";
 
   const handleCardNumberTextChange = async (text: string) => {
     if (text == '') {
@@ -189,7 +202,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                     setMaxCardNumberLength(19);
                   } else {
                     setCardSelectedIcon(
-                      require('../../assets/images/ic_default_card.png')
+                      require('../../assets/images/ic_card.png')
                     );
                     setMaxCvvLength(3);
                     setMaxCardNumberLength(19);
@@ -212,12 +225,16 @@ const CardScreen = ({ route, navigation }: Props) => {
           });
         }
       } else {
-        setCardSelectedIcon(require('../../assets/images/ic_default_card.png'));
+        setCardSelectedIcon(require('../../assets/images/ic_card.png'));
         setMaxCvvLength(3);
         setMaxCardNumberLength(19);
       }
     }
   };
+
+  const isSubscriptionDetailsVisible =
+  checkoutDetails.isSubscriptionCheckout &&
+  (isSICheckBoxClicked || !checkoutDetails.isSICheckboxVisible);
 
   const isValidCardNumberByLuhn = (stringInputCardNumber: string): boolean => {
     const minCardLength = 13;
@@ -252,7 +269,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleanedLength = maxCardNumberLength == 19 ? 16 : 15;
     setCardNumberErrorText(
       cleaned.length < 1
-        ? 'Required'
+        ? 'Card Number is required'
         : checkoutDetails.env === 'test'
           ? ''
           : cleaned.length < cleanedLength
@@ -375,7 +392,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleaned = cardExpiryText?.replace(/ /g, '') || '';
     setCardExpiryErrorText(
       cleaned.length < 1
-        ? 'Required'
+        ? 'Expiry is required'
         : cleaned.length < 5 || !cardExpiryValid
           ? 'Expiry is invalid'
           : ''
@@ -388,7 +405,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const cleaned = cardCvvText?.replace(/ /g, '') || '';
     setCardCvvErrorText(
       cleaned.length < 1
-        ? 'Required'
+        ? 'CVV is required'
         : cleaned.length < maxCvvLength
           ? 'CVV is invalid'
           : ''
@@ -399,7 +416,7 @@ const CardScreen = ({ route, navigation }: Props) => {
 
   const handleCardHolderNameBlur = () => {
     const cleaned = cardHolderNameText?.replace(/ /g, '') || '';
-    setCardHolderNameErrorText(cleaned.length < 1 ? 'Required' : '');
+    setCardHolderNameErrorText(cleaned.length < 1 ? 'Name is required' : '');
     setCardHolderNameFocused(false);
     setCardHolderNameError(cleaned.length < 1);
   };
@@ -407,7 +424,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const handleCardCvvTextChange = (text: string) => {
     setCardCvvText(text);
     if (text == '') {
-      setCardCvvErrorText('Required');
+      setCardCvvErrorText('CVV is required');
       setCardCvvError(true);
     } else {
       setCardCvvError(false);
@@ -457,8 +474,13 @@ const CardScreen = ({ route, navigation }: Props) => {
   };
 
   const onProceedBack = () => {
-    navigation.goBack()
-    return true;
+    if (isAutoNavigationEnabled) {
+      onExitCheckout();
+      return true;
+    } else {
+      navigation.goBack()
+      return true;
+    }
   };
 
   const callFetchStatusApi = async () => {
@@ -535,7 +557,7 @@ const CardScreen = ({ route, navigation }: Props) => {
       if (showWebView) {
         setShowWebView(false);
         paymentFailedMessage.current = checkoutDetails.errorMessage;
-        setStatus('Failed');
+        setStatus(TransactionStatus.Failed);
         setFailedModalState(true);
         setLoading(false);
         return true;
@@ -575,7 +597,8 @@ const CardScreen = ({ route, navigation }: Props) => {
   }, [paymentHtml]);
 
   return (
-    <View style={styles.screenView}>
+    <>
+      <View style={styles.screenView}>
       {loading ? (
         <View
           style={styles.loadingContainer}
@@ -589,7 +612,11 @@ const CardScreen = ({ route, navigation }: Props) => {
           <Text>Loading...</Text>
         </View>
       ) : (
-        <View style={styles.screenView}>
+          <View style= {{flex:1}}>
+            <ScrollView 
+            contentContainerStyle={styles.screenView}
+            keyboardShouldPersistTaps="handled" 
+          >
           <Header
             onBackPress={onProceedBack}
             showDesc={true}
@@ -674,21 +701,18 @@ const CardScreen = ({ route, navigation }: Props) => {
                       fontFamily: checkoutDetails.fontFamily.regular,
                 }]}
               >
-                Card Number
+                Card Number*
               </Text>
             }
             value={cardNumberText || ''}
             onChangeText={(it) => {
               handleCardNumberTextChange(it);
             }}
-            theme={{
-              colors: {
-                primary: '#2D2B32',
-                outline: '#E6E6E6',
-              },
-            }}
+            theme={getTextInputTheme()}
+            inputAccessoryViewID={Platform.OS === 'ios' ? cardNumberAccessoryID : undefined}
             style={[styles.textInput, { marginTop: 28, marginHorizontal: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
             error={cardNumberError}
+            returnKeyType="done"
             right={
               cardNumberError ? (
                 <TextInput.Icon
@@ -704,7 +728,10 @@ const CardScreen = ({ route, navigation }: Props) => {
                   icon={() => (
                     <Image
                       source={cardSelectedIcon}
-                      style={{ width: 35, height: 20 }}
+                      style={{ width: 32, height: 20,tintColor:
+                        cardSelectedIcon === require('../../assets/images/ic_card.png')
+                          ? '#6B7280' // Cool Grey 500
+                          : undefined, }}
                     />
                   )}
                 />
@@ -724,9 +751,63 @@ const CardScreen = ({ route, navigation }: Props) => {
           />
           {cardNumberError && (
             <Text
-              style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,}]}
+              style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,marginHorizontal : 16}]}
             >
               {cardNumberErrorText}
+            </Text>
+          )}
+          <TextInput
+            mode="outlined"
+            label={
+              <Text
+                style={[styles.textFieldLabel,{
+                  color: cardHolderNameFocused
+                    ? '#2D2B32'
+                    : cardHolderNameText != '' && cardHolderNameText != null
+                      ? '#2D2B32'
+                      : '#ADACB0',
+                      fontFamily: checkoutDetails.fontFamily.regular,
+                }]}
+              >
+                Cardholder Name*
+              </Text>
+            }
+            value={cardHolderNameText || ''}
+            onChangeText={(it) => {
+              handleCardHolderNameTextChange(it);
+            }}
+            theme={getTextInputTheme()}
+            style={[styles.textInput, { marginHorizontal: 16, marginTop: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
+            error={cardHolderNameError}
+            inputAccessoryViewID={Platform.OS === 'ios' ? cardHolderNameAccessoryID : undefined}
+            returnKeyType="done"
+            right={
+              cardHolderNameError ? (
+                <TextInput.Icon
+                  icon={() => (
+                    <Image
+                      source={require('../../assets/images/ic_upi_error.png')}
+                      style={{ width: 24, height: 24 }}
+                    />
+                  )}
+                />
+              ) : null
+            }
+            outlineStyle={{
+              borderRadius: 8, // Add this
+              borderWidth: 1.5,
+            }}
+            onBlur={handleCardHolderNameBlur}
+            onFocus={() => {
+              setCardHolderNameFocused(true);
+              setCardHolderNameError(false);
+            }}
+          />
+          {cardHolderNameError && (
+            <Text
+              style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,marginHorizontal : 16}]}
+            >
+              {cardHolderNameErrorText}
             </Text>
           )}
           <View
@@ -746,21 +827,18 @@ const CardScreen = ({ route, navigation }: Props) => {
                           fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
-                    Expiry (MM/YY)
+                    Expiry (MM/YY)*
                   </Text>
                 }
                 value={cardExpiryText || ''}
                 onChangeText={(it) => {
                   handleCardExpiryTextChange(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
+                inputAccessoryViewID={Platform.OS === 'ios' ? cardExpiryAccessoryID : undefined}
                 style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardExpiryError}
+                returnKeyType="done"
                 right={
                   cardExpiryError ? (
                     <TextInput.Icon
@@ -807,21 +885,18 @@ const CardScreen = ({ route, navigation }: Props) => {
                           fontFamily: checkoutDetails.fontFamily.regular,
                     }]}
                   >
-                    CVV
+                    CVV*
                   </Text>
                 }
                 value={cardCvvText || ''}
                 onChangeText={(it) => {
                   handleCardCvvTextChange(it);
                 }}
-                theme={{
-                  colors: {
-                    primary: '#2D2B32',
-                    outline: '#E6E6E6',
-                  },
-                }}
+                theme={getTextInputTheme()}
+                inputAccessoryViewID={Platform.OS === 'ios' ? cardCvvAccessoryID : undefined}
                 style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardCvvError}
+                returnKeyType="done"
                 right={
                   cardCvvError ? (
                     <TextInput.Icon
@@ -836,8 +911,8 @@ const CardScreen = ({ route, navigation }: Props) => {
                     <TextInput.Icon
                       icon={() => (
                         <Image
-                          source={require('../../assets/images/ic_cvv_info.png')}
-                          style={{ width: 24, height: 24 }}
+                          source={require('../../assets/images/ic_info.png')}
+                          style={{ width: 24, height: 24, tintColor : checkoutDetails.buttonColor }}
                         />
                       )}
                       onPress={() => {
@@ -868,63 +943,6 @@ const CardScreen = ({ route, navigation }: Props) => {
               )}
             </View>
           </View>
-          <TextInput
-            mode="outlined"
-            label={
-              <Text
-                style={[styles.textFieldLabel,{
-                  color: cardHolderNameFocused
-                    ? '#2D2B32'
-                    : cardHolderNameText != '' && cardHolderNameText != null
-                      ? '#2D2B32'
-                      : '#ADACB0',
-                      fontFamily: checkoutDetails.fontFamily.regular,
-                }]}
-              >
-                Name on the Card
-              </Text>
-            }
-            value={cardHolderNameText || ''}
-            onChangeText={(it) => {
-              handleCardHolderNameTextChange(it);
-            }}
-            theme={{
-              colors: {
-                primary: '#2D2B32',
-                outline: '#E6E6E6',
-              },
-            }}
-            style={[styles.textInput, { marginHorizontal: 16, marginTop: 16, fontFamily: checkoutDetails.fontFamily.regular, }]}
-            error={cardHolderNameError}
-            right={
-              cardHolderNameError ? (
-                <TextInput.Icon
-                  icon={() => (
-                    <Image
-                      source={require('../../assets/images/ic_upi_error.png')}
-                      style={{ width: 24, height: 24 }}
-                    />
-                  )}
-                />
-              ) : null
-            }
-            outlineStyle={{
-              borderRadius: 8, // Add this
-              borderWidth: 1.5,
-            }}
-            onBlur={handleCardHolderNameBlur}
-            onFocus={() => {
-              setCardHolderNameFocused(true);
-              setCardHolderNameError(false);
-            }}
-          />
-          {cardHolderNameError && (
-            <Text
-              style={[styles.errorText, { fontFamily: checkoutDetails.fontFamily.regular,}]}
-            >
-              {cardHolderNameErrorText}
-            </Text>
-          )}
           {shopperToken != null && shopperToken != '' && (
             <>
             <TextInput
@@ -947,16 +965,13 @@ const CardScreen = ({ route, navigation }: Props) => {
               onChangeText={(it) => {
                 setCardNickNameText(it);
               }}
-              theme={{
-                colors: {
-                  primary: '#2D2B32',
-                  outline: '#E6E6E6',
-                },
-              }}
+              inputAccessoryViewID={Platform.OS === 'ios' ? cardNickNameAccessoryID : undefined}
+              theme={getTextInputTheme()}
               style={[
                 styles.textInput,
                 { marginHorizontal: 16, marginTop: 16 , fontFamily: checkoutDetails.fontFamily.regular,},
               ]}
+              returnKeyType="done"
               outlineStyle={{
                 borderRadius: 8, // Add this
                 borderWidth: 1.5,
@@ -1031,9 +1046,22 @@ const CardScreen = ({ route, navigation }: Props) => {
              }}
              />
           )}
-          <View
-            style={styles.pressableContainer}
-          >
+
+          {isSubscriptionDetailsVisible && (
+            <View style = {styles.subscriptionContainer}>
+              {checkoutDetails.subscriptionDetails && checkoutDetails.subscriptionDetails.map((item) => item.value && (
+                <SubscriptionRow
+                key={item.label}
+                checkoutDetails={checkoutDetails}
+                heading={item.label}
+                value={item.value}
+              />
+              ))}
+            </View>
+          )}
+
+          </ScrollView>
+          <View>
             {cardValid ? (
               <Pressable
                 style={[
@@ -1044,19 +1072,43 @@ const CardScreen = ({ route, navigation }: Props) => {
                   onProceedForward();
                 }}
               >
-                <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>Make Payment</Text>
-              </Pressable>
+                  <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
+              Pay{' '}
+              <Text
+                style={{
+                  fontFamily: 'Inter-SemiBold',
+                  fontSize: 16,
+                  color: 'white',
+                }}
+              >
+                {' '}
+                {checkoutDetails.currencySymbol}
+              </Text>
+              {checkoutDetails.amount}
+                  </Text>              
+                </Pressable>
             ) : (
               <Pressable
                 style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' , borderRadius: checkoutDetails.ctaBorderRadius,}]}
               >
-                <Text style={[styles.buttonText, { color: checkoutDetails.buttonTextColor, fontFamily: checkoutDetails.fontFamily.semiBold, }]}>
-                  Make Payment
+                <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
+            Pay{' '}
+            <Text
+              style={{
+                fontFamily: 'Inter-SemiBold',
+                fontSize: 16,
+                color: 'white',
+              }}
+            >
+              {' '}
+              {checkoutDetails.currencySymbol}
+            </Text>
+            {checkoutDetails.amount}
                 </Text>
               </Pressable>
             )}
           </View>
-        </View>
+          </View>
       )}
       {failedModalOpen && (
         <PaymentFailed
@@ -1108,6 +1160,28 @@ const CardScreen = ({ route, navigation }: Props) => {
         </View>
       )}
     </View>
+    {Platform.OS === 'ios' && (
+  <>
+    {[
+      cardNumberAccessoryID,
+      cardExpiryAccessoryID,
+      cardCvvAccessoryID,
+      cardHolderNameAccessoryID,
+      cardNickNameAccessoryID,
+    ].map((id) => (
+      <InputAccessoryView key={id} nativeID={id}>
+        <View style={{ backgroundColor: '#f1f1f1', padding: 10, alignItems: 'flex-end' }}>
+          <TouchableOpacity onPress={() => Keyboard.dismiss()}>
+            <Text style={{ fontSize: 16, fontFamily: checkoutDetails.fontFamily.semiBold }}>
+              Done
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </InputAccessoryView>
+    ))}
+  </>
+)}
+    </>
   );
 };
 
