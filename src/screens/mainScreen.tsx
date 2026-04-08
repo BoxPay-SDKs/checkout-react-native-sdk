@@ -290,6 +290,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     if (!loadingState) {
       stopExpireTimerCountDown();
       setSessionExppireModalState(false)
+      setFailedModalState(false)
       setSuccessModalState(false)
       const mockPaymentResult: PaymentResultObject = {
         status: status,
@@ -565,7 +566,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     errorMessage:
                       'You may have cancelled the payment or there was a delay in response. Please retry.',
                     shopperToken: shopperToken,
-                    isSuccessScreenVisible: configurationOptions?.SHOW_BOXPAY_SUCCESS_SCREEN ? true : false,
+                    isSuccessScreenVisible: !!configurationOptions?.SHOW_BOXPAY_SUCCESS_SCREEN,
+                    isFailedScreenVisible: !!configurationOptions?.SHOW_BOXPAY_FAILED_SCREEN,
                     isShippingAddressEnabled: isFieldEnabled('SHIPPING_ADDRESS'),
                     isShippingAddressEditable: isFieldEditable('SHIPPING_ADDRESS'),
                     isFullNameEnabled: isFieldEnabled('SHOPPER_NAME'),
@@ -1055,6 +1057,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         <PaymentFailed
           onClick={() => setFailedModalState(false)}
           errorMessage={paymentFailedMessage.current}
+          onExit={onExitCheckout}
         />
       )}
 

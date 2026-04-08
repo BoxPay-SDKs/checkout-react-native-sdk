@@ -199,6 +199,7 @@ const WalletScreen = ({ navigation, route }: Props) => {
 
   const onExitCheckout = () => {
     setSuccessModalState(false)
+    setFailedModalState(false)
     setSessionExppireModalState(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
@@ -367,6 +368,7 @@ const WalletScreen = ({ navigation, route }: Props) => {
       {failedModalOpen && (
         <PaymentFailed
           onClick={() => setFailedModalState(false)}
+          onExit={onExitCheckout}
           errorMessage={paymentFailedMessage.current}
         />
       )}

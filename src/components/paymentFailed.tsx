@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Modal from 'react-native-modal';
 import LottieView from 'lottie-react-native';
 import { checkoutDetailsHandler } from '../sharedContext/checkoutDetailsHandler';
@@ -8,14 +8,22 @@ import { AnalyticsEvents } from '../interface';
 
 interface PaymentFailedProps {
   onClick: () => void;
+  onExit: () => void;
   errorMessage: string;
 }
 
 const PaymentFailed: React.FC<PaymentFailedProps> = ({
   onClick,
   errorMessage,
+  onExit,
 }) => {
   const { checkoutDetails } = checkoutDetailsHandler;
+  useEffect(() => {
+    if(!checkoutDetails.isFailedScreenVisible) {
+      callUIAnalytics(AnalyticsEvents.PAYMENT_RESULT_SCREEN_DISPLAYED, "Payment Failed Screen skipped because merchant does not require", "")
+      onExit()
+    }
+  },[])
   return (
     <View>
       <Modal isVisible={true} style={styles.modal}>
