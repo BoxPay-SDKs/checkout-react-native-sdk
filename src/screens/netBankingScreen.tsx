@@ -236,6 +236,7 @@ const NetBankingScreen = ({ navigation, route }: Props) => {
   };
 
   const onExitCheckout = () => {
+    setFailedModalState(false)
     setSuccessModalState(false)
     setSessionExppireModalState(false)
     const mockPaymentResult: PaymentResultObject = {
@@ -427,6 +428,7 @@ const NetBankingScreen = ({ navigation, route }: Props) => {
       {failedModalOpen && (
         <PaymentFailed
           onClick={() => setFailedModalState(false)}
+          onExit={onExitCheckout}
           errorMessage={paymentFailedMessage.current}
         />
       )}

@@ -539,6 +539,7 @@ const EmiScreen = ({ navigation, route }: Props) => {
   const onExitCheckout = () => {
     setSuccessModalOpen(false)
     setSessionExppireModalOpen(false)
+    setFailedModalOpen(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
@@ -826,6 +827,7 @@ const EmiScreen = ({ navigation, route }: Props) => {
       {failedModalOpen && (
         <PaymentFailed
           onClick={() => setFailedModalOpen(false)}
+          onExit={onExitCheckout} 
           errorMessage={paymentFailedMessage.current}
         />
       )}

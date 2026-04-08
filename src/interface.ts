@@ -5,6 +5,7 @@ export interface PaymentResultObject {
 
 export enum ConfigurationOptions {
   ShowBoxpaySuccessScreen = 'SHOW_BOXPAY_SUCCESS_SCREEN',
+  ShowBoxpayFailedScreen = 'SHOW_BOXPAY_FAILED_SCREEN',
   EnableSandboxEnv = 'ENABLE_SANDBOX_ENV',
   ShowUPIQROnLoad = 'SHOW_UPI_QR_ON_LOAD',
   ShowSICheckbox = 'SHOW_SI_CHECKBOX'
@@ -62,6 +63,7 @@ export interface CheckoutDetails {
   errorMessage: string;
   shopperToken: string | null;
   isSuccessScreenVisible: boolean;
+  isFailedScreenVisible: boolean;
   isShippingAddressEnabled: boolean;
   isShippingAddressEditable: boolean;
   isFullNameEnabled: boolean;

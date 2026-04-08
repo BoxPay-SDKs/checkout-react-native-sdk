@@ -581,6 +581,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const onExitCheckout = () => {
     setSuccessModalState(false)
     setSessionExppireModalState(false)
+    setFailedModalState(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
@@ -714,28 +715,17 @@ const CardScreen = ({ route, navigation }: Props) => {
             error={cardNumberError}
             returnKeyType="done"
             right={
-              cardNumberError ? (
-                <TextInput.Icon
-                  icon={() => (
-                    <Image
-                      source={require('../../assets/images/ic_upi_error.png')}
-                      style={{ width: 24, height: 24 }}
-                    />
-                  )}
-                />
-              ) : (
-                <TextInput.Icon
-                  icon={() => (
-                    <Image
-                      source={cardSelectedIcon}
-                      style={{ width: 32, height: 20,tintColor:
-                        cardSelectedIcon === require('../../assets/images/ic_card.png')
-                          ? '#6B7280' // Cool Grey 500
-                          : undefined, }}
-                    />
-                  )}
-                />
-              )
+              <TextInput.Icon
+                icon={() => (
+                  <Image
+                    source={cardSelectedIcon}
+                    style={{ width: 32, height: 20,tintColor:
+                      cardSelectedIcon === require('../../assets/images/ic_card.png')
+                        ? '#6B7280' // Cool Grey 500
+                        : undefined, }}
+                  />
+                )}
+              />
             }
             outlineStyle={{
               borderRadius: 8, // Add this
@@ -781,18 +771,6 @@ const CardScreen = ({ route, navigation }: Props) => {
             error={cardHolderNameError}
             inputAccessoryViewID={Platform.OS === 'ios' ? cardHolderNameAccessoryID : undefined}
             returnKeyType="done"
-            right={
-              cardHolderNameError ? (
-                <TextInput.Icon
-                  icon={() => (
-                    <Image
-                      source={require('../../assets/images/ic_upi_error.png')}
-                      style={{ width: 24, height: 24 }}
-                    />
-                  )}
-                />
-              ) : null
-            }
             outlineStyle={{
               borderRadius: 8, // Add this
               borderWidth: 1.5,
@@ -839,18 +817,6 @@ const CardScreen = ({ route, navigation }: Props) => {
                 style={[styles.textInput, {fontFamily: checkoutDetails.fontFamily.regular,}]}
                 error={cardExpiryError}
                 returnKeyType="done"
-                right={
-                  cardExpiryError ? (
-                    <TextInput.Icon
-                      icon={() => (
-                        <Image
-                          source={require('../../assets/images/ic_upi_error.png')}
-                          style={{ width: 24, height: 24 }}
-                        />
-                      )}
-                    />
-                  ) : null
-                }
                 outlineStyle={{
                   borderRadius: 8, // Add this
                   borderWidth: 1.5,
@@ -898,28 +864,17 @@ const CardScreen = ({ route, navigation }: Props) => {
                 error={cardCvvError}
                 returnKeyType="done"
                 right={
-                  cardCvvError ? (
-                    <TextInput.Icon
-                      icon={() => (
-                        <Image
-                          source={require('../../assets/images/ic_upi_error.png')}
-                          style={{ width: 24, height: 24 }}
-                        />
-                      )}
-                    />
-                  ) : (
-                    <TextInput.Icon
-                      icon={() => (
-                        <Image
-                          source={require('../../assets/images/ic_info.png')}
-                          style={{ width: 24, height: 24, tintColor : checkoutDetails.buttonColor }}
-                        />
-                      )}
-                      onPress={() => {
-                        setShowCvvInfo(true);
-                      }}
-                    />
-                  )
+                  <TextInput.Icon
+                    icon={() => (
+                      <Image
+                        source={require('../../assets/images/ic_info.png')}
+                        style={{ width: 24, height: 24, tintColor : checkoutDetails.buttonColor }}
+                      />
+                    )}
+                    onPress={() => {
+                      setShowCvvInfo(true);
+                    }}
+                  />
                 }
                 outlineStyle={{
                   borderRadius: 8, // Add this
@@ -1113,6 +1068,7 @@ const CardScreen = ({ route, navigation }: Props) => {
       {failedModalOpen && (
         <PaymentFailed
           onClick={() => setFailedModalState(false)}
+          onExit={onExitCheckout}
           errorMessage={paymentFailedMessage.current}
         />
       )}
