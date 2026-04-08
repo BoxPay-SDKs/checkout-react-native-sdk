@@ -1,6 +1,6 @@
 {
   "name": "boxpay-checkout-reactnative-sdk",
-  "version": "1.0.11-beta5",
+  "version": "1.0.12-beta1",
   "description": "Boxpay Payment Gateway",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -145,7 +145,7 @@
   "create-react-native-library": {
     "languages": "js",
     "type": "library",
-    "version": "1.0.11-beta5"
+    "version": "1.0.12-beta1"
   },
   "dependencies": {
     "axios": "^1.11.0",
