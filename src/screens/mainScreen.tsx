@@ -464,7 +464,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 let cityRef = null;
                 let stateRef = null;
                 let postalCodeRef = null;
-                let countryCodeRef = "IN";
+                let countryCodeRef = null;
                 if (paymentDetails.shopper.deliveryAddress != null) {
                   const deliveryObject = paymentDetails.shopper.deliveryAddress;
                   labelTypeRef = deliveryObject.labelType;
@@ -474,7 +474,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   cityRef = deliveryObject.city;
                   stateRef = deliveryObject.state;
                   postalCodeRef = deliveryObject.postalCode;
-                  countryCodeRef = deliveryObject.countryCode ?? "IN";
+                  countryCodeRef = deliveryObject.countryCode;
                   if (address2Ref == null || address2Ref == '') {
                     setAddress(
                       `${address1Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`
@@ -497,7 +497,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   setSessionExppireModalState(true);
                 }
 
-                const selectedCountry = getPhoneNumberCodeAndCountryName(countryCodeRef)
+                const selectedCountry = getPhoneNumberCodeAndCountryName(countryCodeRef ?? "IN")
                 setUserDataHandler({
                   userData: {
                     email: emailRef,
