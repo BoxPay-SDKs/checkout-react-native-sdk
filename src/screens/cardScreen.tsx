@@ -151,6 +151,9 @@ const CardScreen = ({ route, navigation }: Props) => {
   const handleCardNumberTextChange = async (text: string) => {
     if (text == '') {
       setCardNumberText(text);
+      setCardSelectedIcon(require('../../assets/images/ic_card.png'));
+      setMaxCvvLength(3);
+      setMaxCardNumberLength(19);
     } else {
       const cleaned = text.replace(/[^\d]/g, '');
 
@@ -1028,7 +1031,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                 }}
               >
                   <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
-              Pay{' '}
+              Pay
               <Text
                 style={{
                   fontFamily: 'Inter-SemiBold',
@@ -1047,7 +1050,7 @@ const CardScreen = ({ route, navigation }: Props) => {
                 style={[styles.buttonContainer, { backgroundColor: '#E6E6E6' , borderRadius: checkoutDetails.ctaBorderRadius,}]}
               >
                 <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
-            Pay{' '}
+            Pay
             <Text
               style={{
                 fontFamily: 'Inter-SemiBold',

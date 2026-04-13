@@ -201,7 +201,7 @@ const SavedCardRow = ({
           }}
         >
           <Text style={[styles.buttonText, {fontFamily: checkoutDetails.fontFamily.semiBold,}]}>
-            Pay{' '}
+            Pay
             <Text
               style={{
                 fontFamily: 'Inter-SemiBold',
