@@ -290,6 +290,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     if (!loadingState) {
       stopExpireTimerCountDown();
       setSessionExppireModalState(false)
+      setFailedModalState(false)
       setSuccessModalState(false)
       const mockPaymentResult: PaymentResultObject = {
         status: status,
@@ -463,7 +464,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                 let cityRef = null;
                 let stateRef = null;
                 let postalCodeRef = null;
-                let countryCodeRef = "IN";
+                let countryCodeRef = null;
                 if (paymentDetails.shopper.deliveryAddress != null) {
                   const deliveryObject = paymentDetails.shopper.deliveryAddress;
                   labelTypeRef = deliveryObject.labelType;
@@ -473,7 +474,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   cityRef = deliveryObject.city;
                   stateRef = deliveryObject.state;
                   postalCodeRef = deliveryObject.postalCode;
-                  countryCodeRef = deliveryObject.countryCode ?? "IN";
+                  countryCodeRef = deliveryObject.countryCode;
                   if (address2Ref == null || address2Ref == '') {
                     setAddress(
                       `${address1Ref}, ${cityRef}, ${stateRef}, ${postalCodeRef}`
@@ -496,7 +497,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   setSessionExppireModalState(true);
                 }
 
-                const selectedCountry = getPhoneNumberCodeAndCountryName(countryCodeRef)
+                const selectedCountry = getPhoneNumberCodeAndCountryName(countryCodeRef ?? "IN")
                 setUserDataHandler({
                   userData: {
                     email: emailRef,
@@ -565,7 +566,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     errorMessage:
                       'You may have cancelled the payment or there was a delay in response. Please retry.',
                     shopperToken: shopperToken,
-                    isSuccessScreenVisible: configurationOptions?.SHOW_BOXPAY_SUCCESS_SCREEN ? true : false,
+                    isSuccessScreenVisible: !!configurationOptions?.SHOW_BOXPAY_SUCCESS_SCREEN,
+                    isFailedScreenVisible: !!configurationOptions?.SHOW_BOXPAY_FAILED_SCREEN,
                     isShippingAddressEnabled: isFieldEnabled('SHIPPING_ADDRESS'),
                     isShippingAddressEditable: isFieldEditable('SHIPPING_ADDRESS'),
                     isFullNameEnabled: isFieldEnabled('SHOPPER_NAME'),
@@ -1055,6 +1057,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
         <PaymentFailed
           onClick={() => setFailedModalState(false)}
           errorMessage={paymentFailedMessage.current}
+          onExit={onExitCheckout}
         />
       )}
 

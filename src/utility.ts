@@ -70,7 +70,6 @@ export function getShopperDetails() {
   return {
     email: userData.email,
     firstName: userData.firstName,
-    gender: null,
     lastName: userData.lastName,
     phoneNumber: userData.completePhoneNumber,
     uniqueReference: userData.uniqueId,

@@ -181,6 +181,7 @@ const BNPLScreen = ({ navigation, route }: Props) => {
 
   const onExitCheckout = () => {
     setSuccessModalState(false)
+    setFailedModalState(false)
     setSessionExppireModalState(false)
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
@@ -281,6 +282,7 @@ const BNPLScreen = ({ navigation, route }: Props) => {
         <PaymentFailed
           onClick={() => setFailedModalState(false)}
           errorMessage={paymentFailedMessage.current}
+          onExit={onExitCheckout}
         />
       )}
 

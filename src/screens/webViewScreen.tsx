@@ -69,7 +69,7 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({
 
 const styles = StyleSheet.create({
   loaderOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.6)',
