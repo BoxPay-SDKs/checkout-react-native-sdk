@@ -3,12 +3,18 @@ export interface PaymentResultObject {
   transactionId: string;
 }
 
+export enum SICheckboxState {
+  CHECKED_AND_DISABLED = "CHECKED_AND_DISABLED",
+  CHECKED_AND_ENABLED = "CHECKED_AND_ENABLED",
+  UNCHECKED_AND_ENABLED = "UNCHECKED_AND_ENABLED",
+}
+
 export enum ConfigurationOptions {
   ShowBoxpaySuccessScreen = 'SHOW_BOXPAY_SUCCESS_SCREEN',
   ShowBoxpayFailedScreen = 'SHOW_BOXPAY_FAILED_SCREEN',
   EnableSandboxEnv = 'ENABLE_SANDBOX_ENV',
   ShowUPIQROnLoad = 'SHOW_UPI_QR_ON_LOAD',
-  ShowSICheckbox = 'SHOW_SI_CHECKBOX'
+  SICheckBoxState = 'SI_CHECKBOX_STATE'
 }
 
 export enum UIConfigurationOptions {
@@ -37,9 +43,17 @@ export interface UIConfiguration {
   [UIConfigurationOptions.TextInputFields]?: TextInputFields
 }
 
+export interface ConfigOptions {
+  [ConfigurationOptions.EnableSandboxEnv]?: boolean,
+  [ConfigurationOptions.ShowBoxpayFailedScreen]?: boolean,
+  [ConfigurationOptions.ShowBoxpaySuccessScreen]?: boolean,
+  [ConfigurationOptions.ShowUPIQROnLoad]?: boolean,
+  [ConfigurationOptions.SICheckBoxState]?: SICheckboxState | null
+}
+
 export interface BoxpayCheckoutProps {
   token: string;
-  configurationOptions?: Partial<Record<ConfigurationOptions, boolean>> | null;
+  configurationOptions?: ConfigOptions | null;
   uiConfiguration?: UIConfiguration | null;
   onPaymentResult: (result: PaymentResultObject) => void;
   shopperToken?: string | null;
@@ -88,7 +102,8 @@ export interface CheckoutDetails {
   isUPIOtmCollectMethodEnabled : boolean,
   isUPIOtmQRMethodEnabled : boolean,
   isOrderItemDetailsVisible : boolean,
-  isSICheckboxVisible : boolean,
+  isSICheckboxChecked : boolean,
+  isSICheckboxEnabled : boolean
   isSubscriptionCheckout : boolean,
   subscriptionDetails : {label:string,value : string | null}[] | null
 }
