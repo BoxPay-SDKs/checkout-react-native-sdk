@@ -117,7 +117,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [isSavedCardCheckBoxClicked, setIsSavedCardCheckBoxClicked] =
     useState(false);
   
-  const [isSICheckBoxClicked, setIsSICheckBoxClicked] = useState(false)
+  const [isSICheckBoxClicked, setIsSICheckBoxClicked] = useState(checkoutDetails.isSICheckboxChecked)
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [paymentHtml, setPaymentHtml] = useState<string | null>(null);
   const [showWebView, setShowWebView] = useState(false);
@@ -237,7 +237,7 @@ const CardScreen = ({ route, navigation }: Props) => {
 
   const isSubscriptionDetailsVisible =
   checkoutDetails.isSubscriptionCheckout &&
-  (isSICheckBoxClicked || !checkoutDetails.isSICheckboxVisible);
+  (isSICheckBoxClicked);
 
   const isValidCardNumberByLuhn = (stringInputCardNumber: string): boolean => {
     const minCardLength = 13;
@@ -995,7 +995,7 @@ const CardScreen = ({ route, navigation }: Props) => {
             </>
           )}
 
-          {(checkoutDetails.isSICheckboxVisible && checkoutDetails.isSubscriptionCheckout) && (
+          {((checkoutDetails.isSICheckboxChecked || checkoutDetails.isSICheckboxEnabled) && checkoutDetails.isSubscriptionCheckout) && (
              <CheckBoxContainer
              text = {"Set up Standing Instructions (SI) for this payment."}
              isCheckBoxSelected = {isSICheckBoxClicked}

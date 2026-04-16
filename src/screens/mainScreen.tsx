@@ -15,7 +15,7 @@ import type { CheckoutStackParamList } from '../navigation';
 import { paymentHandler, setPaymentHandler } from "../sharedContext/paymentStatusHandler";
 import { loadBoxpayFonts } from '../components/fontFamily';
 import { setUserDataHandler, setUserDataHandlerToDefault, userDataHandler } from '../sharedContext/userdataHandler';
-import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions, TransactionStatus, type SubscriptionDetails } from '../interface';
+import { type PaymentResultObject, type PaymentClass, type InstrumentDetails, type PaymentMethod, type OrderItem, APIStatus, AnalyticsEvents, type DeliveryAddress, type BoxpayCheckoutProps, type GetInstantOffersResponse, UIConfigurationOptions, TransactionStatus, type SubscriptionDetails, ConfigurationOptions } from '../interface';
 import { checkoutDetailsHandler, setCheckoutDetailsHandler, setCheckOutDetailsHandlerToDefault } from '../sharedContext/checkoutDetailsHandler';
 import WebViewScreen from '../screens/webViewScreen';
 import styles from '../styles/indexStyles';
@@ -30,7 +30,7 @@ import fetchSessionDetails from '../postRequest/fetchSessionDetails';
 import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
-import { formatAddress, formatDate, getPhoneNumberCodeAndCountryName, isEmpty, useCountdown } from '../utility';
+import { formatAddress, formatDate, getCheckboxProps, getPhoneNumberCodeAndCountryName, isEmpty, useCountdown } from '../utility';
 import fetchSurCharge from '../postRequest/fetchSurcharge';
 import fetchInstantOffer from '../postRequest/fetchInstantOffer';
 import ApplyCouponCard from '../components/applyCouponCard';
@@ -532,6 +532,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                   );
                   return field?.editable === true;
                 };
+
+                const {checked, enabled} = getCheckboxProps(configurationOptions?.[ConfigurationOptions.SICheckBoxState])
          
                 setCheckoutDetailsHandler({
                   checkoutDetails: {
@@ -592,7 +594,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
                     isUPIOtmIntentMethodEnabled : methodFlags.isUPIOtmIntentVisible,
                     isUPIOtmQRMethodEnabled : methodFlags.isUPIOtmQRVisible,
                     isOrderItemDetailsVisible : isFieldEnabled('ORDER_ITEM_DETAILS'),
-                    isSICheckboxVisible : configurationOptions?.SHOW_SI_CHECKBOX ? true : false,
+                    isSICheckboxChecked : checked,
+                    isSICheckboxEnabled : enabled,
                     isSubscriptionCheckout : paymentDetails.subscriptionDetails != null ? true : false,
                     subscriptionDetails : getSubscriptionDetails(paymentDetails.subscriptionDetails, paymentDetails.money.amountLocaleFull, symbol)
                   },
