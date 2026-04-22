@@ -6,7 +6,7 @@ import type { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTyp
 interface WebViewScreenProps {
   url: string | null;
   html: string | null;
-  onBackPress: () => void;
+  onBackPress: (redirectionResult : string | null) => void;
 }
 
 const WebViewScreen: React.FC<WebViewScreenProps> = ({
@@ -29,8 +29,10 @@ const WebViewScreen: React.FC<WebViewScreenProps> = ({
     setCurrentUrl(navUrl);
   
     if (navUrl.includes('payment-completion-handler') && !hasCalledBack.current && navUrl.includes('boxpay')) {
+      const url = new URL(navUrl);
+      const redirectionResult = url.searchParams.get('redirectionResult');
       hasCalledBack.current = true;
-      onBackPress();
+      onBackPress(redirectionResult);
     }
   };
 
