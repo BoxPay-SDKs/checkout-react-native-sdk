@@ -58,6 +58,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const statusRef = useRef(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState('');
+  const [redirectionResult, setRedirectionResult] = useState<string | null>(null)
   const isScreenFocused = useIsFocused()
   const appStateListenerRef = useRef<any>(null);
   const [loadingState, setLoadingState] = useState(false);
@@ -295,6 +296,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
       const mockPaymentResult: PaymentResultObject = {
         status: status,
         transactionId: transactionId,
+        inquiryToken : redirectionResult || ''
       };
       setUserDataHandlerToDefault()
       setCheckOutDetailsHandlerToDefault()
@@ -1082,7 +1084,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
           <WebViewScreen
             url={paymentUrl}
             html={paymentHtml}
-            onBackPress={() => {
+            onBackPress={(redirectionResult : string | null) => {
+              setRedirectionResult(redirectionResult)
               callFetchStatusApi();
               setShowWebView(false);
             }}

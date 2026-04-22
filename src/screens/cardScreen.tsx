@@ -132,6 +132,7 @@ const CardScreen = ({ route, navigation }: Props) => {
 
   const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [redirectionResult, setRedirectionResult] = useState<string | null>(null)
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -588,6 +589,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
+      inquiryToken : redirectionResult || ''
     };
     setCheckOutDetailsHandlerToDefault()
     setUserDataHandlerToDefault()
@@ -1110,7 +1112,8 @@ const CardScreen = ({ route, navigation }: Props) => {
           <WebViewScreen
             url={paymentUrl}
             html={paymentHtml}
-            onBackPress={() => {
+            onBackPress={(redirectionResult : string | null) => {
+              setRedirectionResult(redirectionResult)
               startBackgroundApiTask();
               setLoading(true);
               setShowWebView(false);

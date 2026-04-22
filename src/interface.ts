@@ -1,6 +1,7 @@
 export interface PaymentResultObject {
   status: string;
   transactionId: string;
+  inquiryToken: string
 }
 
 export enum SICheckboxState {
