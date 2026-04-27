@@ -79,6 +79,7 @@ const UpiTimerScreen = ({ route, navigation }: Props) => {
     const mockPaymentResult: PaymentResultObject = {
       status: status,
       transactionId: transactionId,
+      inquiryToken : ''
     };
     setUserDataHandlerToDefault()
     setCheckOutDetailsHandlerToDefault()

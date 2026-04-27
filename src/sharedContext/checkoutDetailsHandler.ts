@@ -48,7 +48,8 @@ export let checkoutDetailsHandler: CheckoutDetailsHandler = {
     isUPIOtmCollectMethodEnabled : false,
     isUPIOtmQRMethodEnabled : false,
     isOrderItemDetailsVisible : true,
-    isSICheckboxVisible : false,
+    isSICheckboxChecked : false,
+    isSICheckboxEnabled : false,
     isSubscriptionCheckout : false,
     subscriptionDetails : null
   },
@@ -103,7 +104,8 @@ export const setCheckOutDetailsHandlerToDefault = () => {
       isUPIOtmCollectMethodEnabled: false,
       isUPIOtmQRMethodEnabled: false,
       isOrderItemDetailsVisible : true,
-      isSICheckboxVisible : false,
+      isSICheckboxChecked : false,
+      isSICheckboxEnabled : false,
       isSubscriptionCheckout : false,
       subscriptionDetails : null
     },

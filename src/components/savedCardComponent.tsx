@@ -184,7 +184,7 @@ const SavedCardRow = ({
           uncheckedColor={'#01010273'}
         />
       </View>
-      {(checkoutDetails.isSICheckboxVisible && isSelected) && (
+      {((checkoutDetails.isSICheckboxChecked || checkoutDetails.isSICheckboxEnabled) && isSelected) && (
         <CheckBoxContainer
         text = {"Set up Standing Instructions (SI) for this payment."}
         isCheckBoxSelected = {isSICheckBoxClicked}

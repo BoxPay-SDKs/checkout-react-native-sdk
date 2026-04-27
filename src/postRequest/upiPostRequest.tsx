@@ -15,7 +15,7 @@ const upiPostRequest = async (instrumentDetails: InstrumentDetails, isSICheckBox
     browserData: browserData,
     instrumentDetails,
     ...((checkoutDetails.isSubscriptionCheckout && instrumentDetails.type === 'card/token')
-      ? { oneTimePayment: checkoutDetails.isSICheckboxVisible && !isSICheckBoxClicked }
+      ? { oneTimePayment: !isSICheckBoxClicked }
       : {}),
     shopper: shopperData,
     deviceDetails: deviceDetails

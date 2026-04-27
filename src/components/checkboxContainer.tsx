@@ -9,15 +9,18 @@ interface CheckBoxContainerProps {
 
 const CheckBoxContainer = ({text, isCheckBoxSelected, onCheckBoxClicked} : CheckBoxContainerProps) =>{
     const {checkoutDetails} = checkoutDetailsHandler
+    const {isSICheckboxEnabled} = checkoutDetails
     return(
         <View
         style={styles.checkBoxContainer}>
           <TouchableOpacity
             onPress={() => onCheckBoxClicked()}
+            disabled={!isSICheckboxEnabled}
           >
             <View style={[
               styles.checkboxBox,
               { borderColor: checkoutDetails.buttonColor },
+              !isSICheckboxEnabled && styles.disabledBox,
               isCheckBoxSelected && { backgroundColor: checkoutDetails.buttonColor }
             ]}>
               {isCheckBoxSelected && (
@@ -26,7 +29,7 @@ const CheckBoxContainer = ({text, isCheckBoxSelected, onCheckBoxClicked} : Check
             </View>
           </TouchableOpacity>
           <Text
-            style={[styles.checkBoxText, {fontFamily: checkoutDetails.fontFamily.regular,}]}
+            style={[styles.checkBoxText, {fontFamily: checkoutDetails.fontFamily.regular},!isSICheckboxEnabled && styles.disabledText]}
           >
             {text}
           </Text>
@@ -59,6 +62,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
     lineHeight: 16,
+  },
+  disabledBox: {
+    opacity: 0.4
+  },
+  disabledText: {
+    opacity: 0.4
   }
   });
 

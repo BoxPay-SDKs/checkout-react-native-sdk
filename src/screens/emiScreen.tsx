@@ -86,6 +86,7 @@ const EmiScreen = ({ navigation, route }: Props) => {
 
   const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [redirectionResult, setRedirectionResult] = useState<string | null>(null)
 
   const [paymentHtml, setPaymentHtml] = useState('');
   const [paymentUrl, setPaymentUrl] = useState('');
@@ -543,6 +544,7 @@ const EmiScreen = ({ navigation, route }: Props) => {
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
+      inquiryToken : redirectionResult || ''
     };
     setCheckOutDetailsHandlerToDefault()
     setUserDataHandlerToDefault()
@@ -850,7 +852,8 @@ const EmiScreen = ({ navigation, route }: Props) => {
           <WebViewScreen
             url={paymentUrl}
             html={paymentHtml}
-            onBackPress={() => {
+            onBackPress={(redirectionResult: string | null) => {
+              setRedirectionResult(redirectionResult)
               startBackgroundApiTask();
               setLoading(true);
               setShowWebView(false);

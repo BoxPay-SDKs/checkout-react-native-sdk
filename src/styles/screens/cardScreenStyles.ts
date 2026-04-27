@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         paddingTop: 14,
         paddingBottom: 12,
     },
-    subscriptionContainer : {backgroundColor:'#EFF3FA', marginHorizontal : 16, marginTop : 10, borderRadius : 6, paddingBottom : 4},
+    subscriptionContainer : {backgroundColor:'#EFF3FA', marginHorizontal : 16, marginTop : 10, borderRadius : 6, paddingBottom : 12, paddingTop : 12},
     buttonText: {
         color: 'white',
         fontSize: 16,

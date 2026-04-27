@@ -1,4 +1,5 @@
 import type { PaymentMethod, PaymentClass, DeliveryAddress, CountryDetails } from './interface';
+import { SICheckboxState } from './interface';
 import { Dimensions, Platform } from 'react-native';
 import { userDataHandler } from './sharedContext/userdataHandler';
 import { useState, useRef, useCallback, useEffect } from 'react';
@@ -221,3 +222,13 @@ export const isEmpty = (value: unknown): boolean => {
   if (typeof value === 'object') return Object.keys(value).length === 0;
   return false;
 };
+
+export const getCheckboxProps = (state?: SICheckboxState | null) => ({
+  checked:
+    state === SICheckboxState.CHECKED_AND_DISABLED ||
+    state === SICheckboxState.CHECKED_AND_ENABLED,
+
+  enabled:
+    state === SICheckboxState.CHECKED_AND_ENABLED ||
+    state === SICheckboxState.UNCHECKED_AND_ENABLED,
+});

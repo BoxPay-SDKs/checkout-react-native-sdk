@@ -117,7 +117,7 @@ const CardScreen = ({ route, navigation }: Props) => {
   const [isSavedCardCheckBoxClicked, setIsSavedCardCheckBoxClicked] =
     useState(false);
   
-  const [isSICheckBoxClicked, setIsSICheckBoxClicked] = useState(false)
+  const [isSICheckBoxClicked, setIsSICheckBoxClicked] = useState(checkoutDetails.isSICheckboxChecked)
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [paymentHtml, setPaymentHtml] = useState<string | null>(null);
   const [showWebView, setShowWebView] = useState(false);
@@ -132,6 +132,7 @@ const CardScreen = ({ route, navigation }: Props) => {
 
   const [status, setStatus] = useState<string>(TransactionStatus.NoAction);
   const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [redirectionResult, setRedirectionResult] = useState<string | null>(null)
 
   const backgroundApiInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -237,7 +238,7 @@ const CardScreen = ({ route, navigation }: Props) => {
 
   const isSubscriptionDetailsVisible =
   checkoutDetails.isSubscriptionCheckout &&
-  (isSICheckBoxClicked || !checkoutDetails.isSICheckboxVisible);
+  (isSICheckBoxClicked);
 
   const isValidCardNumberByLuhn = (stringInputCardNumber: string): boolean => {
     const minCardLength = 13;
@@ -588,6 +589,7 @@ const CardScreen = ({ route, navigation }: Props) => {
     const mockPaymentResult: PaymentResultObject = {
       status: status || '',
       transactionId: transactionId || '',
+      inquiryToken : redirectionResult || ''
     };
     setCheckOutDetailsHandlerToDefault()
     setUserDataHandlerToDefault()
@@ -995,7 +997,7 @@ const CardScreen = ({ route, navigation }: Props) => {
             </>
           )}
 
-          {(checkoutDetails.isSICheckboxVisible && checkoutDetails.isSubscriptionCheckout) && (
+          {((checkoutDetails.isSICheckboxChecked || checkoutDetails.isSICheckboxEnabled) && checkoutDetails.isSubscriptionCheckout) && (
              <CheckBoxContainer
              text = {"Set up Standing Instructions (SI) for this payment."}
              isCheckBoxSelected = {isSICheckBoxClicked}
@@ -1110,7 +1112,8 @@ const CardScreen = ({ route, navigation }: Props) => {
           <WebViewScreen
             url={paymentUrl}
             html={paymentHtml}
-            onBackPress={() => {
+            onBackPress={(redirectionResult : string | null) => {
+              setRedirectionResult(redirectionResult)
               startBackgroundApiTask();
               setLoading(true);
               setShowWebView(false);
