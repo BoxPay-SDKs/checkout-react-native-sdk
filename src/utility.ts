@@ -232,3 +232,7 @@ export const getCheckboxProps = (state?: SICheckboxState | null) => ({
     state === SICheckboxState.CHECKED_AND_ENABLED ||
     state === SICheckboxState.UNCHECKED_AND_ENABLED,
 });
+
+export const formatWords = (text: string) => {
+  return text.replace(/([a-z])([A-Z])/g, '$1 $2');
+};

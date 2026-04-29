@@ -30,7 +30,7 @@ import fetchSessionDetails from '../postRequest/fetchSessionDetails';
 import MorePaymentMethods from '../components/morePaymentMethods';
 import { fetchSavedInstrumentsHandler, handleFetchStatusResponseHandler, handlePaymentResponse } from '../sharedContext/handlePaymentResponseHandler';
 import callUIAnalytics from '../postRequest/callUIAnalytics';
-import { formatAddress, formatDate, getCheckboxProps, getPhoneNumberCodeAndCountryName, isEmpty, useCountdown } from '../utility';
+import { formatAddress, formatDate, formatWords, getCheckboxProps, getPhoneNumberCodeAndCountryName, isEmpty, useCountdown } from '../utility';
 import fetchSurCharge from '../postRequest/fetchSurcharge';
 import fetchInstantOffer from '../postRequest/fetchInstantOffer';
 import ApplyCouponCard from '../components/applyCouponCard';
@@ -638,9 +638,9 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
       const { billingCycleValue, count, billingTimeUnit } = billingCycle!;
   
       if (count === 1) {
-        frequency = billingTimeUnit;
+        frequency = formatWords(billingTimeUnit);
       } else {
-        frequency = `Every ${count} ${billingCycleValue}`;
+        frequency = `Every ${count} ${formatWords(billingCycleValue)}`;
       }
     }
   
