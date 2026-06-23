@@ -209,9 +209,7 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     try {
       const decodedString = atob(base64String);
       lastOpenendUrl.current = decodedString;
-      const appSpecificUrl = getAppSpecificUrl(decodedString, selectedIntentMethod.current); // 👈 swap here
-
-      openUPIIntent(appSpecificUrl);
+      openUPIIntent(decodedString);
     } catch (error) {
       setFailedModalState(true);
       callUIAnalytics(AnalyticsEvents.FAILED_TO_LAUNCH_UPI_INTENT,"Index Screen UrlToBase64 failed",`${error}`)
@@ -255,21 +253,6 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
       setFailedModalState(true);
       setLoadingState(false);
     }
-  };
-
-  const UPI_APP_SCHEMES: Record<string, string> = {
-    gpay:    'tez://upi/mandate',
-    phonepe: 'phonepe://mandate',
-    paytm:   'paytmmp://upi/mandate',
-  };
-  
-  const getAppSpecificUrl = (upiUrl: string, appName: string): string => {
-    const queryParams = upiUrl.split('upi://mandate?')[1];
-    const baseScheme = UPI_APP_SCHEMES[appName.toLowerCase()];
-  
-    if (!baseScheme || !queryParams) return upiUrl; // fallback to original if mapping fails
-  
-    return `${baseScheme}?${queryParams}`;
   };
 
   const handleAppStateChange = (nextState: AppStateStatus) => {
