@@ -543,7 +543,7 @@ export interface SessionDetails {
       headerTextColor : string
     }
   },
-  sessionExpiryTimestamp : string,
+  sessionExpiryTimestamp : string | null,
   status : string,
   lastPaidAtTimestampLocale : string,
   lastTransactionId : string

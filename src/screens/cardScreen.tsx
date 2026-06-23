@@ -167,7 +167,7 @@ const CardScreen = ({ route, navigation }: Props) => {
           (formatted.length == 18 && maxCardNumberLength == 18) ||
           formatted.length == 19
         ) {
-          if (!isValidCardNumberByLuhn(formatted.replace(/ /g, ''))) {
+          if (!isValidCardNumberByLuhn(formatted.replace(/ /g, '')) || formatted.replace(/ /g, '').startsWith('0')) {
             setCardNumberValid(false);
           } else {
             setCardNumberValid(true);

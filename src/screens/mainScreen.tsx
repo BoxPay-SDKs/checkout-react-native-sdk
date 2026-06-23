@@ -101,9 +101,11 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const [isOfferApplied, setIsOfferApplied] = useState(false)
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('')
+  const selectedIntentMethod = useRef("")
 
   const handlePaymentIntent = async (selectedIntent: string) => {
     setLoadingState(true);
+    selectedIntentMethod.current = selectedIntent
     const response = await upiPostRequest({
       type: checkoutDetailsHandler.checkoutDetails.isUPIOtmIntentMethodEnabled ? "upiotm/intent" : 'upi/intent',
       ...(selectedIntent && { upiAppDetails: { upiApp: selectedIntent } }), // Conditionally add upiAppDetails only if upiIntent is present
@@ -207,7 +209,9 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     try {
       const decodedString = atob(base64String);
       lastOpenendUrl.current = decodedString;
-      openUPIIntent(decodedString);
+      const appSpecificUrl = getAppSpecificUrl(decodedString, selectedIntentMethod.current); // 👈 swap here
+
+      openUPIIntent(appSpecificUrl);
     } catch (error) {
       setFailedModalState(true);
       callUIAnalytics(AnalyticsEvents.FAILED_TO_LAUNCH_UPI_INTENT,"Index Screen UrlToBase64 failed",`${error}`)
@@ -251,6 +255,21 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
       setFailedModalState(true);
       setLoadingState(false);
     }
+  };
+
+  const UPI_APP_SCHEMES: Record<string, string> = {
+    gpay:    'tez://upi/mandate',
+    phonepe: 'phonepe://mandate',
+    paytm:   'paytmmp://upi/mandate',
+  };
+  
+  const getAppSpecificUrl = (upiUrl: string, appName: string): string => {
+    const queryParams = upiUrl.split('upi://mandate?')[1];
+    const baseScheme = UPI_APP_SCHEMES[appName.toLowerCase()];
+  
+    if (!baseScheme || !queryParams) return upiUrl; // fallback to original if mapping fails
+  
+    return `${baseScheme}?${queryParams}`;
   };
 
   const handleAppStateChange = (nextState: AppStateStatus) => {
@@ -831,8 +850,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     setSavedUpiArray(updatedList);
   };
 
-  function startCountdown(sessionExpiryTimestamp: string) {
-    if (sessionExpiryTimestamp === '') {
+  function startCountdown(sessionExpiryTimestamp: string | null) {
+    if (sessionExpiryTimestamp === '' || sessionExpiryTimestamp === null) {
       return;
     }
     const expiryTime = new Date(sessionExpiryTimestamp);
