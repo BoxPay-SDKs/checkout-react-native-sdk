@@ -101,9 +101,11 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
   const [isOfferApplied, setIsOfferApplied] = useState(false)
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('')
+  const selectedIntentMethod = useRef("")
 
   const handlePaymentIntent = async (selectedIntent: string) => {
     setLoadingState(true);
+    selectedIntentMethod.current = selectedIntent
     const response = await upiPostRequest({
       type: checkoutDetailsHandler.checkoutDetails.isUPIOtmIntentMethodEnabled ? "upiotm/intent" : 'upi/intent',
       ...(selectedIntent && { upiAppDetails: { upiApp: selectedIntent } }), // Conditionally add upiAppDetails only if upiIntent is present
@@ -831,8 +833,8 @@ const MainScreen = ({route, navigation} : MainScreenProps) => {
     setSavedUpiArray(updatedList);
   };
 
-  function startCountdown(sessionExpiryTimestamp: string) {
-    if (sessionExpiryTimestamp === '') {
+  function startCountdown(sessionExpiryTimestamp: string | null) {
+    if (sessionExpiryTimestamp === '' || sessionExpiryTimestamp === null) {
       return;
     }
     const expiryTime = new Date(sessionExpiryTimestamp);
