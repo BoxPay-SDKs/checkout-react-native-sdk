@@ -33,7 +33,6 @@
     "clean": "del-cli lib",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "build": "bob build",
-    "prepare": "echo \"{ \\\"version\\\": \\\"$(node -p 'require(\"./package.json\").version')\\\" }\" > src/sdk-version.json && cp -r assets lib/assets",
     "release": "release-it --only-version",
     "android": "expo run:android",
     "ios": "expo run:ios"
@@ -80,17 +79,7 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*",
-    "react-native-paper": ">=5.0.0",
-    "react-native-shimmer-placeholder": ">=2.0.0",
-    "react-native-toast-message": ">=2.0.0",
-    "react-native-webview": ">=13.0.0",
-    "react-native-country-picker-modal": "^2.0.0",
-    "react-native-render-html" : "^6.3.4",
-
-    "lottie-react-native": "^7.3.4",
-    "react-native-modal": "^14.0.0-rc.1",
-    "react-native-svg": ">=15.0.0"
+    "react-native": "*"
   },
   "packageManager": "yarn@3.6.1",
   "jest": {
@@ -146,11 +135,6 @@
     "languages": "js",
     "type": "library",
     "version": "1.0.14-beta4"
-  },
-  "dependencies": {
-    "axios": "^1.11.0",
-    "base-64": "^1.0.0",
-    "currency-symbol-map": "^5.1.0"
   },
   "module": "lib/module/index.js"
 }
