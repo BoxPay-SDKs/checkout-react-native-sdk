@@ -16,7 +16,6 @@ import {
 import { TextInput } from 'react-native-paper';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import { SvgUri } from 'react-native-svg';
-import Toast from 'react-native-toast-message';
 import CheckBoxContainer from '../components/checkboxContainer';
 import CvvInfoBottomSheet from '../components/cvvInfoBottomSheet';
 import Header from '../components/header';
@@ -167,7 +166,7 @@ const CardScreen = ({ route, navigation }: Props) => {
           (formatted.length == 18 && maxCardNumberLength == 18) ||
           formatted.length == 19
         ) {
-          if (!isValidCardNumberByLuhn(formatted.replace(/ /g, ''))) {
+          if (!isValidCardNumberByLuhn(formatted.replace(/ /g, '')) || formatted.replace(/ /g, '').startsWith('0')) {
             setCardNumberValid(false);
           } else {
             setCardNumberValid(true);
@@ -215,11 +214,11 @@ const CardScreen = ({ route, navigation }: Props) => {
                 break
               }
               case APIStatus.Failed : {
-                Toast.show({
-                  type: 'error',
-                  text1: 'Oops!',
-                  text2: 'Something went wrong. Please try again.',
-              });
+                setCardSelectedIcon(
+                  require('../../assets/images/ic_card.png')
+                );
+                setMaxCvvLength(3);
+                setMaxCardNumberLength(19);
                 break 
               }
               default : {
@@ -271,25 +270,9 @@ const CardScreen = ({ route, navigation }: Props) => {
   const handleCardNumberBlur = () => {
     const cleaned = cardNumberText?.replace(/ /g, '') || '';
     const cleanedLength = maxCardNumberLength == 19 ? 16 : 15;
-    setCardNumberErrorText(
-      cleaned.length < 1
-        ? 'Card Number is required'
-        : checkoutDetails.env === 'test'
-          ? ''
-          : cleaned.length < cleanedLength
-            ? 'This card number is invalid'
-            : !methodEnabled
-              ? 'This card is not supported for the payment'
-              : !cardNumberValid
-                ? 'This card number is invalid'
-                : !emiIssuerExist
-                  ? "We couldn't find any EMI plans for this card. Please try using a different card number"
-                  : emiIssuer != issuerBrand
-                    ? `The card is ${emiIssuer} ${cardType}. Please enter a card number that belongs to ${issuerBrand} ${cardType}`
-                    : ''
-    );
+    setCardNumberErrorText(getCardNumberErrorText(cleaned, cleanedLength));
     setCardNumberError(
-      cleaned.length < 1 ||
+      cleaned.length < 1 || cleaned.startsWith('0') ||
       (checkoutDetails.env !== 'test' && (
         !methodEnabled ||
         !cardNumberValid ||
@@ -300,6 +283,39 @@ const CardScreen = ({ route, navigation }: Props) => {
       ))
     )
     setCardNumberFocused(false);
+  };
+
+  const getCardNumberErrorText = (cleaned : string, cleanedLength : number) => {
+    if (cleaned.length < 1) {
+      return 'Card Number is required';
+    }
+  
+    // Highest priority
+    if (cleaned.startsWith('0')) {
+      return 'This card number is invalid';
+    }
+  
+    if (checkoutDetails.env === 'test') {
+      return '';
+    }
+  
+    if (cleaned.length < cleanedLength || !cardNumberValid) {
+      return 'This card number is invalid';
+    }
+  
+    if (!methodEnabled) {
+      return 'This card is not supported for the payment';
+    }
+  
+    if (!emiIssuerExist) {
+      return "We couldn't find any EMI plans for this card. Please try using a different card number";
+    }
+  
+    if (emiIssuer !== issuerBrand) {
+      return `The card is ${emiIssuer} ${cardType}. Please enter a card number that belongs to ${issuerBrand} ${cardType}`;
+    }
+  
+    return '';
   };
 
   const startBackgroundApiTask = () => {
