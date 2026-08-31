@@ -11,7 +11,6 @@ class ReactNativeModulePackage : ReactPackage {
         return listOf(CrossPlatform(reactContext))
     }
 
-    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
-        return emptyList()
-    }
+    override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> =
+        listOf(BoxPayElementsViewManager(reactContext)) 
 }
