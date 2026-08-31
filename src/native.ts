@@ -3,6 +3,7 @@ import {
   UIManager, findNodeHandle,
   type NativeSyntheticEvent,
   type ViewProps,
+  type HostComponent,
 } from 'react-native';
 
 const { CrossPlatform } = NativeModules;
@@ -31,7 +32,33 @@ interface BoxPayElementsNativeProps extends ViewProps {   // ViewProps gives it 
   onPayableChanged?: (e: NativeSyntheticEvent<{ payable: boolean }>) => void;
 }
 
-export const BoxPayElements =
+export const BoxPayElements: HostComponent<BoxPayElementsNativeProps> =
   requireNativeComponent<BoxPayElementsNativeProps>('BoxPayElementsView');
-export const payElements = (ref: any) =>
-  UIManager.dispatchViewManagerCommand(findNodeHandle(ref), 'pay', []);
+
+// UIManager.getViewManagerConfig is typed to return a loose `Object`,
+// so we cast to the shape RN actually returns at runtime (Commands map).
+interface ViewManagerConfig {
+  Commands?: Record<string, number>;
+}
+
+export const payElements = (
+  ref: React.ElementRef<typeof BoxPayElements> | null
+) => {
+  const node = findNodeHandle(ref);
+  if (node == null) {
+    console.warn('BoxPayElements: unable to resolve native node handle');
+    return;
+  }
+
+  const config = UIManager.getViewManagerConfig(
+    'BoxPayElementsView'
+  ) as ViewManagerConfig;
+  const commandId = config?.Commands?.pay;
+
+  if (commandId == null) {
+    console.warn('BoxPayElements: "pay" command not found on native view manager');
+    return;
+  }
+
+  UIManager.dispatchViewManagerCommand(node, commandId, []);
+};

@@ -16,7 +16,7 @@ class CrossPlatform(reactContext: ReactApplicationContext) : ReactContextBaseJav
     @ReactMethod
     fun startCheckout(token: String, options: ReadableMap, promise: Promise) {
         try {
-            val activity = currentActivity ?: run {
+            val activity = reactApplicationContext.currentActivity ?: run {
                 promise.reject("NO_ACTIVITY", "No current activity")
                 return
             }
@@ -46,7 +46,7 @@ class CrossPlatform(reactContext: ReactApplicationContext) : ReactContextBaseJav
                     ctaBorderRadius = ctaBorderRadius,
                     focusedTextInputBorderColor = focusedColor,
                     unfocusedTextInputBorderColor = unfocusedColor,
-                    fontFamily = fontFamily,
+                    fontFamily = fontFamily
                 )
                 activity.startActivity(intent)
             }

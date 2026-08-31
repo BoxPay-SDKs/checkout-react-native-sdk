@@ -38,6 +38,7 @@ class BoxPayElementsViewManager(
             isTestEnv = config.hasKey("isTestEnv") && config.getBoolean("isTestEnv"),
             paymentMethodList = methods,
             fontFamily = config.getString("fontFamily"),
+            isBoxPayProceedButtonVisible = true
         )
 
         // forward payable state to JS
