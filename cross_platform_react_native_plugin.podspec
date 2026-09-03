@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/Ishika1601-boxpay/react_native_module.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,swift}"
-  s.dependency "CrossPlatformSDK", "1.0.2-beta23"
+  s.dependency "CrossPlatformSDK", "1.0.2"
   s.private_header_files = "ios/**/*.h"
   s.dependency "React-Core"
 

@@ -1,25 +1,35 @@
 import Foundation
-import CrossPlatformSDK
+import cross_platform_sdk
 import React
 
 @objc(CrossPlatform)
-class CrossPlatform: NSObject {
+class CrossPlatform: RCTEventEmitter {
 
-  @objc
-  override init() { super.init() }
+  // MARK: - Track listener state ourselves (hasListeners isn't visible from Swift here)
+  private var hasObservers = false
 
-  @objc
-  static func moduleName() -> String! { "CrossPlatform" }
-
-  @objc
-  func getInstalledApps(_ resolve: @escaping RCTPromiseResolveBlock,
-                        rejecter reject: @escaping RCTPromiseRejectBlock) {
-    let detector = UPIAppDetectorIOS()
-    let upiService = UPIService(detector: detector)
-    resolve(upiService.getAvailableApps())
+  override func startObserving() {
+    hasObservers = true
   }
 
-  // Full-screen checkout — presents the SDK view controller
+  override func stopObserving() {
+    hasObservers = false
+  }
+
+  // MARK: - RCTEventEmitter requirements
+
+  override func supportedEvents() -> [String]! {
+    return ["BoxPayPaymentResult", "BoxPayDismiss"]
+  }
+
+  @objc
+  override static func moduleName() -> String! { "CrossPlatform" }
+
+  @objc
+  override static func requiresMainQueueSetup() -> Bool { true }
+
+  // MARK: - startCheckout
+
   @objc
   func startCheckout(_ token: String,
                      options: NSDictionary,
@@ -33,8 +43,9 @@ class CrossPlatform: NSObject {
       }
 
       let ui = options["uiConfiguration"] as? NSDictionary
+      var vc: UIViewController!
 
-      let vc = SharedKt.BoxPayCheckoutViewController(
+      vc = BoxPayViewControllerKt.BoxPayViewController(
         token: token,
         isTestEnv: (options["enableSandboxEnv"] as? Bool) ?? false,
         shopperToken: options["shopperToken"] as? String,
@@ -46,12 +57,26 @@ class CrossPlatform: NSObject {
         isSICheckBoxEnabled: (options["isSICheckBoxEnabled"] as? Bool) ?? false,
         focusedTextInputBorderColor: (ui?["focusedTextInputBorderColor"] as? String) ?? "#2D2B32",
         unfocusedTextInputBorderColor: (ui?["unfocusedTextInputBorderColor"] as? String) ?? "#ADACB0",
+        onDismiss: { [weak self, weak vc] in
+          DispatchQueue.main.async {
+            vc?.dismiss(animated: true)
+          }
+          guard let self = self, self.hasObservers else { return }
+          self.sendEvent(withName: "BoxPayDismiss", body: nil)
+        },
         fontFamily: ui?["fontFamily"] as? String
       )
 
-      // Result back to JS via event (set the handler before presenting)
-      SDKPaymentResponseHandler().setResultHandler { result in
-        CrossPlatformEventEmitter.shared?.sendPaymentResult(result)
+      SDKPaymentResponseHandler.shared.set { [weak self] result in
+        guard let self = self, self.hasObservers else { return }
+
+        let map: [String: Any] = [
+          "status": result.status ?? NSNull(),
+          "transactionId": result.transactionId ?? NSNull(),
+          "inquiryToken": result.inquiryToken ?? NSNull()
+        ]
+
+        self.sendEvent(withName: "BoxPayPaymentResult", body: map)
       }
 
       vc.modalPresentationStyle = .fullScreen
@@ -59,7 +84,4 @@ class CrossPlatform: NSObject {
       resolve(true)
     }
   }
-
-  @objc
-  static func requiresMainQueueSetup() -> Bool { true }  // UI now → main queue
 }
