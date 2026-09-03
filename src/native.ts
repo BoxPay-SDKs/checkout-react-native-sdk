@@ -1,9 +1,12 @@
 import {
-  NativeModules, NativeEventEmitter, requireNativeComponent,
-  UIManager, findNodeHandle,
+  findNodeHandle,
+  NativeEventEmitter,
+  NativeModules,
+  requireNativeComponent,
+  UIManager,
+  type HostComponent,
   type NativeSyntheticEvent,
   type ViewProps,
-  type HostComponent,
 } from 'react-native';
 
 const { CrossPlatform } = NativeModules;
@@ -40,6 +43,11 @@ export const BoxPayElements: HostComponent<BoxPayElementsNativeProps> =
 interface ViewManagerConfig {
   Commands?: Record<string, number>;
 }
+
+export const onDismiss = (cb: () => void) => {
+  const emitter = new NativeEventEmitter(CrossPlatform);
+  return emitter.addListener('BoxPayDismiss', cb);
+};
 
 export const payElements = (
   ref: React.ElementRef<typeof BoxPayElements> | null
