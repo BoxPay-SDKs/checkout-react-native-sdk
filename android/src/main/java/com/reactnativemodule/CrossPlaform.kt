@@ -46,7 +46,8 @@ class CrossPlatform(reactContext: ReactApplicationContext) : ReactContextBaseJav
                     ctaBorderRadius = ctaBorderRadius,
                     focusedTextInputBorderColor = focusedColor,
                     unfocusedTextInputBorderColor = unfocusedColor,
-                    fontFamily = fontFamily
+                    fontFamily = fontFamily,
+                    themeMode = BoxPayThemeMode.DEFAULT
                 )
                 activity.startActivity(intent)
             }

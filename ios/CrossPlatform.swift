@@ -43,9 +43,12 @@ class CrossPlatform: RCTEventEmitter {
       }
 
       let ui = options["uiConfiguration"] as? NSDictionary
-      var vc: UIViewController!
 
-      vc = BoxPayViewControllerKt.BoxPayViewController(
+      // Container that pins KMP content below the safe area top (status bar / notch)
+      let container = UIViewController()
+      container.modalPresentationStyle = .fullScreen
+
+      let kmpVC = BoxPayViewControllerKt.BoxPayViewController(
         token: token,
         isTestEnv: (options["enableSandboxEnv"] as? Bool) ?? false,
         shopperToken: options["shopperToken"] as? String,
@@ -57,15 +60,28 @@ class CrossPlatform: RCTEventEmitter {
         isSICheckBoxEnabled: (options["isSICheckBoxEnabled"] as? Bool) ?? false,
         focusedTextInputBorderColor: (ui?["focusedTextInputBorderColor"] as? String) ?? "#2D2B32",
         unfocusedTextInputBorderColor: (ui?["unfocusedTextInputBorderColor"] as? String) ?? "#ADACB0",
-        onDismiss: { [weak self, weak vc] in
+        onDismiss: { [weak self, weak container] in
           DispatchQueue.main.async {
-            vc?.dismiss(animated: true)
+            container?.dismiss(animated: true)
           }
           guard let self = self, self.hasObservers else { return }
           self.sendEvent(withName: "BoxPayDismiss", body: nil)
         },
-        fontFamily: ui?["fontFamily"] as? String
+        fontFamily: ui?["fontFamily"] as? String,
+        themeMode: BoxPayThemeMode.default_
       )
+
+      // Embed kmpVC inside container, constrained to safe area top
+      container.addChild(kmpVC)
+      container.view.addSubview(kmpVC.view)
+      kmpVC.view.translatesAutoresizingMaskIntoConstraints = false
+      NSLayoutConstraint.activate([
+        kmpVC.view.topAnchor.constraint(equalTo: container.view.safeAreaLayoutGuide.topAnchor),
+        kmpVC.view.leadingAnchor.constraint(equalTo: container.view.leadingAnchor),
+        kmpVC.view.trailingAnchor.constraint(equalTo: container.view.trailingAnchor),
+        kmpVC.view.bottomAnchor.constraint(equalTo: container.view.bottomAnchor),
+      ])
+      kmpVC.didMove(toParent: container)
 
       SDKPaymentResponseHandler.shared.set { [weak self] result in
         guard let self = self, self.hasObservers else { return }
@@ -79,8 +95,7 @@ class CrossPlatform: RCTEventEmitter {
         self.sendEvent(withName: "BoxPayPaymentResult", body: map)
       }
 
-      vc.modalPresentationStyle = .fullScreen
-      root.present(vc, animated: true)
+      root.present(container, animated: true)
       resolve(true)
     }
   }
