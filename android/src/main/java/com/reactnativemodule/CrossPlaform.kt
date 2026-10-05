@@ -7,6 +7,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.crossplatform.BoxPayActivity
 import com.crossplatform.sdk.data.handler.SDKPaymentResponseHandler
 import com.crossplatform.sdk.data.model.SDKPaymentResponse
+import com.crossplatform.sdk.presentation.theme.BoxPayThemeMode
 
 class CrossPlatform(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     private val context: Context = reactContext
