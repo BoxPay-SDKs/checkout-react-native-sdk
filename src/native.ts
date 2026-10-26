@@ -28,6 +28,7 @@ interface BoxPayElementsConfig {
   ctaBorderRadius?: number;
   focusedTextInputBorderColor?: string;
   unfocusedTextInputBorderColor?: string;
+  isBoxPayProceedButtonVisible : Boolean
 }
 
 interface BoxPayElementsNativeProps extends ViewProps {   // ViewProps gives it `style`

@@ -15,7 +15,8 @@ export enum ConfigurationOptions {
   ShowBoxpayFailedScreen = 'SHOW_BOXPAY_FAILED_SCREEN',
   EnableSandboxEnv = 'ENABLE_SANDBOX_ENV',
   ShowUPIQROnLoad = 'SHOW_UPI_QR_ON_LOAD',
-  SICheckBoxState = 'SI_CHECKBOX_STATE'
+  SICheckBoxState = 'SI_CHECKBOX_STATE',
+  ShowBoxPayProceedButton = 'SHOW_BOXPAY_PROCEED_BUTTON'
 }
 
 export enum UIConfigurationOptions {
@@ -44,7 +45,7 @@ export interface BoxpayCheckoutProps {
   | null;
   onPaymentResult?: (result: any) => void;
   shopperToken?: string | null;
-  uiConfiguration?: UIConfiguration | null;
+  uiConfiguration?: UIConfiguration | null
 }
 
 export interface BoxpayElementsProps extends BoxpayCheckoutProps {

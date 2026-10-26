@@ -22,6 +22,12 @@ class BoxPayElementsViewManager(
         return android.widget.FrameLayout(context)
     }
 
+    override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any> {
+        return mutableMapOf(
+            "onPayableChanged" to mapOf("registrationName" to "onPayableChanged")
+        )
+    }
+
     @ReactProp(name = "config")
     fun setConfig(parent: View, config: com.facebook.react.bridge.ReadableMap) {
         val container = parent as android.widget.FrameLayout
@@ -37,8 +43,12 @@ class BoxPayElementsViewManager(
             token = config.getString("token") ?: "",
             isTestEnv = config.hasKey("isTestEnv") && config.getBoolean("isTestEnv"),
             paymentMethodList = methods,
+            shopperToken = config.getString("shopperToken") ?: "",
             fontFamily = config.getString("fontFamily"),
-            isBoxPayProceedButtonVisible = true
+            isBoxPayProceedButtonVisible = config.hasKey("isBoxPayProceedButtonVisible") && config.getBoolean("isBoxPayProceedButtonVisible"),
+            ctaBorderRadius = config?.getInt("ctaBorderRadius") ?: 12,
+            unfocusedTextInputBorderColor = config.getString("unfocusedTextInputBorderColor") ?: "",
+            focusedTextInputBorderColor = config.getString("focusedTextInputBorderColor") ?: ""
         )
 
         // forward payable state to JS
@@ -52,7 +62,13 @@ class BoxPayElementsViewManager(
         }
 
         container.removeAllViews()
-        container.addView(view)
+        container.addView(
+            view,
+            android.widget.FrameLayout.LayoutParams(
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                android.widget.FrameLayout.LayoutParams.MATCH_PARENT
+            )
+        )
     }
 
     // merchant calls pay() through a command

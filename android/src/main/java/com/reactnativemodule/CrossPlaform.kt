@@ -67,4 +67,10 @@ class CrossPlatform(reactContext: ReactApplicationContext) : ReactContextBaseJav
         reactApplicationContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             .emit("BoxPayPaymentResult", map)
     }
+
+    @ReactMethod
+    fun addListener(eventName: String) {}
+
+    @ReactMethod
+    fun removeListeners(count: Int) {}
 }
