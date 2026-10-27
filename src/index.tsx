@@ -1,10 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { Button, StyleSheet, View } from 'react-native';
-import type {
-  BoxpayCheckoutProps,
-  BoxpayElementsProps,
-  UIConfiguration,
-} from './interface';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
+import type { BoxpayCheckoutProps, BoxpayElementsProps, UIConfiguration } from './interface';
 import { ConfigurationOptions, SICheckboxState, UIConfigurationOptions } from './interface';
 import {
   BoxPayElements,
@@ -33,17 +29,30 @@ export const BoxpayCheckout = ({
   return <View style={styles.screenView} />;
 };
 
-// ── Embedded elements with merchant button (mirrors createElementsView) ───────
-export const BoxpayElements = ({
+// ── Handle exposed via ref ────────────────────────────────────────────────────
+export interface BoxpayElementsHandle {
+  pay: () => void;
+}
+
+// ── Embedded elements ─────────────────────────────────────────────────────────
+export const BoxpayElements = forwardRef<
+  BoxpayElementsHandle,
+  BoxpayElementsProps & { onPayableChanged?: (payable: boolean) => void }
+>(({
   token,
   configurationOptions = null,
   onPaymentResult,
   shopperToken = null,
   uiConfiguration = null,
   paymentMethodList,
-}: BoxpayElementsProps) => {
+  onPayableChanged,
+}, ref) => {
   const elementsRef = useRef(null);
-  const [payable, setPayable] = useState(false);
+
+  // Expose pay() to parent via ref
+  useImperativeHandle(ref, () => ({
+    pay: () => payElements(elementsRef.current),
+  }));
 
   useEffect(() => {
     const sub = subscribePaymentResult((r) => onPaymentResult?.(r));
@@ -66,16 +75,15 @@ export const BoxpayElements = ({
           ctaBorderRadius: uiConfiguration?.[UIConfigurationOptions.CTABorderRadius],
           focusedTextInputBorderColor: textInputFields?.focusedTextInputBorderColor,
           unfocusedTextInputBorderColor: textInputFields?.unfocusedTextInputBorderColor,
+          isBoxPayProceedButtonVisible : configurationOptions?.[ConfigurationOptions.ShowBoxPayProceedButton] === true
         }}
-        onPayableChanged={(e: any) => setPayable(e.nativeEvent.payable)}
+        onPayableChanged={(e: any) => onPayableChanged?.(e.nativeEvent.payable)}
       />
-      <Button title="Pay" disabled={!payable} onPress={() => payElements(elementsRef.current)} />
     </View>
   );
-};
+});
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
 function buildOptions(
   config: Partial<Record<ConfigurationOptions, boolean | SICheckboxState | null>> | null,
   ui: UIConfiguration | null,
@@ -84,7 +92,6 @@ function buildOptions(
   const textInputFields = ui?.[UIConfigurationOptions.TextInputFields];
   const siState = config?.[ConfigurationOptions.SICheckBoxState] as SICheckboxState | null | undefined;
   const si = siFlags(siState);
-
   return {
     shopperToken: shopperToken ?? '',
     enableSandboxEnv: config?.[ConfigurationOptions.EnableSandboxEnv] === true,
@@ -110,10 +117,6 @@ function siFlags(state: SICheckboxState | null | undefined): { checked: boolean;
 }
 
 const styles = StyleSheet.create({
-  screenView: {
-    flex: 1,
-  },
-  elements: {
-    flex: 1,
-  },
+  screenView: { flex: 1 },
+  elements:   { flex: 1 },
 });
